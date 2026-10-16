@@ -2,6 +2,7 @@
 import './stijl.css';
 import catalogus from '../data/producten.json';
 import categorieen from '../data/categorieen.json';
+import recepten from '../data/recepten.json';
 import { bouwNetwerk } from './route/looppaden.js';
 import { zoekProducten, normaliseer } from './lijst/zoeken.js';
 import * as L from './lijst/lijst.js';
@@ -9,6 +10,9 @@ import * as opslag from './lijst/opslag.js';
 import { lijstScherm, zoekResultaten } from './ui/lijst-scherm.js';
 import { routeScherm } from './ui/route-scherm.js';
 import { kaartScherm } from './ui/kaart.js';
+import { menuScherm } from './ui/menu-scherm.js';
+import { maakWeekmenu, vervangMaaltijd } from './planner/planner.js';
+import { berekenKosten, gedeeldeVerseProducten } from './planner/kosten.js';
 import { esc } from './ui/html.js';
 
 // Alle winkels in data/winkels/ worden automatisch ingeladen.
@@ -23,7 +27,7 @@ const VOORBEELDLIJST = [
 ];
 
 const st = {
-  tab: location.hash === '#route' || location.hash === '#kaart' ? location.hash.slice(1) : 'lijst',
+  tab: ['#menu', '#route', '#kaart'].includes(location.hash) ? location.hash.slice(1) : 'lijst',
   zoek: '',
   zoekResultaten: [],
   bevestigLeeg: false,
@@ -33,6 +37,15 @@ const st = {
   eigenProducten: opslag.leesEigenProducten(),
   lijst: opslag.leesLijst(),
   positie: opslag.leesPositie(),
+  recepten,
+  houdbaar: Object.fromEntries(categorieen.map((c) => [c.id, c.houdbaar])),
+  planner: opslag.leesPlanner({
+    instellingen: { budget: 50, personen: 2, aantal: 5, uitsluitingen: [], voorkeuren: [], nietLusten: '', seed: 1 },
+    menu: [], // recept-ids
+    vast: [], // recept-ids die blijven staan bij een nieuwe suggestie
+    voorraad: [], // product-ids die je al in huis hebt
+    toegevoegd: {}, // product-id → aantal dat vanuit het menu op de lijst is gezet
+  }),
 };
 
 // Eerste keer openen: een voorbeeldlijst, zodat je meteen ziet wat de app doet.
@@ -73,6 +86,53 @@ function bijwerken() {
   } catch (fout) {
     st.routeInfo = { fout: fout.message, stops: [], nietGevonden: [] };
   }
+  bijwerkenMenu();
+}
+
+// ---------- weekmenu ----------
+
+function plannerCtx() {
+  return { productenOpId: st.productenOpId, houdbaar: st.houdbaar, voorraad: new Set(st.planner.voorraad) };
+}
+
+/** Rekent het huidige menu (opnieuw) door, bijv. na "heb ik al" of een ander aantal personen. */
+function bijwerkenMenu(melding = st.menu?.melding ?? null) {
+  const maaltijden = st.planner.menu.map((id) => recepten.find((r) => r.id === id)).filter(Boolean);
+  if (maaltijden.length === 0) {
+    st.menu = null;
+    return;
+  }
+  const kosten = berekenKosten(maaltijden, { personen: st.planner.instellingen.personen, ...plannerCtx() });
+  st.menu = { maaltijden, kosten, melding, gedeeld: gedeeldeVerseProducten(maaltijden, st.productenOpId, st.houdbaar) };
+}
+
+function wijzigPlanner(wijziging, { opnieuwRekenen = false, melding } = {}) {
+  st.planner = { ...st.planner, ...wijziging };
+  opslag.bewaarPlanner(st.planner);
+  if (opnieuwRekenen) bijwerkenMenu(melding);
+  teken();
+}
+
+function maakMenu(seed) {
+  const ins = { ...st.planner.instellingen, seed };
+  const resultaat = maakWeekmenu(recepten, ins, plannerCtx(), { vast: st.planner.vast });
+  wijzigPlanner({ instellingen: ins, menu: resultaat.maaltijden.map((r) => r.id), bericht: null }, { opnieuwRekenen: true, melding: resultaat.melding });
+}
+
+/** Zet het menu op de boodschappenlijst. Nog een keer drukken vervangt wat er eerder vanuit het menu op stond. */
+function menuNaarLijst() {
+  let lijst = st.lijst;
+  for (const [id, n] of Object.entries(st.planner.toegevoegd)) lijst = L.wijzigAantal(lijst, id, -n);
+  const toegevoegd = {};
+  for (const r of st.menu.kosten.regels) {
+    if (r.pakken > 0) {
+      lijst = L.voegToe(lijst, r.product.id, r.pakken);
+      toegevoegd[r.product.id] = r.pakken;
+    }
+  }
+  st.planner = { ...st.planner, toegevoegd, bericht: `${Object.keys(toegevoegd).length} producten staan op je boodschappenlijst.` };
+  opslag.bewaarPlanner(st.planner);
+  wijzigLijst(lijst);
 }
 
 function zetPositie(sectieId) {
@@ -96,11 +156,13 @@ const ICONEN = {
   lijst: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />',
   route: '<path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM6 15V9a4 4 0 0 1 4-4h2M18 9v6a4 4 0 0 1-4 4h-2" />',
   kaart: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2ZM9 4v14M15 6v14" />',
+  menu: '<path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />',
 };
+const SCHERMEN = { menu: menuScherm, lijst: lijstScherm, route: routeScherm, kaart: (s) => kaartScherm({ ...s, winkel: huidigeWinkel() }) };
 
 function teken() {
   const openTeVinken = st.lijst.filter((r) => !r.afgevinkt).length;
-  const scherm = st.tab === 'lijst' ? lijstScherm(st) : st.tab === 'route' ? routeScherm(st) : kaartScherm({ ...st, winkel: huidigeWinkel() });
+  const scherm = SCHERMEN[st.tab](st);
 
   const winkelKeuze =
     winkels.length > 1
@@ -113,7 +175,7 @@ function teken() {
       ${scherm}
     </main>
     <nav class="nav" aria-label="Schermen">
-      ${['lijst', 'route', 'kaart']
+      ${['menu', 'lijst', 'route', 'kaart']
         .map(
           (t) => `<button data-tab="${t}" ${st.tab === t ? 'aria-current="page"' : ''}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONEN[t]}</svg>
@@ -144,6 +206,13 @@ app.addEventListener('input', (e) => {
     st.zoek = e.target.value;
     st.zoekResultaten = zoekProducten(alleProducten(), st.zoek, st.categorieNamen);
     tekenZoekresultaten();
+  } else if (e.target.id === 'budget' || e.target.id === 'niet-lusten') {
+    // Alleen onthouden, niet opnieuw tekenen: dan blijft het toetsenbord open.
+    const ins = { ...st.planner.instellingen };
+    if (e.target.id === 'budget') ins.budget = Math.max(0, Number(e.target.value.replace(',', '.')) || 0);
+    else ins.nietLusten = e.target.value;
+    st.planner = { ...st.planner, instellingen: ins };
+    opslag.bewaarPlanner(st.planner);
   }
 });
 
@@ -153,6 +222,10 @@ app.addEventListener('change', (e) => {
     opslag.bewaarWinkelKeuze(winkels[st.winkelIndex].bestand);
     bijwerken();
     teken();
+  } else if (e.target.dataset.actie === 'menu-voorraad') {
+    const id = e.target.dataset.id;
+    const voorraad = e.target.checked ? [...st.planner.voorraad, id] : st.planner.voorraad.filter((v) => v !== id);
+    wijzigPlanner({ voorraad }, { opnieuwRekenen: true });
   } else if (e.target.dataset.actie === 'vink') {
     const id = e.target.dataset.id;
     // Afvinken = je staat nu bij dit product. De rest van de route gaat vanaf hier.
@@ -227,6 +300,42 @@ app.addEventListener('click', (e) => {
       break;
     case 'naar-lijst':
       naarTab('lijst');
+      break;
+
+    // Weekmenu
+    case 'menu-stap': {
+      const veld = knop.dataset.veld;
+      const grenzen = { personen: [1, 8], aantal: [1, 7] }[veld];
+      const waarde = Math.min(grenzen[1], Math.max(grenzen[0], st.planner.instellingen[veld] + Number(knop.dataset.stap)));
+      wijzigPlanner({ instellingen: { ...st.planner.instellingen, [veld]: waarde } }, { opnieuwRekenen: veld === 'personen' });
+      break;
+    }
+    case 'menu-chip': {
+      const groep = knop.dataset.groep;
+      const huidig = st.planner.instellingen[groep];
+      const nieuw = huidig.includes(id) ? huidig.filter((x) => x !== id) : [...huidig, id];
+      wijzigPlanner({ instellingen: { ...st.planner.instellingen, [groep]: nieuw } });
+      break;
+    }
+    case 'menu-maak':
+      maakMenu(st.planner.instellingen.seed);
+      break;
+    case 'menu-nieuw':
+      maakMenu(st.planner.instellingen.seed + 1);
+      break;
+    case 'menu-vast': {
+      const vast = st.planner.vast.includes(id) ? st.planner.vast.filter((x) => x !== id) : [...st.planner.vast, id];
+      wijzigPlanner({ vast });
+      break;
+    }
+    case 'menu-ander': {
+      const ins = { ...st.planner.instellingen, seed: st.planner.instellingen.seed + 1 };
+      const resultaat = vervangMaaltijd(recepten, st.menu.maaltijden, Number(knop.dataset.index), ins, plannerCtx());
+      wijzigPlanner({ instellingen: ins, menu: resultaat.maaltijden.map((r) => r.id), bericht: null }, { opnieuwRekenen: true, melding: resultaat.melding });
+      break;
+    }
+    case 'menu-naar-lijst':
+      menuNaarLijst();
       break;
   }
 });

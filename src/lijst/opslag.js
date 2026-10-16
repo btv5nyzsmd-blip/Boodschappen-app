@@ -37,3 +37,8 @@ export const bewaarWinkelKeuze = (bestand) => schrijf(SLEUTEL_WINKEL, bestand);
 /** De sectie waar je het laatst iets afvinkte (vanaf daar wordt de route berekend). */
 export const leesPositie = () => lees(SLEUTEL_POSITIE, null);
 export const bewaarPositie = (sectieId) => schrijf(SLEUTEL_POSITIE, sectieId);
+
+/** Weekmenu: instellingen, gekozen recepten, vastgezette recepten en wat je al in huis hebt. */
+const SLEUTEL_PLANNER = 'boodschappen.planner.v1';
+export const leesPlanner = (standaard) => ({ ...standaard, ...lees(SLEUTEL_PLANNER, {}) });
+export const bewaarPlanner = (planner) => schrijf(SLEUTEL_PLANNER, planner);

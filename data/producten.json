@@ -19,6 +19,7 @@
   { "id": "jumbo-sperziebonen-400-g", "merk": "Jumbo", "naam": "Sperziebonen", "inhoud": "400 g", "categorie": "groente", "prijs": 1.99, "zoekwoorden": ["boontjes"] },
   { "id": "jumbo-witlof-500-g", "merk": "Jumbo", "naam": "Witlof", "inhoud": "500 g", "categorie": "groente", "prijs": 1.69 },
   { "id": "jumbo-andijvie-gesneden-400-g", "merk": "Jumbo", "naam": "Andijvie gesneden", "inhoud": "400 g", "categorie": "groente", "prijs": 1.49 },
+  { "id": "jumbo-boerenkool-gesneden-500-g", "merk": "Jumbo", "naam": "Boerenkool gesneden", "inhoud": "500 g", "categorie": "groente", "prijs": 1.99 },
   { "id": "jumbo-zoete-puntpaprika-2-stuks", "merk": "Jumbo", "naam": "Zoete puntpaprika", "inhoud": "2 stuks", "categorie": "groente", "prijs": 1.79 },
   { "id": "jumbo-ijsbergsla-1-stuk", "merk": "Jumbo", "naam": "IJsbergsla", "inhoud": "1 stuk", "categorie": "groente", "prijs": 1.09, "zoekwoorden": ["sla"] },
   { "id": "jumbo-rode-kool-gesneden-400-g", "merk": "Jumbo", "naam": "Rode kool gesneden", "inhoud": "400 g", "categorie": "groente", "prijs": 1.29 },

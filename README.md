@@ -2,13 +2,14 @@
 
 Een webapp voor op je telefoon. Je zet je boodschappen op een lijst en de app berekent de kortste looproute door de supermarkt. Onderweg vink je af wat je hebt.
 
+- **Menu**: geef je weekbudget, het aantal personen en maaltijden en je wensen op. De app stelt een weekmenu samen dat binnen je budget blijft en zo min mogelijk verse restjes overlaat. Met één tik staat alles op je boodschappenlijst.
 - **Lijst**: zoek specifieke producten (merk, inhoud) en zet ze op je lijst.
 - **Route**: de stops in looproute-volgorde, met per stop de producten om af te vinken. Vink je iets af buiten de volgorde, of voeg je onderweg iets toe? Dan wordt de rest van de route opnieuw berekend vanaf waar je nu staat.
 - **Kaart**: een plattegrond van de winkel met de route, de volgende stop en waar je nu bent.
 
 Alles draait in de browser. Er is geen account of server nodig. Je lijst wordt op je eigen telefoon bewaard.
 
-> **Status:** fase 1 (winkelmodel en route). Fase 2 (maaltijdplanning en budget) en fase 3 (aanbiedingen) volgen.
+> **Status:** fase 1 (winkelmodel en route) en fase 2 (maaltijdplanning en budget) zijn klaar. Fase 3 (aanbiedingen) volgt.
 
 ---
 
@@ -18,8 +19,10 @@ Alles draait in de browser. Er is geen account of server nodig. Je lijst wordt o
 2. [De app starten en testen](#de-app-starten-en-testen)
 3. [Een eigen winkel toevoegen](#een-eigen-winkel-toevoegen)
 4. [Producten toevoegen](#producten-toevoegen)
-5. [Online zetten (GitHub Pages)](#online-zetten-github-pages)
-6. [Hoe het werkt](#hoe-het-werkt)
+5. [Recepten toevoegen](#recepten-toevoegen)
+6. [Online zetten (GitHub Pages)](#online-zetten-github-pages)
+7. [Hoe het werkt](#hoe-het-werkt)
+8. [Hoe het weekmenu wordt gekozen](#hoe-het-weekmenu-wordt-gekozen)
 
 ---
 
@@ -149,6 +152,46 @@ De catalogus bevat nu zo'n 350 veelgekochte producten met **geschatte** prijzen.
 
 Voeg een regel toe aan `data/categorieen.json` en zet de nieuwe id bij de juiste sectie van je winkel.
 
+Met `"houdbaar": true` geef je aan dat een restje niet bederft (rijst, pasta, kruiden, conserven). Zo'n restje telt bij het weekmenu niet als verspilling. Het blijft dan voorraad voor een volgende week.
+
+---
+
+## Recepten toevoegen
+
+Recepten staan in `data/recepten.json`. Elk recept ziet er zo uit:
+
+```json
+{ "id": "bloemkoolcurry", "naam": "Bloemkoolcurry met kikkererwten", "personen": 4, "tijd": 35,
+  "soort": "vega", "bevat": [], "tags": ["snel"],
+  "bereiding": "Fruit ui met currypasta. Voeg bloemkool, kikkererwten en kokosmelk toe…",
+  "ingredienten": [
+    { "product": "jumbo-bloemkool-1-stuk", "hoeveelheid": 0.5 },
+    { "product": "jumbo-kokosmelk-400-ml", "hoeveelheid": 400 },
+    { "product": "jumbo-basmatirijst-1-kg", "hoeveelheid": 300 }
+  ]
+}
+```
+
+| Veld | Uitleg |
+|---|---|
+| `id` | Unieke code, kleine letters en streepjes. |
+| `personen` | Voor hoeveel personen de hoeveelheden zijn. De app rekent om naar jouw aantal. |
+| `tijd` | Bereidingstijd in minuten. Tot en met 30 minuten telt als "snel". |
+| `soort` | Voor afwisseling: `kip`, `gehakt`, `rund`, `varken`, `vis` of `vega`. De app kiest niet te vaak dezelfde soort. |
+| `bevat` | Wat erin zit, voor de uitsluitingen: `varken`, `rund`, `kip`, `vis`. Leeg (`[]`) = vegetarisch. |
+| `tags` | Optioneel, bijv. `"kindvriendelijk"`. |
+| `ingredienten` | Per ingrediënt de `id` van een product uit `data/producten.json` en de `hoeveelheid`. |
+
+**De hoeveelheid is in de eenheid van de verpakking:**
+
+- verpakking in gram of kilo → hoeveelheid in **gram** (300 g rijst = `300`);
+- verpakking in ml of liter → hoeveelheid in **ml** (250 ml room = `250`);
+- verpakking in stuks → hoeveelheid in **stuks** (een halve bloemkool = `0.5`, 2 eieren = `2`).
+
+Staat een ingrediënt nog niet in de catalogus? Voeg het eerst toe aan `data/producten.json`.
+
+Draai daarna `npm test`. De tests melden een onbekend product, een ontbrekend veld of een "vegetarisch" recept waar toch vlees in zit.
+
 ---
 
 ## Online zetten (GitHub Pages)
@@ -190,5 +233,27 @@ tests/                  automatische tests
 Dit is niet gegarandeerd de allerkortste route, maar het komt heel dicht in de buurt. In de Jumbo Zwolle Stadshagen, met 200 willekeurige lijsten van 12 stops, was de route gemiddeld 0,3% langer dan de kortst mogelijke, en in het slechtste geval 5%.
 
 **Onderweg herberekenen:** zodra je iets afvinkt, onthoudt de app dat je bij die afdeling staat. De rest van de route wordt dan vanaf daar berekend. Met **Vanaf ingang** op het routescherm begin je weer bij de ingang. Met **Klaar met boodschappen** haal je de afgevinkte producten van de lijst, en begint de volgende keer weer bij de ingang.
+
+## Hoe het weekmenu wordt gekozen
+
+**Kosten.** Je koopt altijd hele verpakkingen. Gebruiken twee gerechten samen één bloemkool, dan koop je er maar één. Het bedrag "Te betalen" is wat je deze week bij de kassa kwijt bent. Een pak rijst dat je deze week koopt en pas volgende week opmaakt, telt dus volledig mee in deze week, zoals je het ook betaalt. Vink je bij de boodschappen "Heb ik" aan, dan telt dat product niet mee.
+
+De kosten **per maaltijd** zijn wat je van elk product gebruikt. Voor een recept met 300 g uit een kilozak rijst telt dus 30% van de prijs.
+
+**Restjes.** Wat overblijft is:
+- **vers** (groente, vlees, room): telt als verspilling, tenzij een ander gerecht het opmaakt;
+- **houdbaar** (rijst, pasta, kruiden): voorraad voor een volgende week.
+
+**Kiezen.** De app probeert veel combinaties van recepten en geeft elke combinatie strafpunten:
+- boven het budget: heel veel strafpunten, zodat het menu er altijd onder blijft als dat kan;
+- verse restjes die niemand opmaakt: strafpunten naar de waarde van het restje (de "halve bloemkool" uit de opdracht);
+- te vaak dezelfde soort (drie keer kip): een paar strafpunten;
+- een recept dat bij je voorkeur past (snel, vegetarisch, kindvriendelijk): juist pluspunten.
+
+De combinatie met de minste strafpunten wint. Met **Andere suggestie** krijg je een ander, even goed menu. Zet maaltijden die je zeker wilt houden eerst **vast**. Met **Ander recept** vervang je één maaltijd en blijft de rest staan.
+
+Lukt het niet onder het budget te blijven, dan zegt de app dat en laat hij het goedkoopste menu zien dat bij je wensen past.
+
+---
 
 **Techniek:** gewoon JavaScript zonder framework, [Vite](https://vite.dev) om te starten en te bouwen, en [Vitest](https://vitest.dev) voor de tests. Er zijn weinig onderdelen die kunnen verouderen.
