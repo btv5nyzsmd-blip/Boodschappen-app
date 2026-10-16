@@ -4,7 +4,18 @@ import { esc, euro, productNaam, productMeta } from './html.js';
 export function lijstScherm(st) {
   const { lijst, productenOpId } = st;
   const regels = lijst.map((r) => ({ ...r, product: productenOpId.get(r.productId) })).filter((r) => r.product);
-  const totaal = regels.reduce((som, r) => som + (r.product.prijs ?? 0) * r.aantal, 0);
+  const som = (rs) => rs.reduce((t, r) => t + (r.product.prijs ?? 0) * r.aantal, 0);
+  const totaal = som(regels);
+  // Wat vanuit het weekmenu op de lijst is gezet, apart van je eigen boodschappen.
+  const vanMenu = st.planner.toegevoegd ?? {};
+  const menuRegels = regels.filter((r) => vanMenu[r.productId]);
+  const eigenRegels = regels.filter((r) => !vanMenu[r.productId]);
+  const groep = (titel, rs, uitleg = '') => `
+    <section class="lijstgroep">
+      <div class="groepkop"><h3>${titel} <span class="zacht">(${rs.length})</span></h3><span class="zacht cijfers">± ${euro(som(rs))}</span></div>
+      ${uitleg ? `<p class="zacht klein">${uitleg}</p>` : ''}
+      <ul class="regels">${rs.map((r) => regel(r, st)).join('')}</ul>
+    </section>`;
 
   return `
     <div class="zoekbalk">
@@ -14,7 +25,7 @@ export function lijstScherm(st) {
     </div>
     <div id="zoekresultaten">${zoekResultaten(st)}</div>
 
-    ${st.voorbeeldMelding ? `<p class="melding">Dit is een voorbeeldlijst om de app te proberen. Pas hem aan of maak hem leeg.</p>` : ''}
+    ${st.lijst.some((r) => r.voorbeeld) ? `<p class="melding">Dit is een voorbeeldlijst om de app te proberen. Hij verdwijnt vanzelf zodra je zelf iets toevoegt of een weekmenu op je lijst zet.</p>` : ''}
 
     <section class="lijstkop">
       <h2>Mijn lijst</h2>
@@ -23,7 +34,12 @@ export function lijstScherm(st) {
     ${
       regels.length === 0
         ? `<p class="leeg">Je lijst is leeg. Zoek hierboven een product om te beginnen.</p>`
-        : `<ul class="regels">${regels.map((r) => regel(r, st)).join('')}</ul>
+        : `${
+            menuRegels.length
+              ? groep('Voor je weekmenu', menuRegels, 'Hele verpakkingen, dus iets meer dan het menu zelf kost.') +
+                (eigenRegels.length ? groep('Overige boodschappen', eigenRegels) : '')
+              : `<ul class="regels">${regels.map((r) => regel(r, st)).join('')}</ul>`
+          }
            <div class="knoppen">
              <button class="knop" data-actie="naar-route">Route berekenen</button>
              ${
@@ -41,7 +57,7 @@ function regel(r, st) {
   const p = r.product;
   return `
     <li class="regel">
-      <span class="naam">${esc(productNaam(p))}</span>
+      <span class="naam">${esc(productNaam(p))}${r.overgeslagen ? ' <span class="tag-niet">Niet gevonden</span>' : ''}</span>
       <span class="meta">${productMeta(p, st.categorieNamen)}</span>
       <span class="stapper">
         <button data-actie="min" data-id="${esc(p.id)}" aria-label="Eén minder ${esc(p.naam)}">−</button>

@@ -1,7 +1,7 @@
 // Scherm "Kaart": interactieve plattegrond (zoomen, schuiven) met de route, zoals een navigatie-app.
 // Inzoomen en schuiven gebeurt in kaart-gebaren.js; dit bestand tekent alleen.
-import { esc, meters, productNaam } from './html.js';
-import { volgendeStop } from './route-scherm.js';
+import { esc, meters } from './html.js';
+import { volgendeStop, vink } from './route-scherm.js';
 import { alsViewBox, heleWinkel } from './kaart-beeld.js';
 
 /** Punten om de ±4 meter langs een looppad, met de richting, voor de pijltjes. */
@@ -137,15 +137,6 @@ function stopKaart(st, index, volgende) {
         </div>
         <button class="knop stil klein" data-actie="kaart-volgende" ${index === stops.length - 1 ? 'disabled' : ''} aria-label="Volgende stop">›</button>
       </div>
-      ${stop.regels
-        .map(
-          (r) => `
-        <label class="vink ${r.afgevinkt ? 'af' : ''}">
-          <input type="checkbox" data-actie="vink" data-id="${esc(r.product.id)}" ${r.afgevinkt ? 'checked' : ''} />
-          <span class="naam">${esc(productNaam(r.product))}${r.product.aanbieding ? ' <span class="actie">Actie</span>' : ''}</span>
-          ${r.aantal > 1 ? `<span class="aantal">${r.aantal}×</span>` : ''}
-        </label>`,
-        )
-        .join('')}
+      ${stop.regels.map(vink).join('')}
     </section>`;
 }

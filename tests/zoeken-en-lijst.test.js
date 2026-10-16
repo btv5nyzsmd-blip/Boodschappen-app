@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { zoekProducten, normaliseer, woordvormen } from '../src/lijst/zoeken.js';
-import { voegToe, wijzigAantal, wisselAfgevinkt, verwijderAfgevinkt, routeVoorLijst, sectieVanProduct } from '../src/lijst/lijst.js';
+import { voegToe, wijzigAantal, wisselAfgevinkt, wisselOvergeslagen, verwijderAfgevinkt, routeVoorLijst, sectieVanProduct } from '../src/lijst/lijst.js';
 import producten from '../data/producten.json';
+import regelsBestand from '../data/categorie-regels.json';
+import { bepaalCategorie } from '../src/data/import.js';
 import jumbo from '../data/winkels/jumbo-zwolle-stadshagen.json';
 
 const opId = new Map(producten.map((p) => [p.id, p]));
@@ -10,7 +12,10 @@ describe('zoeken', () => {
   it('vindt specifieke varianten', () => {
     const treffers = zoekProducten(producten, 'cola zero');
     expect(treffers.length).toBeGreaterThan(1);
-    for (const p of treffers) expect(normaliseer(`${p.merk} ${p.naam}`)).toMatch(/cola.*zero/);
+    for (const p of treffers) {
+      expect(normaliseer(p.naam)).toMatch(/cola/);
+      expect(normaliseer(p.naam)).toMatch(/zero/);
+    }
   });
 
   it('negeert hoofdletters en accenten', () => {
@@ -30,6 +35,17 @@ describe('zoeken', () => {
     expect(woordvormen('wit')).toContain('witte');
     expect(zoekProducten(producten, 'rode paprika')[0].naam).toBe('Jumbo Paprika Rood');
     expect(zoekProducten(producten, 'gele paprika')[0].naam).toBe('Jumbo Paprika Geel');
+  });
+
+  it('zet bij gewone zoekwoorden het basisproduct bovenaan, niet een merk dat ermee begint', () => {
+    const zoek = (q) => zoekProducten(producten, q, {}, 5, { verwachteAfdeling: bepaalCategorie(q, regelsBestand.regels) });
+    expect(zoek('melk')[0].naam).toMatch(/^Jumbo (Halfvolle|Volle) Melk/); // niet "Melkunie Gortepap"
+    expect(zoek('appels')[0].categorie).toBe('fruit'); // niet "Appelsientje"
+    expect(zoek('appels')[0].naam).toMatch(/Appels/);
+    expect(zoek('aardappelen')[0].categorie).toBe('aardappelen'); // niet zoete-aardappelfriet
+    expect(zoek('pindakaas')[0].naam).toMatch(/^Jumbo Pindakaas/);
+    expect(zoek('komkommer')[0].naam).toBe('Jumbo Komkommer');
+    expect(zoek('kipfilet')[0].categorie).toBe('kip');
   });
 
   it('geeft niets bij een lege zoekopdracht', () => {
@@ -138,3 +154,30 @@ describe('route herberekenen onderweg', () => {
   });
 });
 
+describe('niet gevonden', () => {
+  const melk = 'jumbo-verse-halfvolle-melk-1-l-498518pak';
+  const spaghetti = 'jumbo-s-spaghetti-500-g-710328zk';
+  const lijstMet = (...ids) => ids.reduce((l, id) => voegToe(l, id), []);
+
+  it('haalt het product uit de route, maar het blijft op de lijst', () => {
+    const lijst = wisselOvergeslagen(lijstMet(melk, spaghetti), melk);
+    expect(lijst).toHaveLength(2);
+    const info = routeVoorLijst(jumbo, lijst, opId);
+    expect(info.stops.flatMap((s) => s.regels).map((r) => r.productId)).toEqual([spaghetti]);
+    expect(info.overgeslagen.map((r) => r.productId)).toEqual([melk]);
+  });
+
+  it('stuurt je er niet steeds weer naartoe als de route opnieuw berekend wordt', () => {
+    let lijst = wisselOvergeslagen(lijstMet(melk, spaghetti), melk);
+    lijst = wisselAfgevinkt(lijst, spaghetti);
+    const info = routeVoorLijst(jumbo, lijst, opId, undefined, 'pad1-pasta');
+    expect(info.stops).toEqual([]); // alleen nog naar de kassa
+  });
+
+  it('kan teruggezet worden, en blijft na "klaar" op de lijst voor de volgende keer', () => {
+    let lijst = wisselOvergeslagen(lijstMet(melk, spaghetti), melk);
+    expect(wisselOvergeslagen(lijst, melk)[0].overgeslagen).toBe(false);
+    lijst = wisselAfgevinkt(lijst, spaghetti);
+    expect(verwijderAfgevinkt(lijst)).toEqual([{ productId: melk, aantal: 1, afgevinkt: false }]);
+  });
+});

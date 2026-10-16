@@ -3,12 +3,18 @@ import { esc, euro, productNaam } from './html.js';
 import { UITSLUITINGEN, VOORKEUREN } from '../planner/planner.js';
 import { toonHoeveelheid } from '../planner/verpakking.js';
 
+/** Staat een inklapbaar blok open? Zelf open- of dichtgeklapt gaat voor de standaard. */
+export function isOpen(st, sleutel, standaard) {
+  return sleutel in st.uitklap ? st.uitklap[sleutel] : standaard;
+}
+const open = (st, sleutel, standaard = false) => (isOpen(st, sleutel, standaard) ? 'open' : '');
+
 export function menuScherm(st) {
   const { planner, menu } = st;
   const ins = planner.instellingen;
 
   return `
-    <details class="instellingen" ${menu ? '' : 'open'}>
+    <details class="instellingen" data-uitklap="instellingen" ${open(st, 'instellingen', !menu)}>
       <summary><h2>Jouw week</h2><span class="zacht">${ins.personen} pers. · ${ins.aantal} maaltijden · ${euro(ins.budget)}</span></summary>
       <div class="instellingen-inhoud">
       <div class="velden">
@@ -76,31 +82,32 @@ function resultaat(st) {
       ${menu.melding ? `<p class="melding waarschuwing">${esc(menu.melding)}</p>` : ''}
     </section>
 
-    <div class="knoppen">
-      <button class="knop stil" data-actie="menu-nieuw">Andere suggestie</button>
-      <button class="knop" data-actie="menu-naar-lijst">Op boodschappenlijst (${tekoop.length})</button>
-    </div>
     ${planner.bericht ? `<p class="melding">${esc(planner.bericht)} <button class="link" data-actie="naar-route">Naar je route</button></p>` : ''}
 
     <ol class="maaltijden">
       ${menu.maaltijden.map((r, i) => maaltijdKaart(st, r, i)).join('')}
     </ol>
 
-    <section class="blok">
-      <h2>Boodschappen voor dit menu</h2>
+    <details class="uitklap" data-uitklap="menu-boodschappen" ${open(st, 'menu-boodschappen')}>
+      <summary><span><strong>Boodschappen voor dit menu</strong> <span class="zacht">(${tekoop.length})</span></span><span class="zacht cijfers">${euro(kosten.teBetalen)}</span></summary>
       <p class="zacht klein">Vink aan wat je al in huis hebt; dat telt dan niet mee.</p>
       <ul class="regels">${kosten.regels.map((r) => boodschap(r)).join('')}</ul>
-    </section>
+    </details>
 
     ${
       verseRest.length || voorraadRest.length
-        ? `<section class="blok">
-             <h2>Wat overblijft</h2>
+        ? `<details class="uitklap" data-uitklap="menu-rest" ${open(st, 'menu-rest')}>
+             <summary><strong>Wat overblijft</strong><span class="zacht cijfers">${verseRest.length ? `± ${euro(kosten.verspilling)} vers` : 'alleen houdbaar'}</span></summary>
              ${verseRest.length ? `<p class="label">Vers, snel opmaken</p><ul class="rest">${verseRest.map(rest).join('')}</ul>` : ''}
              ${voorraadRest.length ? `<p class="label">Houdbaar, voor een volgende week</p><ul class="rest">${voorraadRest.map(rest).join('')}</ul>` : ''}
-           </section>`
+           </details>`
         : ''
-    }`;
+    }
+
+    <div class="actiebalk">
+      <button class="knop stil" data-actie="menu-nieuw">Andere suggestie</button>
+      <button class="knop" data-actie="menu-naar-lijst">Op mijn lijst (${tekoop.length})</button>
+    </div>`;
 }
 
 function maaltijdKaart(st, recept, i) {
@@ -137,7 +144,7 @@ function maaltijdKaart(st, recept, i) {
       ${labels.length ? `<div class="labels">${labels.map((l) => `<span class="tag">${l}</span>`).join('')}</div>` : ''}
       ${deelt ? `<p class="deelt">${esc(deelt)}</p>` : ''}
       ${acties.length ? `<p class="in-actie"><span class="actie">Actie</span> ${esc(opsomming(acties))}</p>` : ''}
-      <details class="recept">
+      <details class="recept" data-uitklap="recept-${esc(recept.id)}" ${open(st, `recept-${recept.id}`)}>
         <summary>Ingrediënten en bereiding</summary>
         <ul>${recept.ingredienten
           .map((ing) => {

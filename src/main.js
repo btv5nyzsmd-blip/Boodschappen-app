@@ -6,6 +6,8 @@ import recepten from '../data/recepten.json';
 import bron from '../data/bron.json';
 import { bouwNetwerk } from './route/looppaden.js';
 import { zoekProducten, normaliseer, bereidZoekenVoor } from './lijst/zoeken.js';
+import { bepaalCategorie } from './data/import.js';
+import categorieRegels from '../data/categorie-regels.json';
 import * as L from './lijst/lijst.js';
 import * as opslag from './lijst/opslag.js';
 import { lijstScherm, zoekResultaten } from './ui/lijst-scherm.js';
@@ -15,6 +17,7 @@ import { koppelGebaren, animeer } from './ui/kaart-gebaren.js';
 import { beeldVoorPunten, heleWinkel, zoomRond } from './ui/kaart-beeld.js';
 import { menuScherm } from './ui/menu-scherm.js';
 import { aanbiedingenScherm, actieResultaten } from './ui/aanbiedingen-scherm.js';
+import { welkomScherm } from './ui/welkom.js';
 import { laadAanbiedingen, actueleAanbiedingen, pasToe, isActueel, vandaag } from './aanbiedingen/index.js';
 import { bestandBron, eigenBron, leesEigen, bewaarEigen } from './aanbiedingen/bronnen.js';
 import { maakWeekmenu, vervangMaaltijd } from './planner/planner.js';
@@ -38,6 +41,9 @@ const st = {
   tab: ['#menu', '#route', '#kaart', '#acties'].includes(location.hash) ? location.hash.slice(1) : 'lijst',
   // Kaart: wat je ziet (beeld in meters), of de kaart je volgt, en welke stop je hebt aangetikt.
   kaart: { beeld: null, volgen: true, gekozen: null, naarStop: false },
+  // Welke inklapbare blokken je zelf open of dicht hebt gezet, zodat ze zo blijven na het opnieuw tekenen.
+  uitklap: {},
+  welkom: !opslag.welkomGezien(),
   aanbiedingen: [], // alle aanbiedingen uit alle bronnen (ook verlopen)
   actieZoek: '',
   actieResultaten: [],
@@ -46,7 +52,6 @@ const st = {
   zoek: '',
   zoekResultaten: [],
   bevestigLeeg: false,
-  voorbeeldMelding: false,
   categorieen,
   categorieNamen: Object.fromEntries(categorieen.map((c) => [c.id, c.naam])),
   eigenProducten: opslag.leesEigenProducten(),
@@ -69,8 +74,7 @@ const st = {
 // Eerste keer openen: een voorbeeldlijst, zodat je meteen ziet wat de app doet.
 try {
   if (localStorage.getItem('boodschappen.lijst.v1') === null) {
-    st.lijst = VOORBEELDLIJST.reduce((lijst, [id, n]) => L.voegToe(lijst, id, n), []);
-    st.voorbeeldMelding = true;
+    st.lijst = VOORBEELDLIJST.map(([productId, aantal]) => ({ productId, aantal, afgevinkt: false, voorbeeld: true }));
     opslag.bewaarLijst(st.lijst);
   }
 } catch {
@@ -172,6 +176,8 @@ function onthoudRecent() {
 }
 
 function maakMenu(seed) {
+  // Na "Maak weekmenu" klapt het invulblok dicht, zodat je het resultaat meteen ziet.
+  st.uitklap = { ...st.uitklap, instellingen: false };
   const ins = { ...st.planner.instellingen, seed };
   const recent = onthoudRecent();
   const resultaat = maakWeekmenu(recepten, ins, plannerCtx(), { vast: st.planner.vast, recent });
@@ -180,7 +186,7 @@ function maakMenu(seed) {
 
 /** Zet het menu op de boodschappenlijst. Nog een keer drukken vervangt wat er eerder vanuit het menu op stond. */
 function menuNaarLijst() {
-  let lijst = st.lijst;
+  let lijst = zonderVoorbeeld(st.lijst);
   for (const [id, n] of Object.entries(st.planner.toegevoegd)) lijst = L.wijzigAantal(lijst, id, -n);
   const toegevoegd = {};
   for (const r of st.menu.kosten.regels) {
@@ -194,6 +200,17 @@ function menuNaarLijst() {
   wijzigLijst(lijst);
 }
 
+/** Na leegmaken of "klaar": niets op de lijst hoort meer bij het menu. */
+function vergeetMenuOpLijst() {
+  st.planner = { ...st.planner, toegevoegd: {}, bericht: null };
+  opslag.bewaarPlanner(st.planner);
+}
+
+/** De voorbeeldlijst verdwijnt zodra je zelf iets toevoegt. */
+function zonderVoorbeeld(lijst) {
+  return lijst.some((r) => r.voorbeeld) ? lijst.filter((r) => !r.voorbeeld) : lijst;
+}
+
 function zetPositie(sectieId) {
   st.positie = sectieId;
   opslag.bewaarPositie(sectieId);
@@ -201,7 +218,6 @@ function zetPositie(sectieId) {
 
 function wijzigLijst(nieuw) {
   st.lijst = nieuw;
-  st.voorbeeldMelding = false;
   opslag.bewaarLijst(st.lijst);
   bijwerken();
   teken();
@@ -221,7 +237,7 @@ const ICONEN = {
 const SCHERMEN = { acties: aanbiedingenScherm, menu: menuScherm, lijst: lijstScherm, route: routeScherm, kaart: (s) => kaartScherm({ ...s, winkel: huidigeWinkel() }) };
 
 function teken() {
-  const openTeVinken = st.lijst.filter((r) => !r.afgevinkt).length;
+  const openTeVinken = st.lijst.filter((r) => !r.afgevinkt && !r.overgeslagen).length;
   const lopend = st.aanbiedingen.filter((a) => isActueel(a)).length;
   const scherm = SCHERMEN[st.tab](st);
 
@@ -232,11 +248,12 @@ function teken() {
 
   app.innerHTML = `
     <main class="app">
-      <header class="kop"><h1>Boodschappenroute</h1><span class="winkel">${winkelKeuze}</span></header>
+      <header class="kop"><h1>Boodschappenroute</h1><span class="winkel">${winkelKeuze}</span>
+        <button class="hulp" data-actie="welkom-tonen" aria-label="Uitleg: hoe werkt de app?">?</button></header>
       ${scherm}
     </main>
     <nav class="nav" aria-label="Schermen">
-      ${['menu', 'lijst', 'route', 'kaart', 'acties']
+      ${['acties', 'menu', 'lijst', 'route', 'kaart']
         .map(
           (t) => `<button data-tab="${t}" ${st.tab === t ? 'aria-current="page"' : ''}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONEN[t]}</svg>
@@ -244,7 +261,9 @@ function teken() {
           </button>`,
         )
         .join('')}
-    </nav>`;
+    </nav>
+    ${st.welkom ? welkomScherm() : ''}`;
+  if (st.welkom) app.querySelector('.welkom .knop')?.focus();
   if (st.tab === 'kaart') initKaart();
 }
 
@@ -303,6 +322,12 @@ function kaartZoom(factor) {
   animeer(svg, b, zoomRond(b, b.x + b.w / 2, b.y + b.h / 2, factor), (x) => kaartBediening.toon(x, true));
 }
 
+/** Zoeken, met als hint de afdeling die bij het zoekwoord hoort ("appels" → Fruit). */
+function zoek(tekst, max = 30) {
+  const verwachteAfdeling = bepaalCategorie(tekst, categorieRegels.regels);
+  return zoekProducten(alleProducten(), tekst, st.categorieNamen, max, { verwachteAfdeling });
+}
+
 function tekenZoekresultaten() {
   const vak = document.getElementById('zoekresultaten');
   if (vak) vak.innerHTML = zoekResultaten(st);
@@ -318,14 +343,24 @@ function naarTab(tab) {
 
 // ---------- gebeurtenissen ----------
 
+// Open- en dichtklappen onthouden ('toggle' borrelt niet op, dus luisteren in de capture-fase).
+app.addEventListener(
+  'toggle',
+  (e) => {
+    const sleutel = e.target.dataset?.uitklap;
+    if (sleutel) st.uitklap[sleutel] = e.target.open;
+  },
+  true,
+);
+
 app.addEventListener('input', (e) => {
   if (e.target.id === 'zoek') {
     st.zoek = e.target.value;
-    st.zoekResultaten = zoekProducten(alleProducten(), st.zoek, st.categorieNamen);
+    st.zoekResultaten = zoek(st.zoek);
     tekenZoekresultaten();
   } else if (e.target.id === 'actie-zoek') {
     st.actieZoek = e.target.value;
-    st.actieResultaten = zoekProducten(alleProducten(), st.actieZoek, st.categorieNamen, 8);
+    st.actieResultaten = zoek(st.actieZoek, 8);
     const vak = document.getElementById('actie-resultaten');
     if (vak) vak.innerHTML = actieResultaten(st);
   } else if (e.target.id === 'budget' || e.target.id === 'niet-lusten') {
@@ -378,7 +413,7 @@ app.addEventListener('click', (e) => {
       // Zoekveld leegmaken en focus houden, zodat je meteen het volgende product typt.
       st.zoek = '';
       st.zoekResultaten = [];
-      wijzigLijst(L.voegToe(st.lijst, id));
+      wijzigLijst(L.voegToe(zonderVoorbeeld(st.lijst), id));
       focusZoek();
       break;
     case 'eigen-toevoegen': {
@@ -395,7 +430,7 @@ app.addEventListener('click', (e) => {
       }
       st.zoek = '';
       st.zoekResultaten = [];
-      wijzigLijst(L.voegToe(st.lijst, product.id));
+      wijzigLijst(L.voegToe(zonderVoorbeeld(st.lijst), product.id));
       break;
     }
     case 'plus':
@@ -415,10 +450,20 @@ app.addEventListener('click', (e) => {
     case 'leeg-bevestigd':
       st.bevestigLeeg = false;
       zetPositie(null);
+      vergeetMenuOpLijst();
       wijzigLijst([]);
       break;
+    case 'overslaan': {
+      // Je stond bij dit product: de route gaat vanaf hier verder, zonder dit product.
+      const regel = st.lijst.find((r) => r.productId === id);
+      if (regel && !regel.overgeslagen) zetPositie(L.sectieVanProduct(huidigeWinkel(), st.productenOpId.get(id)));
+      st.kaart = { ...st.kaart, gekozen: null, volgen: true };
+      wijzigLijst(L.wisselOvergeslagen(st.lijst, id));
+      break;
+    }
     case 'opruimen':
       zetPositie(null);
+      vergeetMenuOpLijst();
       wijzigLijst(L.verwijderAfgevinkt(st.lijst));
       break;
     case 'vanaf-ingang':
@@ -431,6 +476,18 @@ app.addEventListener('click', (e) => {
       break;
     case 'naar-lijst':
       naarTab('lijst');
+      break;
+
+    // Welkom
+    case 'welkom-tonen':
+      st.welkom = true;
+      teken();
+      break;
+    case 'welkom-menu':
+    case 'welkom-lijst':
+      st.welkom = false;
+      opslag.bewaarWelkomGezien();
+      naarTab(knop.dataset.actie === 'welkom-menu' ? 'menu' : 'lijst');
       break;
 
     // Kaart

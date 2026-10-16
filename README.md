@@ -4,9 +4,11 @@ Een webapp voor op je telefoon. Je zet je boodschappen op een lijst en de app be
 
 - **Menu**: geef je weekbudget, het aantal personen en maaltijden en je wensen op. De app stelt een weekmenu samen dat binnen je budget blijft en zo min mogelijk verse restjes overlaat. Met één tik staat alles op je boodschappenlijst.
 - **Acties**: vul de aanbiedingen uit de folder in. De actieprijs telt mee in je lijst, budget en weekmenu, en maaltijden met aanbiedingen krijgen voorrang.
-- **Lijst**: zoek specifieke producten (merk, inhoud) en zet ze op je lijst.
-- **Route**: de stops in looproute-volgorde, met per stop de producten om af te vinken. Vink je iets af buiten de volgorde, of voeg je onderweg iets toe? Dan wordt de rest van de route opnieuw berekend vanaf waar je nu staat.
+- **Lijst**: wat vanuit het weekmenu komt staat onder een eigen kopje, apart van je overige boodschappen. Zoek specifieke producten (merk, inhoud) en zet ze op je lijst.
+- **Route**: de stops in looproute-volgorde, met per stop de producten om af te vinken. Ligt iets er niet? Tik op **Ligt er niet**: het product gaat uit de route, maar blijft op je lijst voor de volgende keer. Vink je iets af buiten de volgorde, of voeg je onderweg iets toe? Dan wordt de rest van de route opnieuw berekend vanaf waar je nu staat.
 - **Kaart**: een interactieve plattegrond, zoals in een navigatie-app. Knijp of dubbeltik om in te zoomen en sleep om te schuiven. Het stuk route naar je volgende stop is dik gemarkeerd, met pijltjes in de looprichting. De kaart volgt je vanzelf naar de volgende stop; tik op een stop om te zien wat je daar pakt, en vink het direct af.
+
+De tabbladen staan in de volgorde waarin je ze gebruikt: Acties → Menu → Lijst → Route → Kaart. Bij de eerste keer openen legt een kort welkom dat uit; via de **?** rechtsboven zie je het terug.
 
 Alles draait in de browser. Er is geen account of server nodig. Je lijst wordt op je eigen telefoon bewaard.
 

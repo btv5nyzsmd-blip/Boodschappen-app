@@ -14,7 +14,7 @@ export function routeScherm(st) {
   }
   if (routeInfo.fout) return `<p class="melding">De route kon niet worden berekend: ${esc(routeInfo.fout)}</p>`;
 
-  const { route, vanaf, stops, inKar, nietGevonden } = routeInfo;
+  const { route, vanaf, stops, inKar, nietGevonden, overgeslagen = [] } = routeInfo;
   const totaal = st.lijst.length;
   const af = st.lijst.filter((r) => r.afgevinkt).length;
   const volgende = volgendeStop(stops);
@@ -50,6 +50,7 @@ export function routeScherm(st) {
         ? `<div class="kassa-eind"><span class="label">${volgende === -1 ? 'Klaar, loop naar' : 'Eindpunt'}</span><strong>${esc(route.kassa.naam)}</strong></div>`
         : ''
     }
+    ${nietGevondenBlok(overgeslagen)}
     ${
       inKar.length
         ? `<details class="inkar">
@@ -78,14 +79,36 @@ function stopKaart(stop, i, volgende) {
     </li>`;
 }
 
-function vink(r) {
+/** Eén product om af te vinken, met een knop "Ligt er niet" zolang je het nog niet hebt. */
+export function vink(r) {
   const p = r.product;
   return `
-    <label class="vink ${r.afgevinkt ? 'af' : ''}">
-      <input type="checkbox" data-actie="vink" data-id="${esc(p.id)}" ${r.afgevinkt ? 'checked' : ''} />
-      <span class="naam">${esc(productNaam(p))} <span class="zacht">${esc(extraInhoud(p))}</span>${p.aanbieding ? ' <span class="actie">Actie</span>' : ''}</span>
-      ${r.aantal > 1 ? `<span class="aantal">${r.aantal}×</span>` : ''}
-    </label>`;
+    <div class="vink-rij">
+      <label class="vink ${r.afgevinkt ? 'af' : ''}">
+        <input type="checkbox" data-actie="vink" data-id="${esc(p.id)}" ${r.afgevinkt ? 'checked' : ''} />
+        <span class="naam">${esc(productNaam(p))} <span class="zacht">${esc(extraInhoud(p))}</span>${p.aanbieding ? ' <span class="actie">Actie</span>' : ''}</span>
+        ${r.aantal > 1 ? `<span class="aantal">${r.aantal}×</span>` : ''}
+      </label>
+      ${r.afgevinkt ? '' : `<button class="overslaan" data-actie="overslaan" data-id="${esc(p.id)}" aria-label="${esc(p.naam)} niet gevonden">Ligt er niet</button>`}
+    </div>`;
+}
+
+function nietGevondenBlok(overgeslagen) {
+  if (!overgeslagen.length) return '';
+  return `
+    <section class="stop overgeslagen-blok">
+      <div class="stopkop"><span class="nummer">✕</span><span class="titel"><strong>Niet gevonden</strong>
+        <small>Blijft op je lijst voor de volgende keer</small></span></div>
+      ${overgeslagen
+        .map(
+          (r) => `
+        <div class="vink-rij">
+          <span class="vink"><span class="naam">${esc(productNaam(r.product))}</span></span>
+          <button class="overslaan terug" data-actie="overslaan" data-id="${esc(r.product.id)}">Toch zoeken</button>
+        </div>`,
+        )
+        .join('')}
+    </section>`;
 }
 
 function afdelingKiezen(r, st) {
