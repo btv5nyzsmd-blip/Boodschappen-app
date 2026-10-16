@@ -38,7 +38,7 @@ for (const item of winkel.d) {
   if (!item.n || !item.l || !(item.p > 0)) continue;
   const id = item.l.toLowerCase();
   if (producten.has(id)) continue;
-  // Kapotte tekens (�) uit de bron opruimen, bijv. "Nestl�" → "Nestlé".
+  // Kapotte tekens (U+FFFD) uit de bron opruimen, bijv. "Nestl?" wordt "Nestlé".
   const naam = item.n.replace(/Nestl\uFFFD/g, 'Nestlé').replace(/\uFFFD/g, '').replace(/\s+/g, ' ').trim();
   producten.set(id, {
     id,
