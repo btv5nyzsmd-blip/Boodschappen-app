@@ -3,13 +3,14 @@
 Een webapp voor op je telefoon. Je zet je boodschappen op een lijst en de app berekent de kortste looproute door de supermarkt. Onderweg vink je af wat je hebt.
 
 - **Menu**: geef je weekbudget, het aantal personen en maaltijden en je wensen op. De app stelt een weekmenu samen dat binnen je budget blijft en zo min mogelijk verse restjes overlaat. Met één tik staat alles op je boodschappenlijst.
+- **Acties**: vul de aanbiedingen uit de folder in. De actieprijs telt mee in je lijst, budget en weekmenu, en maaltijden met aanbiedingen krijgen voorrang.
 - **Lijst**: zoek specifieke producten (merk, inhoud) en zet ze op je lijst.
 - **Route**: de stops in looproute-volgorde, met per stop de producten om af te vinken. Vink je iets af buiten de volgorde, of voeg je onderweg iets toe? Dan wordt de rest van de route opnieuw berekend vanaf waar je nu staat.
 - **Kaart**: een plattegrond van de winkel met de route, de volgende stop en waar je nu bent.
 
 Alles draait in de browser. Er is geen account of server nodig. Je lijst wordt op je eigen telefoon bewaard.
 
-> **Status:** fase 1 (winkelmodel en route) en fase 2 (maaltijdplanning en budget) zijn klaar. Fase 3 (aanbiedingen) volgt.
+> **Status:** fase 1 (winkelmodel en route), fase 2 (maaltijdplanning en budget) en fase 3 (aanbiedingen) zijn klaar.
 
 ---
 
@@ -20,9 +21,10 @@ Alles draait in de browser. Er is geen account of server nodig. Je lijst wordt o
 3. [Een eigen winkel toevoegen](#een-eigen-winkel-toevoegen)
 4. [Producten en prijzen](#producten-en-prijzen)
 5. [Recepten toevoegen](#recepten-toevoegen)
-6. [Online zetten (GitHub Pages)](#online-zetten-github-pages)
-7. [Hoe het werkt](#hoe-het-werkt)
-8. [Hoe het weekmenu wordt gekozen](#hoe-het-weekmenu-wordt-gekozen)
+6. [Aanbiedingen](#aanbiedingen)
+7. [Online zetten (GitHub Pages)](#online-zetten-github-pages)
+8. [Hoe het werkt](#hoe-het-werkt)
+9. [Hoe het weekmenu wordt gekozen](#hoe-het-weekmenu-wordt-gekozen)
 
 ---
 
@@ -184,7 +186,7 @@ Recepten staan in `data/recepten.json`. Elk recept ziet er zo uit:
 | `soort` | Voor afwisseling: `kip`, `gehakt`, `rund`, `varken`, `vis` of `vega`. De app kiest niet te vaak dezelfde soort. |
 | `bevat` | Wat erin zit, voor de uitsluitingen: `varken`, `rund`, `kip`, `vis`. Leeg (`[]`) = vegetarisch. |
 | `tags` | Optioneel, bijv. `"kindvriendelijk"`. |
-| `ingredienten` | Per ingrediënt de `id` van een product uit `data/producten.json` en de `hoeveelheid`. |
+| `ingredienten` | Per ingrediënt de `id` van een product uit `data/producten.json`, de `hoeveelheid` en een korte `naam` om te tonen ("gehakt"). |
 
 **De hoeveelheid is in de eenheid van de verpakking:**
 
@@ -195,6 +197,51 @@ Recepten staan in `data/recepten.json`. Elk recept ziet er zo uit:
 Zoek het product-id op in `data/producten.json`, bijvoorbeeld door in je editor te zoeken op "bloemkool".
 
 Draai daarna `npm test`. De tests melden een onbekend product, een ontbrekend veld of een "vegetarisch" recept waar toch vlees in zit.
+
+---
+
+## Aanbiedingen
+
+Aanbiedingen voer je zelf in; de app haalt ze niet automatisch bij Jumbo op.
+
+### In de app (tabblad Acties)
+
+1. Zoek het product uit de folder en tik erop.
+2. De normale prijs staat al ingevuld. Vul de **actieprijs** in. Bij "1+1 gratis" is dat de prijs per stuk die je dan betaalt (de helft); bij "2e halve prijs" driekwart.
+3. Kies tot en met wanneer de actie loopt. Standaard is dat de eerstvolgende dinsdag, omdat Jumbo-acties meestal van woensdag tot en met dinsdag lopen.
+
+Wat je in de app invoert, staat alleen op die telefoon. Verlopen aanbiedingen doen niet meer mee en kun je met één knop opruimen.
+
+### Voor iedereen: `data/aanbiedingen.json`
+
+Aanbiedingen in dit bestand gelden voor iedereen die de app gebruikt. Je kunt het rechtstreeks op GitHub aanpassen (potloodje rechtsboven in het bestand); de app wordt daarna vanzelf bijgewerkt.
+
+```json
+{
+  "aanbiedingen": [
+    { "productId": "jumbo-rundergehakt-500-g-131278bak", "normalePrijs": 5.40, "actiePrijs": 3.99,
+      "geldigTot": "2026-10-20", "omschrijving": "25% korting" }
+  ]
+}
+```
+
+| Veld | Uitleg |
+|---|---|
+| `productId` | Het id uit `data/producten.json`. |
+| `normalePrijs`, `actiePrijs` | Prijzen in euro's, met een punt: `3.99`. |
+| `geldigTot` | Laatste dag van de actie: `JJJJ-MM-DD`. |
+| `geldigVanaf` | Optioneel: eerste dag. Zonder deze datum geldt de actie meteen. |
+| `omschrijving` | Optioneel: "1+1 gratis", "2e halve prijs", … |
+
+### Wat de app met aanbiedingen doet
+
+- **Prijs:** de actieprijs vervangt de normale prijs in je lijst, het budget en het weekmenu. Je ziet een label **Actie** met de oude prijs doorgestreept.
+- **Weekmenu:** een maaltijd met een ingrediënt in de aanbieding krijgt pluspunten: 1 per ingrediënt plus de korting in euro's, met een maximum, zodat één aanbieding niet het hele menu bepaalt. Bovenaan zie je hoeveel je bespaart.
+- **Twee aanbiedingen voor hetzelfde product?** De goedkoopste telt.
+
+### Een andere bron aansluiten
+
+De aanbiedingen zijn een losse module (`src/aanbiedingen/`). Een bron is een klein object met een naam en een functie `laad()`, die een lijst aanbiedingen in het formaat hierboven teruggeeft. De twee huidige bronnen staan in `src/aanbiedingen/bronnen.js`. Een nieuwe bron, bijvoorbeeld een online lijst, voeg je daar toe en zet je in `main.js` in de lijst `[bestandBron, eigenBron]`. Werkt een bron een keer niet, dan gaan de andere gewoon door.
 
 ---
 
@@ -230,6 +277,7 @@ data/
   categorieen.json      afdelingen
   categorie-regels.json trefwoorden om producten aan een afdeling te koppelen
   recepten.json         recepten voor het weekmenu
+  aanbiedingen.json     aanbiedingen die voor iedereen gelden
 scripts/
   prijzen-bijwerken.mjs haalt producten en prijzen op bij Checkjebon.nl
 src/
@@ -237,6 +285,8 @@ src/
   route/afstanden.js    kortste loopafstand tussen twee punten (Dijkstra)
   route/route.js        volgorde van de stops (nearest neighbour + 2-opt)
   lijst/                zoeken, lijst bewerken, bewaren op je telefoon
+  planner/              weekmenu, kosten in hele verpakkingen, budget
+  aanbiedingen/         losse module: bronnen, geldigheid, actieprijs toepassen
   ui/                   de drie schermen
 tests/                  automatische tests
 ```

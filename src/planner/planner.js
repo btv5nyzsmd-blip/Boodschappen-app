@@ -5,11 +5,13 @@
 // - verspilling: de waarde van verse restjes die niemand opmaakt;
 // - te vaak hetzelfde (drie keer kip in één week);
 // - een klein beetje voor de totale prijs.
-// Recepten die bij je voorkeuren passen krijgen juist pluspunten.
+// Recepten die bij je voorkeuren passen of ingrediënten in de aanbieding gebruiken,
+// krijgen juist pluspunten.
 // Met een "toevalsgetal" (seed) krijg je bij "Nieuwe suggestie" een ander, even goed menu.
 
 import { berekenKosten, maakSnelleKosten } from './kosten.js';
 import { normaliseer } from '../lijst/zoeken.js';
+import { korting } from '../aanbiedingen/index.js';
 
 export const UITSLUITINGEN = [
   { id: 'vlees', naam: 'Geen vlees', bevat: ['varken', 'rund', 'kip'] },
@@ -34,6 +36,21 @@ export function maakRandom(seed) {
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+/** De ingrediënten van een recept die nu in de aanbieding zijn. */
+export function ingredientenInAanbieding(recept, productenOpId) {
+  return recept.ingredienten.map((i) => productenOpId.get(i.product)).filter((p) => p?.aanbieding);
+}
+
+/**
+ * Pluspunten voor aanbiedingen: 1 per ingrediënt in de aanbieding plus de korting in euro's,
+ * met een maximum, zodat één dure aanbieding niet het hele menu bepaalt.
+ * (De lagere prijs telt daarnaast al mee in de kosten.)
+ */
+export function aanbiedingsVoordeel(recept, productenOpId) {
+  const voordeel = ingredientenInAanbieding(recept, productenOpId).reduce((som, p) => som + 1 + korting(p), 0);
+  return Math.min(4, voordeel);
 }
 
 /** Woorden uit "champignons, koriander" → ['champignons', 'koriander']. */
@@ -91,7 +108,8 @@ export function maakWeekmenu(recepten, instellingen, ctx, { vast = [], nietKieze
   const random = maakRandom(instellingen.seed ?? 1);
   // Elk recept krijgt per seed een vast toevalsgewicht, voor afwisseling tussen suggesties.
   const gewichten = new Map(recepten.map((r) => [r.id, random() * 2]));
-  const gewicht = (r) => gewichten.get(r.id) ?? 0;
+  const voordelen = new Map(recepten.map((r) => [r.id, aanbiedingsVoordeel(r, ctx.productenOpId)]));
+  const gewicht = (r) => (gewichten.get(r.id) ?? 0) - (voordelen.get(r.id) ?? 0);
 
   const vasteRecepten = vast.map((id) => recepten.find((r) => r.id === id)).filter(Boolean);
   const kandidaten = toegestaneRecepten(recepten, instellingen, ctx.productenOpId).filter(

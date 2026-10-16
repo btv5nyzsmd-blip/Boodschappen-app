@@ -26,6 +26,20 @@ export function productNaam(product) {
   return product.merk && !product.naam.startsWith(product.merk) ? `${product.merk} ${product.naam}` : product.naam;
 }
 
+/** Prijs als HTML; bij een aanbieding met label en doorgestreepte oude prijs. */
+export function prijsHtml(product) {
+  if (!product.prijs) return '';
+  if (!product.aanbieding) return euro(product.prijs);
+  const extra = product.aanbieding.omschrijving ? ` ${esc(product.aanbieding.omschrijving)}` : '';
+  return `<span class="actie">Actie${extra}</span> <s>${euro(product.normalePrijs)}</s> <strong>${euro(product.prijs)}</strong>`;
+}
+
+/** Regel onder een productnaam: inhoud · prijs · afdeling. */
+export function productMeta(product, categorieNamen) {
+  const delen = [esc(extraInhoud(product)), prijsHtml(product), esc(categorieNamen[product.categorie] ?? 'Afdeling onbekend')];
+  return delen.filter(Boolean).join(' · ');
+}
+
 export function meters(m) {
   return `${Math.round(m)} m`;
 }

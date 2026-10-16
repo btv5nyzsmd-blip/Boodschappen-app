@@ -1,5 +1,5 @@
 // Scherm "Lijst": producten zoeken en je boodschappenlijst beheren.
-import { esc, euro, extraInhoud, productNaam } from './html.js';
+import { esc, euro, productNaam, productMeta } from './html.js';
 
 export function lijstScherm(st) {
   const { lijst, productenOpId } = st;
@@ -42,7 +42,7 @@ function regel(r, st) {
   return `
     <li class="regel">
       <span class="naam">${esc(productNaam(p))}</span>
-      <span class="meta">${esc([extraInhoud(p), p.prijs ? euro(p.prijs) : '', st.categorieNamen[p.categorie] ?? 'Afdeling onbekend'].filter(Boolean).join(' · '))}</span>
+      <span class="meta">${productMeta(p, st.categorieNamen)}</span>
       <span class="stapper">
         <button data-actie="min" data-id="${esc(p.id)}" aria-label="Eén minder ${esc(p.naam)}">−</button>
         <output aria-label="Aantal">${r.aantal}</output>
@@ -63,7 +63,7 @@ export function zoekResultaten(st) {
       return `
         <button class="resultaat ${al ? 'toegevoegd' : ''}" data-actie="toevoegen" data-id="${esc(p.id)}">
           <span class="naam">${esc(productNaam(p))}</span>
-          <span class="meta">${esc([extraInhoud(p), p.prijs ? euro(p.prijs) : '', st.categorieNamen[p.categorie] ?? 'Afdeling onbekend'].filter(Boolean).join(' · '))}</span>
+          <span class="meta">${productMeta(p, st.categorieNamen)}</span>
           <span class="plus" aria-hidden="true">${al ? '✓' : '+'}</span>
         </button>`;
     })

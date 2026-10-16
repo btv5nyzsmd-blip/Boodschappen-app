@@ -1,342 +1,342 @@
 [
-  { "id": "spaghetti-bolognese", "naam": "Spaghetti bolognese", "personen": 4, "tijd": 30, "soort": "gehakt", "bevat": ["rund", "varken"], "tags": ["kindvriendelijk"], "bereiding": "Fruit ui, knoflook en geraspte wortel. Bak het gehakt rul, voeg tomaten en puree toe en laat 15 minuten pruttelen. Serveer met spaghetti en kaas.",
+  {"id": "spaghetti-bolognese", "naam": "Spaghetti bolognese", "personen": 4, "tijd": 30, "soort": "gehakt", "bevat": ["rund", "varken"], "tags": ["kindvriendelijk"], "bereiding": "Fruit ui, knoflook en geraspte wortel. Bak het gehakt rul, voeg tomaten en puree toe en laat 15 minuten pruttelen. Serveer met spaghetti en kaas.",
     "ingredienten": [
-      { "product": "jumbo-s-spaghetti-500-g-710328zk", "hoeveelheid": 400 },
-      { "product": "jumbo-half-om-half-gehakt-varken-rund-500-g-785730bak", "hoeveelheid": 500 },
-      { "product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 800 },
-      { "product": "jumbo-tomaten-puree-3-x-70-g-560359stk", "hoeveelheid": 70 },
-      { "product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150 },
-      { "product": "jumbo-knoflook-100-g-82080net", "hoeveelheid": 15 },
-      { "product": "jumbo-wortelen-1-kg-196113zk", "hoeveelheid": 200 },
-      { "product": "jumbo-italiaanse-kruiden-14-g-718304bus", "hoeveelheid": 3 },
-      { "product": "jumbo-geraspte-pastakaas-45-150-g-588321zk", "hoeveelheid": 50 }
+      {"product": "jumbo-s-spaghetti-500-g-710328zk", "hoeveelheid": 400, "naam": "spaghetti"},
+      {"product": "jumbo-half-om-half-gehakt-varken-rund-500-g-785730bak", "hoeveelheid": 500, "naam": "gehakt"},
+      {"product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 800, "naam": "tomatenblokjes"},
+      {"product": "jumbo-tomaten-puree-3-x-70-g-560359stk", "hoeveelheid": 70, "naam": "tomatenpuree"},
+      {"product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150, "naam": "ui"},
+      {"product": "jumbo-knoflook-100-g-82080net", "hoeveelheid": 15, "naam": "knoflook"},
+      {"product": "jumbo-wortelen-1-kg-196113zk", "hoeveelheid": 200, "naam": "wortel"},
+      {"product": "jumbo-italiaanse-kruiden-14-g-718304bus", "hoeveelheid": 3, "naam": "Italiaanse kruiden"},
+      {"product": "jumbo-geraspte-pastakaas-45-150-g-588321zk", "hoeveelheid": 50, "naam": "geraspte Italiaanse kaas"}
     ]
   },
-  { "id": "bloemkool-ovenschotel", "naam": "Bloemkool-ovenschotel met gehakt", "personen": 4, "tijd": 45, "soort": "gehakt", "bevat": ["rund", "varken"], "tags": ["kindvriendelijk"], "bereiding": "Kook bloemkool en aardappelen beetgaar. Bak het gehakt rul. Laag om laag in een ovenschaal, kaas erover en 20 minuten in de oven op 200 °C.",
+  {"id": "bloemkool-ovenschotel", "naam": "Bloemkool-ovenschotel met gehakt", "personen": 4, "tijd": 45, "soort": "gehakt", "bevat": ["rund", "varken"], "tags": ["kindvriendelijk"], "bereiding": "Kook bloemkool en aardappelen beetgaar. Bak het gehakt rul. Laag om laag in een ovenschaal, kaas erover en 20 minuten in de oven op 200 °C.",
     "ingredienten": [
-      { "product": "jumbo-bloemkool-302249stk", "hoeveelheid": 1 },
-      { "product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1000 },
-      { "product": "jumbo-half-om-half-gehakt-varken-rund-500-g-785730bak", "hoeveelheid": 500 },
-      { "product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 150 },
-      { "product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 200 },
-      { "product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30 }
+      {"product": "jumbo-bloemkool-302249stk", "hoeveelheid": 1, "naam": "bloemkool"},
+      {"product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1000, "naam": "aardappelen"},
+      {"product": "jumbo-half-om-half-gehakt-varken-rund-500-g-785730bak", "hoeveelheid": 500, "naam": "gehakt"},
+      {"product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 150, "naam": "geraspte kaas"},
+      {"product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 200, "naam": "melk"},
+      {"product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30, "naam": "roomboter"}
     ]
   },
-  { "id": "bloemkoolcurry", "naam": "Bloemkoolcurry met kikkererwten", "personen": 4, "tijd": 35, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Fruit ui met currypasta. Voeg bloemkoolroosjes, kikkererwten en kokosmelk toe en laat 15 minuten zachtjes koken. Roer op het eind de spinazie erdoor. Met rijst.",
+  {"id": "bloemkoolcurry", "naam": "Bloemkoolcurry met kikkererwten", "personen": 4, "tijd": 35, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Fruit ui met currypasta. Voeg bloemkoolroosjes, kikkererwten en kokosmelk toe en laat 15 minuten zachtjes koken. Roer op het eind de spinazie erdoor. Met rijst.",
     "ingredienten": [
-      { "product": "jumbo-bloemkool-302249stk", "hoeveelheid": 0.5 },
-      { "product": "jumbo-biologische-kikkererwten-405-g-692551pak", "hoeveelheid": 400 },
-      { "product": "jumbo-kokosmelk-18-vet-400-ml-408583blk", "hoeveelheid": 400 },
-      { "product": "conimex-pasta-thaise-rode-curry-90-g-575126zk", "hoeveelheid": 50 },
-      { "product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150 },
-      { "product": "jumbo-biologisch-gewassen-spinazie-200-g-787688zk", "hoeveelheid": 300 },
-      { "product": "jumbo-basmati-rijst-voordeelverpakking-1-kg-186364zk", "hoeveelheid": 300 }
+      {"product": "jumbo-bloemkool-302249stk", "hoeveelheid": 0.5, "naam": "bloemkool"},
+      {"product": "jumbo-biologische-kikkererwten-405-g-692551pak", "hoeveelheid": 400, "naam": "kikkererwten"},
+      {"product": "jumbo-kokosmelk-18-vet-400-ml-408583blk", "hoeveelheid": 400, "naam": "kokosmelk"},
+      {"product": "conimex-pasta-thaise-rode-curry-90-g-575126zk", "hoeveelheid": 50, "naam": "rode currypasta"},
+      {"product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150, "naam": "ui"},
+      {"product": "jumbo-biologisch-gewassen-spinazie-200-g-787688zk", "hoeveelheid": 300, "naam": "spinazie"},
+      {"product": "jumbo-basmati-rijst-voordeelverpakking-1-kg-186364zk", "hoeveelheid": 300, "naam": "basmatirijst"}
     ]
   },
-  { "id": "geroosterde-bloemkool-couscous", "naam": "Geroosterde bloemkool met couscous en feta", "personen": 4, "tijd": 35, "soort": "vega", "bevat": [], "tags": [], "bereiding": "Rooster bloemkoolroosjes met olie en komijn 25 minuten op 220 °C. Wel de couscous. Meng met tomaatjes, komkommer en verkruimelde feta.",
+  {"id": "geroosterde-bloemkool-couscous", "naam": "Geroosterde bloemkool met couscous en feta", "personen": 4, "tijd": 35, "soort": "vega", "bevat": [], "tags": [], "bereiding": "Rooster bloemkoolroosjes met olie en komijn 25 minuten op 220 °C. Wel de couscous. Meng met tomaatjes, komkommer en verkruimelde feta.",
     "ingredienten": [
-      { "product": "jumbo-bloemkool-302249stk", "hoeveelheid": 0.5 },
-      { "product": "jumbo-durum-couscous-400-g-621933ds", "hoeveelheid": 300 },
-      { "product": "jumbo-feta-kaas-43-plak-200-g-396197pak", "hoeveelheid": 200 },
-      { "product": "jumbo-cherry-tomaten-250-g-302232bak", "hoeveelheid": 250 },
-      { "product": "jumbo-komkommer-526991stk", "hoeveelheid": 1 },
-      { "product": "jumbo-olijfolie-extra-vierge-500-ml-418268fls", "hoeveelheid": 30 },
-      { "product": "jumbo-komijnzaad-gemalen-35-g-718301bus", "hoeveelheid": 3 }
+      {"product": "jumbo-bloemkool-302249stk", "hoeveelheid": 0.5, "naam": "bloemkool"},
+      {"product": "jumbo-durum-couscous-400-g-621933ds", "hoeveelheid": 300, "naam": "couscous"},
+      {"product": "jumbo-feta-kaas-43-plak-200-g-396197pak", "hoeveelheid": 200, "naam": "feta"},
+      {"product": "jumbo-cherry-tomaten-250-g-302232bak", "hoeveelheid": 250, "naam": "cherrytomaten"},
+      {"product": "jumbo-komkommer-526991stk", "hoeveelheid": 1, "naam": "komkommer"},
+      {"product": "jumbo-olijfolie-extra-vierge-500-ml-418268fls", "hoeveelheid": 30, "naam": "olijfolie"},
+      {"product": "jumbo-komijnzaad-gemalen-35-g-718301bus", "hoeveelheid": 3, "naam": "komijn"}
     ]
   },
-  { "id": "nasi-goreng", "naam": "Nasi goreng met kip", "personen": 4, "tijd": 35, "soort": "kip", "bevat": ["kip"], "tags": ["kindvriendelijk"], "bereiding": "Kook de rijst (liefst een dag van tevoren). Bak de kip, voeg prei en boemboe toe, dan de rijst en ketjap. Serveer met een gebakken ei en kroepoek.",
+  {"id": "nasi-goreng", "naam": "Nasi goreng met kip", "personen": 4, "tijd": 35, "soort": "kip", "bevat": ["kip"], "tags": ["kindvriendelijk"], "bereiding": "Kook de rijst (liefst een dag van tevoren). Bak de kip, voeg prei en boemboe toe, dan de rijst en ketjap. Serveer met een gebakken ei en kroepoek.",
     "ingredienten": [
-      { "product": "jumbo-pandanrijst-voordeelverpakking-1-kg-391720stk", "hoeveelheid": 300 },
-      { "product": "jumbo-kipfiletblokjes-600-g-515014bak", "hoeveelheid": 400 },
-      { "product": "conimex-boemboe-nasi-goreng-95-g-227436pak", "hoeveelheid": 95 },
-      { "product": "jumbo-prei-543359stk", "hoeveelheid": 1 },
-      { "product": "jumbo-scharreleieren-l-xl-10-stuks-610397stk", "hoeveelheid": 4 },
-      { "product": "conimex-ketjap-manis-250-ml-223015stk", "hoeveelheid": 30 },
-      { "product": "conimex-kroepoek-bali-75-g-456998zk", "hoeveelheid": 75 }
+      {"product": "jumbo-pandanrijst-voordeelverpakking-1-kg-391720stk", "hoeveelheid": 300, "naam": "rijst"},
+      {"product": "jumbo-kipfiletblokjes-600-g-515014bak", "hoeveelheid": 400, "naam": "kipfilet"},
+      {"product": "conimex-boemboe-nasi-goreng-95-g-227436pak", "hoeveelheid": 95, "naam": "boemboe"},
+      {"product": "jumbo-prei-543359stk", "hoeveelheid": 1, "naam": "prei"},
+      {"product": "jumbo-scharreleieren-l-xl-10-stuks-610397stk", "hoeveelheid": 4, "naam": "eieren"},
+      {"product": "conimex-ketjap-manis-250-ml-223015stk", "hoeveelheid": 30, "naam": "ketjap"},
+      {"product": "conimex-kroepoek-bali-75-g-456998zk", "hoeveelheid": 75, "naam": "kroepoek"}
     ]
   },
-  { "id": "bami-goreng", "naam": "Bami goreng met spekjes", "personen": 4, "tijd": 25, "soort": "varken", "bevat": ["varken"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Kook de mie. Bak de spekjes uit, roerbak de groente, voeg mie, ketjap en sojasaus toe. Met een gebakken ei.",
+  {"id": "bami-goreng", "naam": "Bami goreng met spekjes", "personen": 4, "tijd": 25, "soort": "varken", "bevat": ["varken"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Kook de mie. Bak de spekjes uit, roerbak de groente, voeg mie, ketjap en sojasaus toe. Met een gebakken ei.",
     "ingredienten": [
-      { "product": "jumbo-eiermie-250-g-195424stk", "hoeveelheid": 250 },
-      { "product": "jumbo-gerookte-spekblokjes-250-g-679080tra", "hoeveelheid": 250 },
-      { "product": "jumbo-wokgroenten-chinees-400-g-779273zk", "hoeveelheid": 400 },
-      { "product": "jumbo-scharreleieren-l-xl-10-stuks-610397stk", "hoeveelheid": 4 },
-      { "product": "conimex-ketjap-manis-250-ml-223015stk", "hoeveelheid": 30 },
-      { "product": "jumbo-sojasaus-150-ml-348749fls", "hoeveelheid": 20 }
+      {"product": "jumbo-eiermie-250-g-195424stk", "hoeveelheid": 250, "naam": "mie"},
+      {"product": "jumbo-gerookte-spekblokjes-250-g-679080tra", "hoeveelheid": 250, "naam": "spekblokjes"},
+      {"product": "jumbo-wokgroenten-chinees-400-g-779273zk", "hoeveelheid": 400, "naam": "wokgroente"},
+      {"product": "jumbo-scharreleieren-l-xl-10-stuks-610397stk", "hoeveelheid": 4, "naam": "eieren"},
+      {"product": "conimex-ketjap-manis-250-ml-223015stk", "hoeveelheid": 30, "naam": "ketjap"},
+      {"product": "jumbo-sojasaus-150-ml-348749fls", "hoeveelheid": 20, "naam": "sojasaus"}
     ]
   },
-  { "id": "kip-kerrie", "naam": "Kip-kerrie met rijst", "personen": 4, "tijd": 30, "soort": "kip", "bevat": ["kip"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Bak de kip met ui en paprika. Strooi kerrie erover, voeg kookroom toe en laat 10 minuten sudderen. Met rijst.",
+  {"id": "kip-kerrie", "naam": "Kip-kerrie met rijst", "personen": 4, "tijd": 30, "soort": "kip", "bevat": ["kip"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Bak de kip met ui en paprika. Strooi kerrie erover, voeg kookroom toe en laat 10 minuten sudderen. Met rijst.",
     "ingredienten": [
-      { "product": "jumbo-kipfiletblokjes-600-g-515014bak", "hoeveelheid": 500 },
-      { "product": "jumbo-kookroom-20-vet-250-ml-775731pak", "hoeveelheid": 250 },
-      { "product": "verstegen-kerrie-40-g-237943stk", "hoeveelheid": 10 },
-      { "product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150 },
-      { "product": "jumbo-paprika-mix-3-stuks-302241pak", "hoeveelheid": 1.5 },
-      { "product": "jumbo-basmati-rijst-voordeelverpakking-1-kg-186364zk", "hoeveelheid": 300 }
+      {"product": "jumbo-kipfiletblokjes-600-g-515014bak", "hoeveelheid": 500, "naam": "kipfilet"},
+      {"product": "jumbo-kookroom-20-vet-250-ml-775731pak", "hoeveelheid": 250, "naam": "kookroom"},
+      {"product": "verstegen-kerrie-40-g-237943stk", "hoeveelheid": 10, "naam": "kerriepoeder"},
+      {"product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150, "naam": "ui"},
+      {"product": "jumbo-paprika-mix-3-stuks-302241pak", "hoeveelheid": 1.5, "naam": "paprika"},
+      {"product": "jumbo-basmati-rijst-voordeelverpakking-1-kg-186364zk", "hoeveelheid": 300, "naam": "basmatirijst"}
     ]
   },
-  { "id": "wraps-kip", "naam": "Wraps met kip, paprika en maïs", "personen": 4, "tijd": 25, "soort": "kip", "bevat": ["kip"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Bak kipreepjes met paprika. Vul de wraps met kip, sla, maïs, kaas en een lepel crème fraîche.",
+  {"id": "wraps-kip", "naam": "Wraps met kip, paprika en maïs", "personen": 4, "tijd": 25, "soort": "kip", "bevat": ["kip"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Bak kipreepjes met paprika. Vul de wraps met kip, sla, maïs, kaas en een lepel crème fraîche.",
     "ingredienten": [
-      { "product": "santa-maria-tortilla-wraps-medium-8-stuks-320-g-81319zk", "hoeveelheid": 320 },
-      { "product": "jumbo-kipfiletblokjes-600-g-515014bak", "hoeveelheid": 400 },
-      { "product": "jumbo-paprika-mix-3-stuks-302241pak", "hoeveelheid": 1.5 },
-      { "product": "jumbo-ijsbergsla-1-stuk-129391stk", "hoeveelheid": 0.5 },
-      { "product": "jumbo-maiskorrels-330-g-580552blk", "hoeveelheid": 300 },
-      { "product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 100 },
-      { "product": "jumbo-verse-creme-fraiche-125-g-311923bkr", "hoeveelheid": 125 }
+      {"product": "santa-maria-tortilla-wraps-medium-8-stuks-320-g-81319zk", "hoeveelheid": 320, "naam": "wraps"},
+      {"product": "jumbo-kipfiletblokjes-600-g-515014bak", "hoeveelheid": 400, "naam": "kipfilet"},
+      {"product": "jumbo-paprika-mix-3-stuks-302241pak", "hoeveelheid": 1.5, "naam": "paprika"},
+      {"product": "jumbo-ijsbergsla-1-stuk-129391stk", "hoeveelheid": 0.5, "naam": "ijsbergsla"},
+      {"product": "jumbo-maiskorrels-330-g-580552blk", "hoeveelheid": 300, "naam": "maïs"},
+      {"product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 100, "naam": "geraspte kaas"},
+      {"product": "jumbo-verse-creme-fraiche-125-g-311923bkr", "hoeveelheid": 125, "naam": "crème fraîche"}
     ]
   },
-  { "id": "chili-sin-carne", "naam": "Chili sin carne", "personen": 4, "tijd": 35, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Fruit ui, knoflook en paprika met komijn en paprikapoeder. Voeg bonen, maïs en tomaten toe en laat 20 minuten pruttelen. Met rijst en zure room.",
+  {"id": "chili-sin-carne", "naam": "Chili sin carne", "personen": 4, "tijd": 35, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Fruit ui, knoflook en paprika met komijn en paprikapoeder. Voeg bonen, maïs en tomaten toe en laat 20 minuten pruttelen. Met rijst en zure room.",
     "ingredienten": [
-      { "product": "jumbo-biologische-kidneybonen-400-g-692549pak", "hoeveelheid": 800 },
-      { "product": "jumbo-maiskorrels-330-g-580552blk", "hoeveelheid": 300 },
-      { "product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 800 },
-      { "product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150 },
-      { "product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 2 },
-      { "product": "jumbo-knoflook-100-g-82080net", "hoeveelheid": 15 },
-      { "product": "jumbo-komijnzaad-gemalen-35-g-718301bus", "hoeveelheid": 5 },
-      { "product": "verstegen-paprikapoeder-mild-38-g-237959stk", "hoeveelheid": 5 },
-      { "product": "jumbo-pandanrijst-voordeelverpakking-1-kg-391720stk", "hoeveelheid": 300 },
-      { "product": "jumbo-verse-zure-room-125-g-332408cup", "hoeveelheid": 125 }
+      {"product": "jumbo-biologische-kidneybonen-400-g-692549pak", "hoeveelheid": 800, "naam": "kidneybonen"},
+      {"product": "jumbo-maiskorrels-330-g-580552blk", "hoeveelheid": 300, "naam": "maïs"},
+      {"product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 800, "naam": "tomatenblokjes"},
+      {"product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150, "naam": "ui"},
+      {"product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 2, "naam": "rode paprika"},
+      {"product": "jumbo-knoflook-100-g-82080net", "hoeveelheid": 15, "naam": "knoflook"},
+      {"product": "jumbo-komijnzaad-gemalen-35-g-718301bus", "hoeveelheid": 5, "naam": "komijn"},
+      {"product": "verstegen-paprikapoeder-mild-38-g-237959stk", "hoeveelheid": 5, "naam": "paprikapoeder"},
+      {"product": "jumbo-pandanrijst-voordeelverpakking-1-kg-391720stk", "hoeveelheid": 300, "naam": "rijst"},
+      {"product": "jumbo-verse-zure-room-125-g-332408cup", "hoeveelheid": 125, "naam": "zure room"}
     ]
   },
-  { "id": "chili-con-carne", "naam": "Chili con carne", "personen": 4, "tijd": 40, "soort": "gehakt", "bevat": ["rund"], "tags": [], "bereiding": "Bak het gehakt rul met ui, knoflook en kruiden. Voeg bonen, maïs, paprika en tomaten toe en laat 20 minuten pruttelen. Met rijst.",
+  {"id": "chili-con-carne", "naam": "Chili con carne", "personen": 4, "tijd": 40, "soort": "gehakt", "bevat": ["rund"], "tags": [], "bereiding": "Bak het gehakt rul met ui, knoflook en kruiden. Voeg bonen, maïs, paprika en tomaten toe en laat 20 minuten pruttelen. Met rijst.",
     "ingredienten": [
-      { "product": "jumbo-rundergehakt-500-g-131278bak", "hoeveelheid": 500 },
-      { "product": "jumbo-biologische-kidneybonen-400-g-692549pak", "hoeveelheid": 400 },
-      { "product": "jumbo-maiskorrels-330-g-580552blk", "hoeveelheid": 300 },
-      { "product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 800 },
-      { "product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150 },
-      { "product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 1 },
-      { "product": "jumbo-knoflook-100-g-82080net", "hoeveelheid": 15 },
-      { "product": "jumbo-komijnzaad-gemalen-35-g-718301bus", "hoeveelheid": 5 },
-      { "product": "jumbo-pandanrijst-voordeelverpakking-1-kg-391720stk", "hoeveelheid": 300 }
+      {"product": "jumbo-rundergehakt-500-g-131278bak", "hoeveelheid": 500, "naam": "rundergehakt"},
+      {"product": "jumbo-biologische-kidneybonen-400-g-692549pak", "hoeveelheid": 400, "naam": "kidneybonen"},
+      {"product": "jumbo-maiskorrels-330-g-580552blk", "hoeveelheid": 300, "naam": "maïs"},
+      {"product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 800, "naam": "tomatenblokjes"},
+      {"product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150, "naam": "ui"},
+      {"product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 1, "naam": "rode paprika"},
+      {"product": "jumbo-knoflook-100-g-82080net", "hoeveelheid": 15, "naam": "knoflook"},
+      {"product": "jumbo-komijnzaad-gemalen-35-g-718301bus", "hoeveelheid": 5, "naam": "komijn"},
+      {"product": "jumbo-pandanrijst-voordeelverpakking-1-kg-391720stk", "hoeveelheid": 300, "naam": "rijst"}
     ]
   },
-  { "id": "zalm-broccoli", "naam": "Zalm met broccoli en krieltjes", "personen": 4, "tijd": 30, "soort": "vis", "bevat": ["vis"], "tags": ["snel"], "bereiding": "Bak de krieltjes goudbruin. Kook de broccoli beetgaar. Bak de zalm 3–4 minuten per kant en besprenkel met citroen.",
+  {"id": "zalm-broccoli", "naam": "Zalm met broccoli en krieltjes", "personen": 4, "tijd": 30, "soort": "vis", "bevat": ["vis"], "tags": ["snel"], "bereiding": "Bak de krieltjes goudbruin. Kook de broccoli beetgaar. Bak de zalm 3–4 minuten per kant en besprenkel met citroen.",
     "ingredienten": [
-      { "product": "jumbo-zalmfilet-met-huid-4-x-125-g-723101stk", "hoeveelheid": 500 },
-      { "product": "jumbo-krieltjes-1kg-452383zk", "hoeveelheid": 750 },
-      { "product": "jumbo-broccoli-500-g-479521stk", "hoeveelheid": 500 },
-      { "product": "jumbo-citroenen-500-g-764387stk", "hoeveelheid": 125 },
-      { "product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30 }
+      {"product": "jumbo-zalmfilet-met-huid-4-x-125-g-723101stk", "hoeveelheid": 500, "naam": "zalm"},
+      {"product": "jumbo-krieltjes-1kg-452383zk", "hoeveelheid": 750, "naam": "krieltjes"},
+      {"product": "jumbo-broccoli-500-g-479521stk", "hoeveelheid": 500, "naam": "broccoli"},
+      {"product": "jumbo-citroenen-500-g-764387stk", "hoeveelheid": 125, "naam": "citroen"},
+      {"product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30, "naam": "roomboter"}
     ]
   },
-  { "id": "kabeljauw-spinaziepuree", "naam": "Kabeljauw met spinaziestamppot", "personen": 4, "tijd": 35, "soort": "vis", "bevat": ["vis"], "tags": [], "bereiding": "Kook de aardappelen en stamp met melk, boter en de rauwe spinazie. Bak of stoom de kabeljauw.",
+  {"id": "kabeljauw-spinaziepuree", "naam": "Kabeljauw met spinaziestamppot", "personen": 4, "tijd": 35, "soort": "vis", "bevat": ["vis"], "tags": [], "bereiding": "Kook de aardappelen en stamp met melk, boter en de rauwe spinazie. Bak of stoom de kabeljauw.",
     "ingredienten": [
-      { "product": "jumbo-kabeljauwfilet-naturel-2-stuks-ca-260-g-681341kgr", "hoeveelheid": 520 },
-      { "product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1000 },
-      { "product": "jumbo-biologisch-gewassen-spinazie-200-g-787688zk", "hoeveelheid": 600 },
-      { "product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 150 },
-      { "product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30 }
+      {"product": "jumbo-kabeljauwfilet-naturel-2-stuks-ca-260-g-681341kgr", "hoeveelheid": 520, "naam": "kabeljauw"},
+      {"product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1000, "naam": "aardappelen"},
+      {"product": "jumbo-biologisch-gewassen-spinazie-200-g-787688zk", "hoeveelheid": 600, "naam": "spinazie"},
+      {"product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 150, "naam": "melk"},
+      {"product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30, "naam": "roomboter"}
     ]
   },
-  { "id": "vissticks-erwten", "naam": "Vissticks met doperwten en puree", "personen": 4, "tijd": 25, "soort": "vis", "bevat": ["vis"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Bak de vissticks. Kook de doperwten. Kook de aardappelen en stamp tot puree met melk en boter.",
+  {"id": "vissticks-erwten", "naam": "Vissticks met doperwten en puree", "personen": 4, "tijd": 25, "soort": "vis", "bevat": ["vis"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Bak de vissticks. Kook de doperwten. Kook de aardappelen en stamp tot puree met melk en boter.",
     "ingredienten": [
-      { "product": "jumbo-vissticks-krokant-15-stuks-173204ds", "hoeveelheid": 15 },
-      { "product": "jumbo-erwten-450-g-699986zk", "hoeveelheid": 400 },
-      { "product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1000 },
-      { "product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 150 },
-      { "product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30 }
+      {"product": "jumbo-vissticks-krokant-15-stuks-173204ds", "hoeveelheid": 15, "naam": "vissticks"},
+      {"product": "jumbo-erwten-450-g-699986zk", "hoeveelheid": 400, "naam": "doperwten"},
+      {"product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1000, "naam": "aardappelen"},
+      {"product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 150, "naam": "melk"},
+      {"product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30, "naam": "roomboter"}
     ]
   },
-  { "id": "hutspot", "naam": "Hutspot met rookworst", "personen": 4, "tijd": 35, "soort": "varken", "bevat": ["varken"], "tags": ["kindvriendelijk"], "bereiding": "Kook aardappelen, wortel en ui samen gaar. Stamp met melk en boter. Verwarm de rookworst en serveer erbij.",
+  {"id": "hutspot", "naam": "Hutspot met rookworst", "personen": 4, "tijd": 35, "soort": "varken", "bevat": ["varken"], "tags": ["kindvriendelijk"], "bereiding": "Kook aardappelen, wortel en ui samen gaar. Stamp met melk en boter. Verwarm de rookworst en serveer erbij.",
     "ingredienten": [
-      { "product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1200 },
-      { "product": "jumbo-wortelen-1-kg-196113zk", "hoeveelheid": 750 },
-      { "product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 400 },
-      { "product": "jumbo-gelderse-rookworst-250-g-577718stk", "hoeveelheid": 500 },
-      { "product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 100 },
-      { "product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30 }
+      {"product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1200, "naam": "aardappelen"},
+      {"product": "jumbo-wortelen-1-kg-196113zk", "hoeveelheid": 750, "naam": "wortel"},
+      {"product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 400, "naam": "ui"},
+      {"product": "jumbo-gelderse-rookworst-250-g-577718stk", "hoeveelheid": 500, "naam": "rookworst"},
+      {"product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 100, "naam": "melk"},
+      {"product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30, "naam": "roomboter"}
     ]
   },
-  { "id": "boerenkool", "naam": "Boerenkoolstamppot met rookworst en spekjes", "personen": 4, "tijd": 35, "soort": "varken", "bevat": ["varken"], "tags": ["kindvriendelijk"], "bereiding": "Kook aardappelen met de boerenkool erop. Bak de spekjes uit. Stamp alles met melk en de spekjes. Met rookworst.",
+  {"id": "boerenkool", "naam": "Boerenkoolstamppot met rookworst en spekjes", "personen": 4, "tijd": 35, "soort": "varken", "bevat": ["varken"], "tags": ["kindvriendelijk"], "bereiding": "Kook aardappelen met de boerenkool erop. Bak de spekjes uit. Stamp alles met melk en de spekjes. Met rookworst.",
     "ingredienten": [
-      { "product": "jumbo-fijngesneden-boerenkool-500-g-532723zk", "hoeveelheid": 500 },
-      { "product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1200 },
-      { "product": "jumbo-gelderse-rookworst-250-g-577718stk", "hoeveelheid": 500 },
-      { "product": "jumbo-gerookte-spekblokjes-250-g-679080tra", "hoeveelheid": 250 },
-      { "product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 100 }
+      {"product": "jumbo-fijngesneden-boerenkool-500-g-532723zk", "hoeveelheid": 500, "naam": "boerenkool"},
+      {"product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1200, "naam": "aardappelen"},
+      {"product": "jumbo-gelderse-rookworst-250-g-577718stk", "hoeveelheid": 500, "naam": "rookworst"},
+      {"product": "jumbo-gerookte-spekblokjes-250-g-679080tra", "hoeveelheid": 250, "naam": "spekblokjes"},
+      {"product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 100, "naam": "melk"}
     ]
   },
-  { "id": "andijviestamppot", "naam": "Andijviestamppot met gehaktballen", "personen": 4, "tijd": 35, "soort": "gehakt", "bevat": ["rund", "varken"], "tags": [], "bereiding": "Kook de aardappelen en stamp met melk. Roer de rauwe andijvie erdoor. Bak de gehaktballen rondom bruin en laat 15 minuten garen.",
+  {"id": "andijviestamppot", "naam": "Andijviestamppot met gehaktballen", "personen": 4, "tijd": 35, "soort": "gehakt", "bevat": ["rund", "varken"], "tags": [], "bereiding": "Kook de aardappelen en stamp met melk. Roer de rauwe andijvie erdoor. Bak de gehaktballen rondom bruin en laat 15 minuten garen.",
     "ingredienten": [
-      { "product": "jumbo-gesneden-andijvie-400-g-212178stk", "hoeveelheid": 800 },
-      { "product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1200 },
-      { "product": "jumbo-gehaktballetjes-400-g-698272tra", "hoeveelheid": 400 },
-      { "product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 150 },
-      { "product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30 }
+      {"product": "jumbo-gesneden-andijvie-400-g-212178stk", "hoeveelheid": 800, "naam": "andijvie"},
+      {"product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1200, "naam": "aardappelen"},
+      {"product": "jumbo-gehaktballetjes-400-g-698272tra", "hoeveelheid": 400, "naam": "gehaktballetjes"},
+      {"product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 150, "naam": "melk"},
+      {"product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30, "naam": "roomboter"}
     ]
   },
-  { "id": "pannenkoeken", "naam": "Pannenkoeken met appel en kaas", "personen": 4, "tijd": 30, "soort": "vega", "bevat": [], "tags": ["snel", "kindvriendelijk"], "bereiding": "Maak beslag van mix, melk en eieren. Bak dunne pannenkoeken met plakjes appel of kaas erin.",
+  {"id": "pannenkoeken", "naam": "Pannenkoeken met appel en kaas", "personen": 4, "tijd": 30, "soort": "vega", "bevat": [], "tags": ["snel", "kindvriendelijk"], "bereiding": "Maak beslag van mix, melk en eieren. Bak dunne pannenkoeken met plakjes appel of kaas erin.",
     "ingredienten": [
-      { "product": "koopmans-pannenkoekenmix-origineel-400-g-386953pak", "hoeveelheid": 400 },
-      { "product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 750 },
-      { "product": "jumbo-scharreleieren-l-xl-10-stuks-610397stk", "hoeveelheid": 2 },
-      { "product": "jumbo-friszoet-sappig-elstar-voordeel-1,5-kg-773419zk", "hoeveelheid": 500 },
-      { "product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 150 }
+      {"product": "koopmans-pannenkoekenmix-origineel-400-g-386953pak", "hoeveelheid": 400, "naam": "pannenkoekenmix"},
+      {"product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 750, "naam": "melk"},
+      {"product": "jumbo-scharreleieren-l-xl-10-stuks-610397stk", "hoeveelheid": 2, "naam": "eieren"},
+      {"product": "jumbo-friszoet-sappig-elstar-voordeel-1,5-kg-773419zk", "hoeveelheid": 500, "naam": "appels"},
+      {"product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 150, "naam": "geraspte kaas"}
     ]
   },
-  { "id": "lasagne", "naam": "Lasagne bolognese", "personen": 4, "tijd": 60, "soort": "gehakt", "bevat": ["rund"], "tags": [], "bereiding": "Bak het gehakt met courgette en pastasaus. Maak een witte saus van boter, bloem en melk. Laag om laag met de lasagnebladen, kaas erop, 35 minuten op 200 °C.",
+  {"id": "lasagne", "naam": "Lasagne bolognese", "personen": 4, "tijd": 60, "soort": "gehakt", "bevat": ["rund"], "tags": [], "bereiding": "Bak het gehakt met courgette en pastasaus. Maak een witte saus van boter, bloem en melk. Laag om laag met de lasagnebladen, kaas erop, 35 minuten op 200 °C.",
     "ingredienten": [
-      { "product": "jumbo-s-volkoren-lasagnebladen-biologisch-500-g-732279ds", "hoeveelheid": 250 },
-      { "product": "jumbo-rundergehakt-500-g-131278bak", "hoeveelheid": 500 },
-      { "product": "heinz-pastasaus-zongerijpte-cherrytomaten-basilicum-490g-781304pot", "hoeveelheid": 490 },
-      { "product": "jumbo-courgette-302245stk", "hoeveelheid": 1 },
-      { "product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 500 },
-      { "product": "jumbo-biologisch-tarwebloem-1-kg-486056zk", "hoeveelheid": 40 },
-      { "product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 40 },
-      { "product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 150 }
+      {"product": "jumbo-s-volkoren-lasagnebladen-biologisch-500-g-732279ds", "hoeveelheid": 250, "naam": "lasagnebladen"},
+      {"product": "jumbo-rundergehakt-500-g-131278bak", "hoeveelheid": 500, "naam": "rundergehakt"},
+      {"product": "heinz-pastasaus-zongerijpte-cherrytomaten-basilicum-490g-781304pot", "hoeveelheid": 490, "naam": "pastasaus"},
+      {"product": "jumbo-courgette-302245stk", "hoeveelheid": 1, "naam": "courgette"},
+      {"product": "jumbo-verse-halfvolle-melk-1-l-498518pak", "hoeveelheid": 500, "naam": "melk"},
+      {"product": "jumbo-biologisch-tarwebloem-1-kg-486056zk", "hoeveelheid": 40, "naam": "bloem"},
+      {"product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 40, "naam": "roomboter"},
+      {"product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 150, "naam": "geraspte kaas"}
     ]
   },
-  { "id": "groentelasagne", "naam": "Groentelasagne met spinazie", "personen": 4, "tijd": 60, "soort": "vega", "bevat": [], "tags": [], "bereiding": "Bak courgette, aubergine en paprika. Meng met de pastasaus. Laag om laag met lasagnebladen, spinazie en mozzarella. 35 minuten op 200 °C.",
+  {"id": "groentelasagne", "naam": "Groentelasagne met spinazie", "personen": 4, "tijd": 60, "soort": "vega", "bevat": [], "tags": [], "bereiding": "Bak courgette, aubergine en paprika. Meng met de pastasaus. Laag om laag met lasagnebladen, spinazie en mozzarella. 35 minuten op 200 °C.",
     "ingredienten": [
-      { "product": "jumbo-s-volkoren-lasagnebladen-biologisch-500-g-732279ds", "hoeveelheid": 250 },
-      { "product": "jumbo-courgette-302245stk", "hoeveelheid": 1 },
-      { "product": "jumbo-aubergine-679962stk", "hoeveelheid": 1 },
-      { "product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 2 },
-      { "product": "heinz-pastasaus-zongerijpte-cherrytomaten-basilicum-490g-781304pot", "hoeveelheid": 490 },
-      { "product": "jumbo-biologisch-gewassen-spinazie-200-g-787688zk", "hoeveelheid": 300 },
-      { "product": "galbani-mozzarella-125-g-392413zk", "hoeveelheid": 250 },
-      { "product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 50 }
+      {"product": "jumbo-s-volkoren-lasagnebladen-biologisch-500-g-732279ds", "hoeveelheid": 250, "naam": "lasagnebladen"},
+      {"product": "jumbo-courgette-302245stk", "hoeveelheid": 1, "naam": "courgette"},
+      {"product": "jumbo-aubergine-679962stk", "hoeveelheid": 1, "naam": "aubergine"},
+      {"product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 2, "naam": "rode paprika"},
+      {"product": "heinz-pastasaus-zongerijpte-cherrytomaten-basilicum-490g-781304pot", "hoeveelheid": 490, "naam": "pastasaus"},
+      {"product": "jumbo-biologisch-gewassen-spinazie-200-g-787688zk", "hoeveelheid": 300, "naam": "spinazie"},
+      {"product": "galbani-mozzarella-125-g-392413zk", "hoeveelheid": 250, "naam": "mozzarella"},
+      {"product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 50, "naam": "geraspte kaas"}
     ]
   },
-  { "id": "pasta-pesto-kip", "naam": "Pasta pesto met kip en tomaatjes", "personen": 4, "tijd": 20, "soort": "kip", "bevat": ["kip"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Kook de penne. Bak de kip. Meng pasta, kip, pesto en gehalveerde tomaatjes. Rucola en kaas erover.",
+  {"id": "pasta-pesto-kip", "naam": "Pasta pesto met kip en tomaatjes", "personen": 4, "tijd": 20, "soort": "kip", "bevat": ["kip"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Kook de penne. Bak de kip. Meng pasta, kip, pesto en gehalveerde tomaatjes. Rucola en kaas erover.",
     "ingredienten": [
-      { "product": "jumbo-penne-durum-tarwe-500-g-714721zk", "hoeveelheid": 400 },
-      { "product": "jumbo-pesto-alla-genovese-190-g-747995pot", "hoeveelheid": 190 },
-      { "product": "jumbo-kipfiletblokjes-600-g-515014bak", "hoeveelheid": 400 },
-      { "product": "jumbo-cherry-tomaten-250-g-302232bak", "hoeveelheid": 250 },
-      { "product": "jumbo-rucola-150-g-465536zk", "hoeveelheid": 75 },
-      { "product": "jumbo-geraspte-pastakaas-45-150-g-588321zk", "hoeveelheid": 50 }
+      {"product": "jumbo-penne-durum-tarwe-500-g-714721zk", "hoeveelheid": 400, "naam": "penne"},
+      {"product": "jumbo-pesto-alla-genovese-190-g-747995pot", "hoeveelheid": 190, "naam": "pesto"},
+      {"product": "jumbo-kipfiletblokjes-600-g-515014bak", "hoeveelheid": 400, "naam": "kipfilet"},
+      {"product": "jumbo-cherry-tomaten-250-g-302232bak", "hoeveelheid": 250, "naam": "cherrytomaten"},
+      {"product": "jumbo-rucola-150-g-465536zk", "hoeveelheid": 75, "naam": "rucola"},
+      {"product": "jumbo-geraspte-pastakaas-45-150-g-588321zk", "hoeveelheid": 50, "naam": "geraspte Italiaanse kaas"}
     ]
   },
-  { "id": "gnocchi-spinazie", "naam": "Gnocchi met spinazie-roomsaus", "personen": 4, "tijd": 20, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Bak de gnocchi goudbruin. Laat de spinazie slinken in de kookroom, roer de kaas erdoor en schep de gnocchi en tomaatjes erdoor.",
+  {"id": "gnocchi-spinazie", "naam": "Gnocchi met spinazie-roomsaus", "personen": 4, "tijd": 20, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Bak de gnocchi goudbruin. Laat de spinazie slinken in de kookroom, roer de kaas erdoor en schep de gnocchi en tomaatjes erdoor.",
     "ingredienten": [
-      { "product": "jumbo-s-verse-gnocchi-400-g-624886zk", "hoeveelheid": 800 },
-      { "product": "jumbo-biologisch-gewassen-spinazie-200-g-787688zk", "hoeveelheid": 300 },
-      { "product": "jumbo-kookroom-20-vet-250-ml-775731pak", "hoeveelheid": 250 },
-      { "product": "jumbo-geraspte-pastakaas-45-150-g-588321zk", "hoeveelheid": 75 },
-      { "product": "jumbo-cherry-tomaten-250-g-302232bak", "hoeveelheid": 250 }
+      {"product": "jumbo-s-verse-gnocchi-400-g-624886zk", "hoeveelheid": 800, "naam": "gnocchi"},
+      {"product": "jumbo-biologisch-gewassen-spinazie-200-g-787688zk", "hoeveelheid": 300, "naam": "spinazie"},
+      {"product": "jumbo-kookroom-20-vet-250-ml-775731pak", "hoeveelheid": 250, "naam": "kookroom"},
+      {"product": "jumbo-geraspte-pastakaas-45-150-g-588321zk", "hoeveelheid": 75, "naam": "geraspte Italiaanse kaas"},
+      {"product": "jumbo-cherry-tomaten-250-g-302232bak", "hoeveelheid": 250, "naam": "cherrytomaten"}
     ]
   },
-  { "id": "shoarma", "naam": "Kipshoarma met pita en knoflooksaus", "personen": 4, "tijd": 20, "soort": "kip", "bevat": ["kip"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Bak de shoarma. Warm de pitabroodjes op. Vul met shoarma, sla, komkommer, tomaat en knoflooksaus.",
+  {"id": "shoarma", "naam": "Kipshoarma met pita en knoflooksaus", "personen": 4, "tijd": 20, "soort": "kip", "bevat": ["kip"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Bak de shoarma. Warm de pitabroodjes op. Vul met shoarma, sla, komkommer, tomaat en knoflooksaus.",
     "ingredienten": [
-      { "product": "jumbo-kipshoarma-300-g-515018bak", "hoeveelheid": 600 },
-      { "product": "jumbo-pita-broodjes-4-stuks-647275tra", "hoeveelheid": 8 },
-      { "product": "jumbo-ijsbergsla-1-stuk-129391stk", "hoeveelheid": 0.5 },
-      { "product": "jumbo-komkommer-526991stk", "hoeveelheid": 1 },
-      { "product": "jumbo-zoet-sappig-mini-roma-trostomaten-300-g-551191sc", "hoeveelheid": 300 },
-      { "product": "jumbo-knoflooksaus-300-ml-780604fls", "hoeveelheid": 150 }
+      {"product": "jumbo-kipshoarma-300-g-515018bak", "hoeveelheid": 600, "naam": "kipshoarma"},
+      {"product": "jumbo-pita-broodjes-4-stuks-647275tra", "hoeveelheid": 8, "naam": "pitabroodjes"},
+      {"product": "jumbo-ijsbergsla-1-stuk-129391stk", "hoeveelheid": 0.5, "naam": "ijsbergsla"},
+      {"product": "jumbo-komkommer-526991stk", "hoeveelheid": 1, "naam": "komkommer"},
+      {"product": "jumbo-zoet-sappig-mini-roma-trostomaten-300-g-551191sc", "hoeveelheid": 300, "naam": "tomaten"},
+      {"product": "jumbo-knoflooksaus-300-ml-780604fls", "hoeveelheid": 150, "naam": "knoflooksaus"}
     ]
   },
-  { "id": "hachee", "naam": "Hachee met rode kool en aardappelen", "personen": 4, "tijd": 150, "soort": "rund", "bevat": ["rund"], "tags": [], "bereiding": "Bak het vlees aan, voeg veel ui en water toe en laat 2 uur stoven. Stoof de rode kool met appel. Met gekookte aardappelen.",
+  {"id": "hachee", "naam": "Hachee met rode kool en aardappelen", "personen": 4, "tijd": 150, "soort": "rund", "bevat": ["rund"], "tags": [], "bereiding": "Bak het vlees aan, voeg veel ui en water toe en laat 2 uur stoven. Stoof de rode kool met appel. Met gekookte aardappelen.",
     "ingredienten": [
-      { "product": "jumbo-rund-stoofvlees-ca-650-g-709277kgr", "hoeveelheid": 600 },
-      { "product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 500 },
-      { "product": "jumbo-biologisch-gesneden-rode-kool-300-g-583716zk", "hoeveelheid": 300 },
-      { "product": "jumbo-friszoet-sappig-elstar-voordeel-1,5-kg-773419zk", "hoeveelheid": 300 },
-      { "product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1000 }
+      {"product": "jumbo-rund-stoofvlees-ca-650-g-709277kgr", "hoeveelheid": 600, "naam": "stoofvlees"},
+      {"product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 500, "naam": "ui"},
+      {"product": "jumbo-biologisch-gesneden-rode-kool-300-g-583716zk", "hoeveelheid": 300, "naam": "rode kool"},
+      {"product": "jumbo-friszoet-sappig-elstar-voordeel-1,5-kg-773419zk", "hoeveelheid": 300, "naam": "appels"},
+      {"product": "jumbo-aardappelen-kruimig-3-kg-383175zk", "hoeveelheid": 1000, "naam": "aardappelen"}
     ]
   },
-  { "id": "ovenkip-sperziebonen", "naam": "Kippendijen uit de oven met sperziebonen", "personen": 4, "tijd": 40, "soort": "kip", "bevat": ["kip"], "tags": ["kindvriendelijk"], "bereiding": "Bestrooi kip en krieltjes met olie en paprikapoeder en zet 35 minuten in de oven op 200 °C. Kook de sperziebonen.",
+  {"id": "ovenkip-sperziebonen", "naam": "Kippendijen uit de oven met sperziebonen", "personen": 4, "tijd": 40, "soort": "kip", "bevat": ["kip"], "tags": ["kindvriendelijk"], "bereiding": "Bestrooi kip en krieltjes met olie en paprikapoeder en zet 35 minuten in de oven op 200 °C. Kook de sperziebonen.",
     "ingredienten": [
-      { "product": "jumbo-kipdijfilet-ca-380g-790753kgr", "hoeveelheid": 380 },
-      { "product": "jumbo-sperziebonen-500-g-302252zk", "hoeveelheid": 400 },
-      { "product": "jumbo-krieltjes-1kg-452383zk", "hoeveelheid": 750 },
-      { "product": "verstegen-paprikapoeder-mild-38-g-237959stk", "hoeveelheid": 3 },
-      { "product": "jumbo-olijfolie-extra-vierge-500-ml-418268fls", "hoeveelheid": 30 }
+      {"product": "jumbo-kipdijfilet-ca-380g-790753kgr", "hoeveelheid": 380, "naam": "kippendijen"},
+      {"product": "jumbo-sperziebonen-500-g-302252zk", "hoeveelheid": 400, "naam": "sperziebonen"},
+      {"product": "jumbo-krieltjes-1kg-452383zk", "hoeveelheid": 750, "naam": "krieltjes"},
+      {"product": "verstegen-paprikapoeder-mild-38-g-237959stk", "hoeveelheid": 3, "naam": "paprikapoeder"},
+      {"product": "jumbo-olijfolie-extra-vierge-500-ml-418268fls", "hoeveelheid": 30, "naam": "olijfolie"}
     ]
   },
-  { "id": "varkenshaas-champignonsaus", "naam": "Varkenshaas met champignonroomsaus", "personen": 4, "tijd": 30, "soort": "varken", "bevat": ["varken"], "tags": ["snel"], "bereiding": "Bak de varkenshaas rondom bruin en gaar in 15 minuten. Bak de champignons, blus af met kookroom. Met rijst en broccoli.",
+  {"id": "varkenshaas-champignonsaus", "naam": "Varkenshaas met champignonroomsaus", "personen": 4, "tijd": 30, "soort": "varken", "bevat": ["varken"], "tags": ["snel"], "bereiding": "Bak de varkenshaas rondom bruin en gaar in 15 minuten. Bak de champignons, blus af met kookroom. Met rijst en broccoli.",
     "ingredienten": [
-      { "product": "jumbo-varkenshaas-culinair-1-stuk-ca-405-g-781282kgr", "hoeveelheid": 405 },
-      { "product": "jumbo-fijne-champignons-250-g-304662pak", "hoeveelheid": 250 },
-      { "product": "jumbo-kookroom-20-vet-250-ml-775731pak", "hoeveelheid": 250 },
-      { "product": "jumbo-broccoli-500-g-479521stk", "hoeveelheid": 500 },
-      { "product": "jumbo-zilvervliesrijst-voordeelverpakking-1-kg-409922ds", "hoeveelheid": 300 }
+      {"product": "jumbo-varkenshaas-culinair-1-stuk-ca-405-g-781282kgr", "hoeveelheid": 405, "naam": "varkenshaas"},
+      {"product": "jumbo-fijne-champignons-250-g-304662pak", "hoeveelheid": 250, "naam": "champignons"},
+      {"product": "jumbo-kookroom-20-vet-250-ml-775731pak", "hoeveelheid": 250, "naam": "kookroom"},
+      {"product": "jumbo-broccoli-500-g-479521stk", "hoeveelheid": 500, "naam": "broccoli"},
+      {"product": "jumbo-zilvervliesrijst-voordeelverpakking-1-kg-409922ds", "hoeveelheid": 300, "naam": "zilvervliesrijst"}
     ]
   },
-  { "id": "rode-curry-kip", "naam": "Rode curry met kip en kokos", "personen": 4, "tijd": 30, "soort": "kip", "bevat": ["kip"], "tags": ["snel"], "bereiding": "Bak de currypasta kort, dan de kip. Voeg groente en kokosmelk toe en laat 10 minuten koken. Met rijst.",
+  {"id": "rode-curry-kip", "naam": "Rode curry met kip en kokos", "personen": 4, "tijd": 30, "soort": "kip", "bevat": ["kip"], "tags": ["snel"], "bereiding": "Bak de currypasta kort, dan de kip. Voeg groente en kokosmelk toe en laat 10 minuten koken. Met rijst.",
     "ingredienten": [
-      { "product": "jumbo-kipfiletblokjes-600-g-515014bak", "hoeveelheid": 400 },
-      { "product": "jumbo-kokosmelk-18-vet-400-ml-408583blk", "hoeveelheid": 400 },
-      { "product": "conimex-pasta-thaise-rode-curry-90-g-575126zk", "hoeveelheid": 50 },
-      { "product": "jumbo-wokgroenten-chinees-400-g-779273zk", "hoeveelheid": 400 },
-      { "product": "jumbo-paprika-mix-3-stuks-302241pak", "hoeveelheid": 1 },
-      { "product": "jumbo-basmati-rijst-voordeelverpakking-1-kg-186364zk", "hoeveelheid": 300 }
+      {"product": "jumbo-kipfiletblokjes-600-g-515014bak", "hoeveelheid": 400, "naam": "kipfilet"},
+      {"product": "jumbo-kokosmelk-18-vet-400-ml-408583blk", "hoeveelheid": 400, "naam": "kokosmelk"},
+      {"product": "conimex-pasta-thaise-rode-curry-90-g-575126zk", "hoeveelheid": 50, "naam": "rode currypasta"},
+      {"product": "jumbo-wokgroenten-chinees-400-g-779273zk", "hoeveelheid": 400, "naam": "wokgroente"},
+      {"product": "jumbo-paprika-mix-3-stuks-302241pak", "hoeveelheid": 1, "naam": "paprika"},
+      {"product": "jumbo-basmati-rijst-voordeelverpakking-1-kg-186364zk", "hoeveelheid": 300, "naam": "basmatirijst"}
     ]
   },
-  { "id": "mexicaanse-ovenschotel", "naam": "Mexicaanse tortilla-ovenschotel", "personen": 4, "tijd": 45, "soort": "gehakt", "bevat": ["rund"], "tags": ["kindvriendelijk"], "bereiding": "Bak het gehakt met paprika, bonen, maïs en tomaten. Leg laagjes wraps en vulling in een ovenschaal, kaas erop, 20 minuten op 200 °C.",
+  {"id": "mexicaanse-ovenschotel", "naam": "Mexicaanse tortilla-ovenschotel", "personen": 4, "tijd": 45, "soort": "gehakt", "bevat": ["rund"], "tags": ["kindvriendelijk"], "bereiding": "Bak het gehakt met paprika, bonen, maïs en tomaten. Leg laagjes wraps en vulling in een ovenschaal, kaas erop, 20 minuten op 200 °C.",
     "ingredienten": [
-      { "product": "jumbo-rundergehakt-500-g-131278bak", "hoeveelheid": 500 },
-      { "product": "santa-maria-tortilla-wraps-medium-8-stuks-320-g-81319zk", "hoeveelheid": 320 },
-      { "product": "jumbo-biologische-kidneybonen-400-g-692549pak", "hoeveelheid": 400 },
-      { "product": "jumbo-maiskorrels-330-g-580552blk", "hoeveelheid": 300 },
-      { "product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 1 },
-      { "product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 400 },
-      { "product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 150 }
+      {"product": "jumbo-rundergehakt-500-g-131278bak", "hoeveelheid": 500, "naam": "rundergehakt"},
+      {"product": "santa-maria-tortilla-wraps-medium-8-stuks-320-g-81319zk", "hoeveelheid": 320, "naam": "wraps"},
+      {"product": "jumbo-biologische-kidneybonen-400-g-692549pak", "hoeveelheid": 400, "naam": "kidneybonen"},
+      {"product": "jumbo-maiskorrels-330-g-580552blk", "hoeveelheid": 300, "naam": "maïs"},
+      {"product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 1, "naam": "rode paprika"},
+      {"product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 400, "naam": "tomatenblokjes"},
+      {"product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 150, "naam": "geraspte kaas"}
     ]
   },
-  { "id": "shakshuka", "naam": "Shakshuka met stokbrood", "personen": 4, "tijd": 30, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Fruit ui, knoflook en paprika met komijn. Voeg tomaten toe en laat inkoken. Maak kuiltjes, breek de eieren erin en laat 8 minuten garen. Feta erover, met stokbrood.",
+  {"id": "shakshuka", "naam": "Shakshuka met stokbrood", "personen": 4, "tijd": 30, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Fruit ui, knoflook en paprika met komijn. Voeg tomaten toe en laat inkoken. Maak kuiltjes, breek de eieren erin en laat 8 minuten garen. Feta erover, met stokbrood.",
     "ingredienten": [
-      { "product": "jumbo-scharreleieren-l-xl-10-stuks-610397stk", "hoeveelheid": 8 },
-      { "product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 800 },
-      { "product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 2 },
-      { "product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150 },
-      { "product": "jumbo-knoflook-100-g-82080net", "hoeveelheid": 15 },
-      { "product": "jumbo-komijnzaad-gemalen-35-g-718301bus", "hoeveelheid": 3 },
-      { "product": "jumbo-feta-kaas-43-plak-200-g-396197pak", "hoeveelheid": 100 },
-      { "product": "jumbo-stokbrood-bourgondisch-1-stuk-660527zk", "hoeveelheid": 2 }
+      {"product": "jumbo-scharreleieren-l-xl-10-stuks-610397stk", "hoeveelheid": 8, "naam": "eieren"},
+      {"product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 800, "naam": "tomatenblokjes"},
+      {"product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 2, "naam": "rode paprika"},
+      {"product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150, "naam": "ui"},
+      {"product": "jumbo-knoflook-100-g-82080net", "hoeveelheid": 15, "naam": "knoflook"},
+      {"product": "jumbo-komijnzaad-gemalen-35-g-718301bus", "hoeveelheid": 3, "naam": "komijn"},
+      {"product": "jumbo-feta-kaas-43-plak-200-g-396197pak", "hoeveelheid": 100, "naam": "feta"},
+      {"product": "jumbo-stokbrood-bourgondisch-1-stuk-660527zk", "hoeveelheid": 2, "naam": "stokbrood"}
     ]
   },
-  { "id": "couscous-falafel", "naam": "Couscous met falafel en hummus", "personen": 4, "tijd": 20, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Wel de couscous. Verwarm de falafel in de oven. Meng de couscous met komkommer, tomaatjes en rode ui. Met hummus.",
+  {"id": "couscous-falafel", "naam": "Couscous met falafel en hummus", "personen": 4, "tijd": 20, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Wel de couscous. Verwarm de falafel in de oven. Meng de couscous met komkommer, tomaatjes en rode ui. Met hummus.",
     "ingredienten": [
-      { "product": "jumbo-durum-couscous-400-g-621933ds", "hoeveelheid": 300 },
-      { "product": "jumbo-falafel-naturel-200g-681209tra", "hoeveelheid": 400 },
-      { "product": "jumbo-hummus-naturel-200-g-633957cup", "hoeveelheid": 200 },
-      { "product": "jumbo-komkommer-526991stk", "hoeveelheid": 1 },
-      { "product": "jumbo-cherry-tomaten-250-g-302232bak", "hoeveelheid": 250 },
-      { "product": "jumbo-rode-uien-extra-groot-1-kg-213015net", "hoeveelheid": 150 }
+      {"product": "jumbo-durum-couscous-400-g-621933ds", "hoeveelheid": 300, "naam": "couscous"},
+      {"product": "jumbo-falafel-naturel-200g-681209tra", "hoeveelheid": 400, "naam": "falafel"},
+      {"product": "jumbo-hummus-naturel-200-g-633957cup", "hoeveelheid": 200, "naam": "hummus"},
+      {"product": "jumbo-komkommer-526991stk", "hoeveelheid": 1, "naam": "komkommer"},
+      {"product": "jumbo-cherry-tomaten-250-g-302232bak", "hoeveelheid": 250, "naam": "cherrytomaten"},
+      {"product": "jumbo-rode-uien-extra-groot-1-kg-213015net", "hoeveelheid": 150, "naam": "rode ui"}
     ]
   },
-  { "id": "tosti-tomatensoep", "naam": "Tosti's met tomatensoep", "personen": 4, "tijd": 15, "soort": "varken", "bevat": ["varken"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Beleg het brood met kaas en ham en bak de tosti's in een tostiapparaat of pan. Verwarm de soep.",
+  {"id": "tosti-tomatensoep", "naam": "Tosti's met tomatensoep", "personen": 4, "tijd": 15, "soort": "varken", "bevat": ["varken"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Beleg het brood met kaas en ham en bak de tosti's in een tostiapparaat of pan. Verwarm de soep.",
     "ingredienten": [
-      { "product": "jumbo-boeren-tijger-volkoren-631885stk", "hoeveelheid": 1 },
-      { "product": "jumbo-kaas-jong-belegen-48-plakken-190-g-554726tra", "hoeveelheid": 300 },
-      { "product": "jumbo-achterham-140-g-653711stk", "hoeveelheid": 140 },
-      { "product": "unox-soep-in-blik-stevige-tomatensoep-800-ml-390412blk", "hoeveelheid": 800 },
-      { "product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30 }
+      {"product": "jumbo-boeren-tijger-volkoren-631885stk", "hoeveelheid": 1, "naam": "brood"},
+      {"product": "jumbo-kaas-jong-belegen-48-plakken-190-g-554726tra", "hoeveelheid": 300, "naam": "kaas"},
+      {"product": "jumbo-achterham-140-g-653711stk", "hoeveelheid": 140, "naam": "ham"},
+      {"product": "unox-soep-in-blik-stevige-tomatensoep-800-ml-390412blk", "hoeveelheid": 800, "naam": "tomatensoep"},
+      {"product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30, "naam": "roomboter"}
     ]
   },
-  { "id": "risotto-champignons", "naam": "Risotto met champignons en prei", "personen": 4, "tijd": 40, "soort": "vega", "bevat": [], "tags": [], "bereiding": "Fruit prei, voeg rijst toe en schenk beetje bij beetje bouillon erbij, 20 minuten roeren. Bak de champignons. Roer boter, kaas en champignons erdoor.",
+  {"id": "risotto-champignons", "naam": "Risotto met champignons en prei", "personen": 4, "tijd": 40, "soort": "vega", "bevat": [], "tags": [], "bereiding": "Fruit prei, voeg rijst toe en schenk beetje bij beetje bouillon erbij, 20 minuten roeren. Bak de champignons. Roer boter, kaas en champignons erdoor.",
     "ingredienten": [
-      { "product": "jumbo-risotto-rijst-arborio-500-g-205684zk", "hoeveelheid": 300 },
-      { "product": "jumbo-kastanjechampignons-250-g-710748sc", "hoeveelheid": 250 },
-      { "product": "jumbo-prei-543359stk", "hoeveelheid": 1 },
-      { "product": "jumbo-biologisch-groentebouillon-6-stuks-445869ds", "hoeveelheid": 2 },
-      { "product": "jumbo-geraspte-pastakaas-45-150-g-588321zk", "hoeveelheid": 75 },
-      { "product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30 }
+      {"product": "jumbo-risotto-rijst-arborio-500-g-205684zk", "hoeveelheid": 300, "naam": "risottorijst"},
+      {"product": "jumbo-kastanjechampignons-250-g-710748sc", "hoeveelheid": 250, "naam": "kastanjechampignons"},
+      {"product": "jumbo-prei-543359stk", "hoeveelheid": 1, "naam": "prei"},
+      {"product": "jumbo-biologisch-groentebouillon-6-stuks-445869ds", "hoeveelheid": 2, "naam": "bouillonblokjes"},
+      {"product": "jumbo-geraspte-pastakaas-45-150-g-588321zk", "hoeveelheid": 75, "naam": "geraspte Italiaanse kaas"},
+      {"product": "jumbo-ongezouten-roomboter-250-g-750545pak", "hoeveelheid": 30, "naam": "roomboter"}
     ]
   },
-  { "id": "tofu-noedels", "naam": "Roerbak met tofu en noedels", "personen": 4, "tijd": 20, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Bak de tofublokjes krokant. Roerbak de groente, voeg de gekookte noedels, sojasaus en ketjap toe en schep de tofu erdoor.",
+  {"id": "tofu-noedels", "naam": "Roerbak met tofu en noedels", "personen": 4, "tijd": 20, "soort": "vega", "bevat": [], "tags": ["snel"], "bereiding": "Bak de tofublokjes krokant. Roerbak de groente, voeg de gekookte noedels, sojasaus en ketjap toe en schep de tofu erdoor.",
     "ingredienten": [
-      { "product": "jumbo-tofu-naturel-375g-680366stk", "hoeveelheid": 375 },
-      { "product": "jumbo-eiermie-250-g-195424stk", "hoeveelheid": 250 },
-      { "product": "jumbo-wokgroenten-chinees-400-g-779273zk", "hoeveelheid": 400 },
-      { "product": "jumbo-sojasaus-150-ml-348749fls", "hoeveelheid": 30 },
-      { "product": "conimex-ketjap-manis-250-ml-223015stk", "hoeveelheid": 20 }
+      {"product": "jumbo-tofu-naturel-375g-680366stk", "hoeveelheid": 375, "naam": "tofu"},
+      {"product": "jumbo-eiermie-250-g-195424stk", "hoeveelheid": 250, "naam": "mie"},
+      {"product": "jumbo-wokgroenten-chinees-400-g-779273zk", "hoeveelheid": 400, "naam": "wokgroente"},
+      {"product": "jumbo-sojasaus-150-ml-348749fls", "hoeveelheid": 30, "naam": "sojasaus"},
+      {"product": "conimex-ketjap-manis-250-ml-223015stk", "hoeveelheid": 20, "naam": "ketjap"}
     ]
   },
-  { "id": "macaroni-ham-kaas", "naam": "Macaroni met ham en kaas", "personen": 4, "tijd": 25, "soort": "varken", "bevat": ["varken"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Kook de macaroni. Bak ui en paprika, voeg hamreepjes, tomaten en puree toe. Meng met de macaroni en schep de kaas erdoor.",
+  {"id": "macaroni-ham-kaas", "naam": "Macaroni met ham en kaas", "personen": 4, "tijd": 25, "soort": "varken", "bevat": ["varken"], "tags": ["snel", "kindvriendelijk"], "bereiding": "Kook de macaroni. Bak ui en paprika, voeg hamreepjes, tomaten en puree toe. Meng met de macaroni en schep de kaas erdoor.",
     "ingredienten": [
-      { "product": "jumbo-s-macaroni-500-g-730400zk", "hoeveelheid": 400 },
-      { "product": "jumbo-gekookte-hamreepjes-2-x-100-g-694180zk", "hoeveelheid": 200 },
-      { "product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 400 },
-      { "product": "jumbo-tomaten-puree-3-x-70-g-560359stk", "hoeveelheid": 70 },
-      { "product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150 },
-      { "product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 1 },
-      { "product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 150 }
+      {"product": "jumbo-s-macaroni-500-g-730400zk", "hoeveelheid": 400, "naam": "macaroni"},
+      {"product": "jumbo-gekookte-hamreepjes-2-x-100-g-694180zk", "hoeveelheid": 200, "naam": "hamreepjes"},
+      {"product": "jumbo-tomatenblokjes-400-g-218376ds", "hoeveelheid": 400, "naam": "tomatenblokjes"},
+      {"product": "jumbo-tomaten-puree-3-x-70-g-560359stk", "hoeveelheid": 70, "naam": "tomatenpuree"},
+      {"product": "jumbo-gele-uien-van-goede-aarde-1-kg-213007net", "hoeveelheid": 150, "naam": "ui"},
+      {"product": "jumbo-paprika-rood-641085stk", "hoeveelheid": 1, "naam": "rode paprika"},
+      {"product": "jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk", "hoeveelheid": 150, "naam": "geraspte kaas"}
     ]
   }
 ]

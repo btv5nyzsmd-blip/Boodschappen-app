@@ -1,0 +1,4 @@
+{
+  "uitleg": "Aanbiedingen die voor iedereen gelden. Per aanbieding: het product-id uit producten.json, de normale prijs, de actieprijs en de laatste dag (JJJJ-MM-DD). 'omschrijving' en 'geldigVanaf' zijn optioneel. Voorbeeld: { \"productId\": \"jumbo-rundergehakt-500-g-131278bak\", \"normalePrijs\": 5.40, \"actiePrijs\": 3.99, \"geldigTot\": \"2026-10-20\", \"omschrijving\": \"25% korting\" }",
+  "aanbiedingen": []
+}

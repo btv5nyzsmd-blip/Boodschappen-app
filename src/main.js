@@ -12,6 +12,9 @@ import { lijstScherm, zoekResultaten } from './ui/lijst-scherm.js';
 import { routeScherm } from './ui/route-scherm.js';
 import { kaartScherm } from './ui/kaart.js';
 import { menuScherm } from './ui/menu-scherm.js';
+import { aanbiedingenScherm, actieResultaten } from './ui/aanbiedingen-scherm.js';
+import { laadAanbiedingen, actueleAanbiedingen, pasToe, isActueel, vandaag } from './aanbiedingen/index.js';
+import { bestandBron, eigenBron, leesEigen, bewaarEigen } from './aanbiedingen/bronnen.js';
 import { maakWeekmenu, vervangMaaltijd } from './planner/planner.js';
 import { berekenKosten, gedeeldeVerseProducten } from './planner/kosten.js';
 import { esc } from './ui/html.js';
@@ -30,7 +33,12 @@ const VOORBEELDLIJST = [
 const datum = new Date(bron.bijgewerkt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
 
 const st = {
-  tab: ['#menu', '#route', '#kaart'].includes(location.hash) ? location.hash.slice(1) : 'lijst',
+  tab: ['#menu', '#route', '#kaart', '#acties'].includes(location.hash) ? location.hash.slice(1) : 'lijst',
+  aanbiedingen: [], // alle aanbiedingen uit alle bronnen (ook verlopen)
+  actieZoek: '',
+  actieResultaten: [],
+  actieKeuze: null, // product-id waarvoor je een aanbieding invoert
+  actieFout: null,
   zoek: '',
   zoekResultaten: [],
   bevestigLeeg: false,
@@ -84,9 +92,11 @@ function alleProducten() {
 }
 
 function bijwerken() {
-  st.alleProducten = [...catalogus, ...st.eigenProducten].map((p) =>
+  const metAfdeling = [...catalogus, ...st.eigenProducten].map((p) =>
     st.afdelingen[p.id] && st.afdelingen[p.id] !== p.categorie ? { ...p, categorie: st.afdelingen[p.id] } : p,
   );
+  // Aanbiedingen die vandaag lopen: de actieprijs vervangt de normale prijs.
+  st.alleProducten = pasToe(metAfdeling, actueleAanbiedingen(st.aanbiedingen));
   st.productenOpId = new Map(st.alleProducten.map((p) => [p.id, p]));
   try {
     // Pas als je iets hebt afgevinkt ben je "onderweg"; anders begint de route bij de ingang.
@@ -96,6 +106,34 @@ function bijwerken() {
     st.routeInfo = { fout: fout.message, stops: [], nietGevonden: [] };
   }
   bijwerkenMenu();
+}
+
+// ---------- aanbiedingen ----------
+
+async function herlaadAanbiedingen() {
+  const { aanbiedingen, fouten } = await laadAanbiedingen([bestandBron, eigenBron]);
+  if (fouten.length) console.warn('Aanbiedingen niet geladen:', fouten);
+  st.aanbiedingen = aanbiedingen;
+  bijwerken();
+  teken();
+}
+
+function slaAanbiedingOp() {
+  const getal = (id) => Number(document.getElementById(id).value.replace(',', '.'));
+  const normalePrijs = getal('actie-normaal');
+  const actiePrijs = getal('actie-prijs');
+  const geldigTot = document.getElementById('actie-tot').value;
+  const omschrijving = document.getElementById('actie-omschrijving').value.trim();
+  if (!(actiePrijs > 0)) st.actieFout = 'Vul de actieprijs in.';
+  else if (actiePrijs >= normalePrijs) st.actieFout = 'De actieprijs moet lager zijn dan de normale prijs.';
+  else if (!geldigTot || geldigTot < vandaag()) st.actieFout = 'Kies een einddatum van vandaag of later.';
+  else st.actieFout = null;
+  if (st.actieFout) return teken();
+
+  const nieuw = { id: `eigen-${Date.now()}`, productId: st.actieKeuze, normalePrijs, actiePrijs, geldigTot, ...(omschrijving ? { omschrijving } : {}) };
+  bewaarEigen([...leesEigen(), nieuw]);
+  st.actieKeuze = null;
+  herlaadAanbiedingen();
 }
 
 // ---------- weekmenu ----------
@@ -166,11 +204,13 @@ const ICONEN = {
   route: '<path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM6 15V9a4 4 0 0 1 4-4h2M18 9v6a4 4 0 0 1-4 4h-2" />',
   kaart: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2ZM9 4v14M15 6v14" />',
   menu: '<path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />',
+  acties: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8ZM7.5 7.5h.01" />',
 };
-const SCHERMEN = { menu: menuScherm, lijst: lijstScherm, route: routeScherm, kaart: (s) => kaartScherm({ ...s, winkel: huidigeWinkel() }) };
+const SCHERMEN = { acties: aanbiedingenScherm, menu: menuScherm, lijst: lijstScherm, route: routeScherm, kaart: (s) => kaartScherm({ ...s, winkel: huidigeWinkel() }) };
 
 function teken() {
   const openTeVinken = st.lijst.filter((r) => !r.afgevinkt).length;
+  const lopend = st.aanbiedingen.filter((a) => isActueel(a)).length;
   const scherm = SCHERMEN[st.tab](st);
 
   const winkelKeuze =
@@ -184,11 +224,11 @@ function teken() {
       ${scherm}
     </main>
     <nav class="nav" aria-label="Schermen">
-      ${['menu', 'lijst', 'route', 'kaart']
+      ${['menu', 'lijst', 'route', 'kaart', 'acties']
         .map(
           (t) => `<button data-tab="${t}" ${st.tab === t ? 'aria-current="page"' : ''}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONEN[t]}</svg>
-            ${t[0].toUpperCase() + t.slice(1)}${t === 'route' && st.lijst.length ? ` <span class="teller">${openTeVinken} open</span>` : ''}
+            ${t[0].toUpperCase() + t.slice(1)}${t === 'route' && st.lijst.length ? ` <span class="teller">${openTeVinken} open</span>` : ''}${t === 'acties' && lopend ? ` <span class="teller">${lopend} nu</span>` : ''}
           </button>`,
         )
         .join('')}
@@ -215,6 +255,11 @@ app.addEventListener('input', (e) => {
     st.zoek = e.target.value;
     st.zoekResultaten = zoekProducten(alleProducten(), st.zoek, st.categorieNamen);
     tekenZoekresultaten();
+  } else if (e.target.id === 'actie-zoek') {
+    st.actieZoek = e.target.value;
+    st.actieResultaten = zoekProducten(alleProducten(), st.actieZoek, st.categorieNamen, 8);
+    const vak = document.getElementById('actie-resultaten');
+    if (vak) vak.innerHTML = actieResultaten(st);
   } else if (e.target.id === 'budget' || e.target.id === 'niet-lusten') {
     // Alleen onthouden, niet opnieuw tekenen: dan blijft het toetsenbord open.
     const ins = { ...st.planner.instellingen };
@@ -317,6 +362,31 @@ app.addEventListener('click', (e) => {
       naarTab('lijst');
       break;
 
+    // Aanbiedingen
+    case 'actie-kies':
+      st.actieKeuze = id;
+      st.actieZoek = '';
+      st.actieResultaten = [];
+      st.actieFout = null;
+      teken();
+      break;
+    case 'actie-annuleer':
+      st.actieKeuze = null;
+      st.actieFout = null;
+      teken();
+      break;
+    case 'actie-opslaan':
+      slaAanbiedingOp();
+      break;
+    case 'actie-verwijder':
+      bewaarEigen(leesEigen().filter((a) => a.id !== id));
+      herlaadAanbiedingen();
+      break;
+    case 'actie-opruimen':
+      bewaarEigen(leesEigen().filter((a) => a.geldigTot >= vandaag()));
+      herlaadAanbiedingen();
+      break;
+
     // Weekmenu
     case 'menu-stap': {
       const veld = knop.dataset.veld;
@@ -365,5 +435,6 @@ function focusZoek() {
 
 bijwerken();
 teken();
+herlaadAanbiedingen();
 // Zoekindex opbouwen zodra de telefoon even niets te doen heeft.
 (window.requestIdleCallback ?? ((f) => setTimeout(f, 300)))(() => bereidZoekenVoor(st.alleProducten, st.categorieNamen));

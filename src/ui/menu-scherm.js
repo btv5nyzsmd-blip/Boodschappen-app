@@ -15,7 +15,7 @@ export function menuScherm(st) {
         <label class="veld">
           <span class="label">Weekbudget</span>
           <span class="euro-invoer"><span aria-hidden="true">€</span>
-            <input id="budget" type="number" inputmode="decimal" min="0" step="1" value="${ins.budget}" aria-label="Weekbudget in euro" /></span>
+            <input id="budget" type="text" inputmode="decimal" autocomplete="off" value="${String(ins.budget).replace('.', ',')}" aria-label="Weekbudget in euro" /></span>
         </label>
         ${stapper('Personen', 'personen', ins.personen)}
         ${stapper('Maaltijden', 'aantal', ins.aantal)}
@@ -63,6 +63,7 @@ function resultaat(st) {
   const verseRest = kosten.regels.filter((r) => !r.houdbaar && r.over > 1e-6);
   const voorraadRest = kosten.regels.filter((r) => r.houdbaar && r.over > 1e-6);
   const tekoop = kosten.regels.filter((r) => r.pakken > 0);
+  const bespaard = tekoop.reduce((som, r) => som + (r.product.aanbieding ? r.pakken * (r.product.normalePrijs - r.product.prijs) : 0), 0);
 
   return `
     <section class="budget ${binnen ? '' : 'over'}">
@@ -71,7 +72,7 @@ function resultaat(st) {
         <span class="zacht cijfers">van ${euro(budget)}${binnen ? ` · ${euro(budget - kosten.teBetalen)} over` : ''}</span>
       </div>
       <div class="meter" role="meter" aria-valuemin="0" aria-valuemax="${budget}" aria-valuenow="${kosten.teBetalen.toFixed(2)}" aria-label="Deel van je budget"><span style="width:${deel}%"></span></div>
-      <p class="zacht klein">${euro(maaltijdPrijs)} per persoon per maaltijd · ${verseRest.length ? `± ${euro(kosten.verspilling)} aan verse restjes` : 'geen verse restjes'}</p>
+      <p class="zacht klein">${euro(maaltijdPrijs)} per persoon per maaltijd · ${verseRest.length ? `± ${euro(kosten.verspilling)} aan verse restjes` : 'geen verse restjes'}${bespaard > 0 ? ` · <strong class="bespaard">${euro(bespaard)} bespaard met aanbiedingen</strong>` : ''}</p>
       ${menu.melding ? `<p class="melding waarschuwing">${esc(menu.melding)}</p>` : ''}
     </section>
 
@@ -109,7 +110,7 @@ function maaltijdKaart(st, recept, i) {
   const factor = planner.instellingen.personen / recept.personen;
   // Welke verse producten deelt dit recept met andere maaltijden in het menu?
   const gedeeld = recept.ingredienten.filter((ing) => menu.gedeeld.has(ing.product));
-  const namen = gedeeld.map((ing) => st.productenOpId.get(ing.product).naam.toLowerCase());
+  const namen = gedeeld.map((ing) => ingNaam(st, ing));
   const nummers = [...new Set(gedeeld.flatMap((ing) => menu.gedeeld.get(ing.product)))]
     .filter((n) => n !== recept.naam)
     .map((n) => menu.maaltijden.findIndex((r) => r.naam === n) + 1)
@@ -117,6 +118,7 @@ function maaltijdKaart(st, recept, i) {
   const deelt = gedeeld.length
     ? `Deelt ${opsomming(namen.length > 3 ? [...namen.slice(0, 3), `${namen.length - 3} meer`] : namen)} met maaltijd ${opsomming(nummers.map(String))}`
     : '';
+  const acties = recept.ingredienten.filter((ing) => st.productenOpId.get(ing.product)?.aanbieding).map((ing) => ingNaam(st, ing));
   const labels = [
     recept.bevat.length === 0 ? 'Vega' : null,
     recept.bevat.includes('vis') ? 'Vis' : null,
@@ -134,13 +136,14 @@ function maaltijdKaart(st, recept, i) {
       </div>
       ${labels.length ? `<div class="labels">${labels.map((l) => `<span class="tag">${l}</span>`).join('')}</div>` : ''}
       ${deelt ? `<p class="deelt">${esc(deelt)}</p>` : ''}
+      ${acties.length ? `<p class="in-actie"><span class="actie">Actie</span> ${esc(opsomming(acties))}</p>` : ''}
       <details class="recept">
         <summary>Ingrediënten en bereiding</summary>
         <ul>${recept.ingredienten
           .map((ing) => {
             const p = st.productenOpId.get(ing.product);
             const r = menu.kosten.regels.find((x) => x.product.id === ing.product);
-            return `<li><span class="cijfers">${toonHoeveelheid(ing.hoeveelheid * factor, r.eenheid)}</span> ${esc(p.naam.toLowerCase())}</li>`;
+            return `<li><span class="cijfers">${toonHoeveelheid(ing.hoeveelheid * factor, r.eenheid)}</span> ${esc(ingNaam(st, ing))}${p.aanbieding ? ' <span class="actie">Actie</span>' : ''}</li>`;
           })
           .join('')}</ul>
         <p>${esc(recept.bereiding)}</p>
@@ -157,13 +160,18 @@ function boodschap(r) {
   return `
     <li class="regel boodschap ${r.inHuis ? 'inhuis' : ''}">
       <span class="naam">${esc(productNaam(p))}</span>
-      <span class="meta cijfers">${r.inHuis ? 'Heb je al' : `${r.pakken}× ${esc(p.inhoud)} · ${euro(r.prijs)}`} · nodig ${toonHoeveelheid(r.nodig, r.eenheid)}</span>
+      <span class="meta cijfers">${r.inHuis ? 'Heb je al' : `${r.pakken}× ${esc(p.inhoud)} · ${euro(r.prijs)}${p.aanbieding ? ' <span class="actie">Actie</span>' : ''}`} · nodig ${toonHoeveelheid(r.nodig, r.eenheid)}</span>
       <label class="inhuis-vink"><input type="checkbox" data-actie="menu-voorraad" data-id="${esc(p.id)}" ${r.inHuis ? 'checked' : ''} /> <span>Heb ik</span></label>
     </li>`;
 }
 
 function rest(r) {
   return `<li><span>${esc(r.product.naam)}</span> <span class="zacht cijfers">${toonHoeveelheid(r.over, r.eenheid)} · ± ${euro(r.restWaarde)}</span></li>`;
+}
+
+/** Korte naam van een ingrediënt ("gehakt"), anders de productnaam. */
+function ingNaam(st, ing) {
+  return ing.naam ?? st.productenOpId.get(ing.product)?.naam ?? ing.product;
 }
 
 /** ['a', 'b', 'c'] → "a, b en c" */

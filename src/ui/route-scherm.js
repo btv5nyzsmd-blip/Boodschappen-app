@@ -83,7 +83,7 @@ function vink(r) {
   return `
     <label class="vink ${r.afgevinkt ? 'af' : ''}">
       <input type="checkbox" data-actie="vink" data-id="${esc(p.id)}" ${r.afgevinkt ? 'checked' : ''} />
-      <span class="naam">${esc(productNaam(p))} <span class="zacht">${esc(extraInhoud(p))}</span></span>
+      <span class="naam">${esc(productNaam(p))} <span class="zacht">${esc(extraInhoud(p))}</span>${p.aanbieding ? ' <span class="actie">Actie</span>' : ''}</span>
       ${r.aantal > 1 ? `<span class="aantal">${r.aantal}×</span>` : ''}
     </label>`;
 }
