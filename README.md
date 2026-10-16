@@ -164,7 +164,7 @@ Met `"houdbaar": true` geef je aan dat een restje niet bederft (rijst, pasta, kr
 
 ## Recepten toevoegen
 
-Recepten staan in `data/recepten.json`. Elk recept ziet er zo uit:
+Recepten staan in `data/recepten.json`; er zijn er nu 104, van Hollandse pot tot Aziatisch, Mexicaans, Italiaans en vegetarisch. Elk recept ziet er zo uit:
 
 ```json
 { "id": "bloemkoolcurry", "naam": "Bloemkoolcurry met kikkererwten", "personen": 4, "tijd": 35,
@@ -236,7 +236,7 @@ Aanbiedingen in dit bestand gelden voor iedereen die de app gebruikt. Je kunt he
 ### Wat de app met aanbiedingen doet
 
 - **Prijs:** de actieprijs vervangt de normale prijs in je lijst, het budget en het weekmenu. Je ziet een label **Actie** met de oude prijs doorgestreept.
-- **Weekmenu:** een maaltijd met een ingrediënt in de aanbieding krijgt pluspunten: 1 per ingrediënt plus de korting in euro's, met een maximum, zodat één aanbieding niet het hele menu bepaalt. Bovenaan zie je hoeveel je bespaart.
+- **Weekmenu:** een maaltijd met een ingrediënt in de aanbieding krijgt pluspunten: 3 per ingrediënt plus de korting in euro's, met een maximum, zodat één aanbieding niet het hele menu bepaalt. Bovenaan zie je hoeveel je bespaart.
 - **Twee aanbiedingen voor hetzelfde product?** De goedkoopste telt.
 
 ### Een andere bron aansluiten
@@ -318,6 +318,8 @@ De kosten **per maaltijd** zijn wat je van elk product gebruikt. Voor een recept
 - verse restjes die niemand opmaakt: strafpunten naar de waarde van het restje (de "halve bloemkool" uit de opdracht);
 - te vaak dezelfde soort (drie keer kip): een paar strafpunten;
 - een recept dat bij je voorkeur past (snel, vegetarisch, kindvriendelijk): juist pluspunten.
+
+- een recept dat je de afgelopen drie weken al voorgesteld kreeg: strafpunten, zodat je niet steeds hetzelfde eet.
 
 De combinatie met de minste strafpunten wint. Met **Andere suggestie** krijg je een ander, even goed menu. Zet maaltijden die je zeker wilt houden eerst **vast**. Met **Ander recept** vervang je één maaltijd en blijft de rest staan.
 

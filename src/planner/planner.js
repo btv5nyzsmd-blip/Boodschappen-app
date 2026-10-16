@@ -4,6 +4,7 @@
 // - boven budget: zwaar bestraft, zodat het menu er altijd onder blijft als het kan;
 // - verspilling: de waarde van verse restjes die niemand opmaakt;
 // - te vaak hetzelfde (drie keer kip in één week);
+// - recepten die je de afgelopen weken al voorgesteld kreeg;
 // - een klein beetje voor de totale prijs.
 // Recepten die bij je voorkeuren passen of ingrediënten in de aanbieding gebruiken,
 // krijgen juist pluspunten.
@@ -44,13 +45,13 @@ export function ingredientenInAanbieding(recept, productenOpId) {
 }
 
 /**
- * Pluspunten voor aanbiedingen: 1 per ingrediënt in de aanbieding plus de korting in euro's,
+ * Pluspunten voor aanbiedingen: 3 per ingrediënt in de aanbieding plus de korting in euro's,
  * met een maximum, zodat één dure aanbieding niet het hele menu bepaalt.
  * (De lagere prijs telt daarnaast al mee in de kosten.)
  */
 export function aanbiedingsVoordeel(recept, productenOpId) {
-  const voordeel = ingredientenInAanbieding(recept, productenOpId).reduce((som, p) => som + 1 + korting(p), 0);
-  return Math.min(4, voordeel);
+  const voordeel = ingredientenInAanbieding(recept, productenOpId).reduce((som, p) => som + 3 + korting(p), 0);
+  return Math.min(6, voordeel);
 }
 
 /** Woorden uit "champignons, koriander" → ['champignons', 'koriander']. */
@@ -101,13 +102,16 @@ export function score(recepten, instellingen, kostenVan, gewicht = () => 0) {
  * @param {object[]} recepten  alle recepten
  * @param {object} instellingen  { budget, personen, aantal, uitsluitingen, voorkeuren, nietLusten, seed }
  * @param {object} ctx  { productenOpId, houdbaar, voorraad }
- * @param {object} [extra]  { vast: recept-ids die moeten blijven, nietKiezen: recept-ids om over te slaan }
+ * @param {object} [extra]  { vast: recept-ids die moeten blijven, nietKiezen: recept-ids om over te slaan,
+ *   recent: recept-ids die onlangs al voorgesteld zijn (krijgen minpunten, voor afwisseling) }
  * @returns {{ maaltijden: object[], kosten: object, binnenBudget: boolean, melding: string|null }}
  */
-export function maakWeekmenu(recepten, instellingen, ctx, { vast = [], nietKiezen = [] } = {}) {
+export function maakWeekmenu(recepten, instellingen, ctx, { vast = [], nietKiezen = [], recent = [] } = {}) {
   const random = maakRandom(instellingen.seed ?? 1);
-  // Elk recept krijgt per seed een vast toevalsgewicht, voor afwisseling tussen suggesties.
-  const gewichten = new Map(recepten.map((r) => [r.id, random() * 2]));
+  // Elk recept krijgt per seed een vast toevalsgewicht, voor afwisseling tussen suggesties,
+  // plus minpunten als het onlangs al is voorgesteld.
+  const onlangs = new Set(recent);
+  const gewichten = new Map(recepten.map((r) => [r.id, random() * 2.5 + (onlangs.has(r.id) ? 4 : 0)]));
   const voordelen = new Map(recepten.map((r) => [r.id, aanbiedingsVoordeel(r, ctx.productenOpId)]));
   const gewicht = (r) => (gewichten.get(r.id) ?? 0) - (voordelen.get(r.id) ?? 0);
 
@@ -131,7 +135,7 @@ export function maakWeekmenu(recepten, instellingen, ctx, { vast = [], nietKieze
   const waardeer = (vrij) => score([...vasteRecepten, ...vrij], instellingen, kostenVan, gewicht).punten;
   let beste = null;
 
-  for (let poging = 0; poging < 25; poging++) {
+  for (let poging = 0; poging < 15; poging++) {
     // Willekeurige start…
     const pool = [...kandidaten].sort(() => random() - 0.5);
     let keuze = pool.slice(0, nogNodig);
@@ -173,11 +177,12 @@ export function maakWeekmenu(recepten, instellingen, ctx, { vast = [], nietKieze
  * Vervangt één maaltijd door de beste andere keuze; de rest blijft staan.
  * @returns hetzelfde als maakWeekmenu, met de nieuwe maaltijd op dezelfde plek.
  */
-export function vervangMaaltijd(recepten, huidig, index, instellingen, ctx) {
+export function vervangMaaltijd(recepten, huidig, index, instellingen, ctx, recent = []) {
   const anderen = huidig.filter((_, i) => i !== index).map((r) => r.id);
   const resultaat = maakWeekmenu(recepten, { ...instellingen, aantal: huidig.length }, ctx, {
     vast: anderen,
     nietKiezen: [huidig[index].id],
+    recent,
   });
   const nieuw = resultaat.maaltijden.find((r) => !anderen.includes(r.id));
   if (!nieuw) return { ...resultaat, maaltijden: huidig, melding: 'Er is geen ander recept dat past bij je wensen.' };

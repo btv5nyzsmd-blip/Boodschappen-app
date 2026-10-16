@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { zoekProducten, normaliseer } from '../src/lijst/zoeken.js';
+import { zoekProducten, normaliseer, woordvormen } from '../src/lijst/zoeken.js';
 import { voegToe, wijzigAantal, wisselAfgevinkt, verwijderAfgevinkt, routeVoorLijst, sectieVanProduct } from '../src/lijst/lijst.js';
 import producten from '../data/producten.json';
 import jumbo from '../data/winkels/jumbo-zwolle-stadshagen.json';
@@ -19,6 +19,17 @@ describe('zoeken', () => {
 
   it('vindt alleen producten met het zoekwoord in de naam', () => {
     expect(zoekProducten(producten, 'toiletpapier').every((p) => /toiletpapier/i.test(p.naam))).toBe(true);
+  });
+
+  it('begrijpt Nederlandse woordvormen (rode ↔ rood, tomaten ↔ tomaat)', () => {
+    expect(woordvormen('rode')).toContain('rood');
+    expect(woordvormen('gele')).toContain('geel');
+    expect(woordvormen('witte')).toContain('wit');
+    expect(woordvormen('tomaten')).toContain('tomaat');
+    expect(woordvormen('rood')).toContain('rode');
+    expect(woordvormen('wit')).toContain('witte');
+    expect(zoekProducten(producten, 'rode paprika')[0].naam).toBe('Jumbo Paprika Rood');
+    expect(zoekProducten(producten, 'gele paprika')[0].naam).toBe('Jumbo Paprika Geel');
   });
 
   it('geeft niets bij een lege zoekopdracht', () => {

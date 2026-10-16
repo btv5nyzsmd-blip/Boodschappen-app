@@ -240,7 +240,7 @@
         "stift",
         "lijm",
         "schaar",
-        "tape",
+        " tape ",
         "postzegel",
         "cadeaukaart",
         "giftcard",
@@ -700,7 +700,7 @@
         "koffie",
         "espresso",
         "cappuccino",
-        "latte",
+        " latte",
         "senseo",
         "nespresso",
         "dolce gusto",
@@ -742,6 +742,19 @@
         "infusion",
         "yogi tea",
         "clipper"
+      ]
+    },
+    {
+      "categorie": "conserven",
+      "woorden": [
+        "tonijnstukken",
+        "tonijnmoot",
+        "tonijn in",
+        "in water",
+        "op water",
+        "op sap",
+        "op siroop",
+        "op lichte siroop"
       ]
     },
     {
@@ -1083,6 +1096,41 @@
       ]
     },
     {
+      "categorie": "rijst",
+      "woorden": [
+        "sushi rice",
+        "sushirijst",
+        "rode linzen",
+        "groene linzen",
+        "spliterwten",
+        "gedroogde kidney",
+        "gedroogde kikkererwten",
+        "gedroogde bonen",
+        "gedroogde witte",
+        "gedroogde bruine",
+        "gedroogde zwarte"
+      ]
+    },
+    {
+      "categorie": "chips-noten",
+      "woorden": [
+        "tortilla chips",
+        "nacho chips",
+        "nachochips"
+      ]
+    },
+    {
+      "categorie": "brood",
+      "woorden": [
+        "hamburger broodjes",
+        "hamburgerbroodjes",
+        "witte puntjes",
+        "bruine puntjes",
+        "witte bolletjes",
+        "bruine bolletjes"
+      ]
+    },
+    {
       "categorie": "kip",
       "woorden": [
         "kipfilet",
@@ -1274,7 +1322,9 @@
         "varkensreepjes",
         "slagersgehakt",
         "gourmetschotel",
-        "fondue vlees"
+        "fondue vlees",
+        "rund reepjes",
+        "rundreepjes"
       ]
     },
     {
@@ -1676,7 +1726,7 @@
       "categorie": "gebak",
       "woorden": [
         "taart",
-        "gebak",
+        " gebak ",
         "tompouce",
         "appelflap",
         "slagroomsoes",
@@ -1945,7 +1995,8 @@
         "chinees",
         "surinaams",
         "faja lobi",
-        "tom kha"
+        "tom kha",
+        "gebakken uitjes"
       ]
     },
     {
@@ -2053,7 +2104,8 @@
         "gouda s glorie",
         "mosterdsaus",
         "piccalilly",
-        "piccalilli"
+        "piccalilli",
+        "harissa"
       ]
     },
     {
@@ -2290,7 +2342,8 @@
         "jalapeno",
         "groentepakket",
         "snoeptomaat",
-        "pompoen"
+        "pompoen",
+        "spruiten"
       ]
     }
   ]

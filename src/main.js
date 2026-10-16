@@ -58,6 +58,7 @@ const st = {
     vast: [], // recept-ids die blijven staan bij een nieuwe suggestie
     voorraad: [], // product-ids die je al in huis hebt
     toegevoegd: {}, // product-id → aantal dat vanuit het menu op de lijst is gezet
+    recent: [], // recepten uit eerdere suggesties, voor afwisseling (max. 3 weken)
   }),
 };
 
@@ -160,10 +161,17 @@ function wijzigPlanner(wijziging, { opnieuwRekenen = false, melding } = {}) {
   teken();
 }
 
+/** Onthoudt de recepten van het huidige menu, zodat ze de komende weken minder snel terugkomen. */
+function onthoudRecent() {
+  const nieuw = st.planner.menu.filter((id) => !st.planner.vast.includes(id));
+  return [...nieuw, ...(st.planner.recent ?? []).filter((id) => !nieuw.includes(id))].slice(0, 21);
+}
+
 function maakMenu(seed) {
   const ins = { ...st.planner.instellingen, seed };
-  const resultaat = maakWeekmenu(recepten, ins, plannerCtx(), { vast: st.planner.vast });
-  wijzigPlanner({ instellingen: ins, menu: resultaat.maaltijden.map((r) => r.id), bericht: null }, { opnieuwRekenen: true, melding: resultaat.melding });
+  const recent = onthoudRecent();
+  const resultaat = maakWeekmenu(recepten, ins, plannerCtx(), { vast: st.planner.vast, recent });
+  wijzigPlanner({ instellingen: ins, recent, menu: resultaat.maaltijden.map((r) => r.id), bericht: null }, { opnieuwRekenen: true, melding: resultaat.melding });
 }
 
 /** Zet het menu op de boodschappenlijst. Nog een keer drukken vervangt wat er eerder vanuit het menu op stond. */
@@ -415,7 +423,7 @@ app.addEventListener('click', (e) => {
     }
     case 'menu-ander': {
       const ins = { ...st.planner.instellingen, seed: st.planner.instellingen.seed + 1 };
-      const resultaat = vervangMaaltijd(recepten, st.menu.maaltijden, Number(knop.dataset.index), ins, plannerCtx());
+      const resultaat = vervangMaaltijd(recepten, st.menu.maaltijden, Number(knop.dataset.index), ins, plannerCtx(), st.planner.recent ?? []);
       wijzigPlanner({ instellingen: ins, menu: resultaat.maaltijden.map((r) => r.id), bericht: null }, { opnieuwRekenen: true, melding: resultaat.melding });
       break;
     }

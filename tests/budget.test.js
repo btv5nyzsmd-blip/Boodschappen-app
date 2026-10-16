@@ -164,6 +164,20 @@ describe('weekmenu', () => {
     expect(menu.kosten.verspilling).toBeLessThan(gemiddeld / 2);
   });
 
+  it('geeft afwisseling: recepten van vorige weken komen minder snel terug', () => {
+    let recent = [];
+    const gezien = new Set();
+    for (let week = 1; week <= 4; week++) {
+      const menu = maakWeekmenu(recepten, { ...basis, seed: week }, ctx, { recent });
+      const ids = menu.maaltijden.map((r) => r.id);
+      const herhaald = ids.filter((id) => recent.includes(id));
+      expect(herhaald.length, `week ${week}: ${herhaald}`).toBeLessThanOrEqual(1);
+      ids.forEach((id) => gezien.add(id));
+      recent = [...ids, ...recent].slice(0, 21);
+    }
+    expect(gezien.size).toBeGreaterThanOrEqual(17); // 4 weken × 5 maaltijden, bijna allemaal verschillend
+  });
+
   it('vervangt één maaltijd en laat de rest staan', () => {
     const menu = maakWeekmenu(recepten, basis, ctx);
     const nieuw = vervangMaaltijd(recepten, menu.maaltijden, 2, basis, ctx);
@@ -179,7 +193,8 @@ describe('weekmenu', () => {
   });
 
   it('meldt het als er te weinig recepten passen', () => {
-    const menu = maakWeekmenu(recepten, { ...basis, aantal: 7, nietLusten: 'uien paprika tomaten aardappelen rijst kip melk' }, ctx);
+    // Maar 3 recepten om uit te kiezen, terwijl er 5 maaltijden nodig zijn.
+    const menu = maakWeekmenu(recepten.slice(0, 3), { ...basis, aantal: 5 }, ctx);
     expect(menu.melding).toMatch(/passen maar/);
   });
 });

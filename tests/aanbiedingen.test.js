@@ -125,6 +125,6 @@ describe('weekmenu met aanbiedingen', () => {
 
   it('beperkt het voordeel, zodat één dure aanbieding het menu niet overneemt', () => {
     const p = pasToe(basis, actueleAanbiedingen([{ productId: 'kip', normalePrijs: 5, actiePrijs: 0.01, geldigTot: '2099-12-31' }], vandaag()));
-    expect(aanbiedingsVoordeel(recepten[0], new Map(p.map((x) => [x.id, x])))).toBe(4);
+    expect(aanbiedingsVoordeel(recepten[0], new Map(p.map((x) => [x.id, x])))).toBe(6);
   });
 });
