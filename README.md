@@ -307,7 +307,11 @@ Dit is niet gegarandeerd de allerkortste route, maar het komt heel dicht in de b
 
 ## Hoe het weekmenu wordt gekozen
 
-**Kosten.** Je koopt altijd hele verpakkingen. Gebruiken twee gerechten samen één bloemkool, dan koop je er maar één. Het bedrag "Te betalen" is wat je deze week bij de kassa kwijt bent. Een pak rijst dat je deze week koopt en pas volgende week opmaakt, telt dus volledig mee in deze week, zoals je het ook betaalt. Vink je bij de boodschappen "Heb ik" aan, dan telt dat product niet mee.
+**Altijd in huis.** In het blok *Altijd in huis* (op het tabblad Menu) staan basisproducten die je altijd in de kast hebt, zoals olie, peper, kruiden, bloem en sauzen. Die komen nooit op je boodschappenlijst en tellen niet mee in het budget. Standaard staan de gebruikelijke basisproducten aan; tik aan of uit wat bij jou past.
+
+**Heb ik nog.** Heb je deze week toevallig nog iets (bijv. rijst van vorige week)? Vink het aan bij de boodschappen van het menu. Dat geldt alleen deze week: na *Klaar met boodschappen* begint de volgende week weer schoon.
+
+**Kosten.** Je koopt altijd hele verpakkingen. Gebruiken twee gerechten samen één bloemkool, dan koop je er maar één. Het bedrag "Te betalen" is wat je deze week bij de kassa kwijt bent. Een pak rijst dat je deze week koopt en pas volgende week opmaakt, telt dus volledig mee in deze week, zoals je het ook betaalt. Wat *altijd in huis* is of wat je *nog hebt*, telt niet mee.
 
 De kosten **per maaltijd** zijn wat je van elk product gebruikt. Voor een recept met 300 g uit een kilozak rijst telt dus 30% van de prijs.
 

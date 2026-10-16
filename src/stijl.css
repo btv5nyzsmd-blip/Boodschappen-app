@@ -350,3 +350,8 @@ h2 { font: 600 1.15rem/1.2 var(--font-kop); margin: 0; text-wrap: balance; }
 .alternatieven .alt .naam { font-weight: 700; }
 .alternatieven .alt .meta { font-size: 0.85rem; color: var(--zacht); }
 .alternatieven .knoppen { align-items: center; justify-content: space-between; }
+
+/* Altijd in huis */
+.basis-groep { margin-top: 12px; }
+.uitklap .chip { font-size: 0.88rem; min-height: 36px; padding: 6px 12px; }
+.uitklap > .knop { margin-top: 12px; }

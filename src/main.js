@@ -23,6 +23,7 @@ import { laadAanbiedingen, actueleAanbiedingen, pasToe, isActueel, vandaag } fro
 import { bestandBron, eigenBron, leesEigen, bewaarEigen } from './aanbiedingen/bronnen.js';
 import { maakWeekmenu, vervangMaaltijd } from './planner/planner.js';
 import { berekenKosten, gedeeldeVerseProducten } from './planner/kosten.js';
+import { voorraadKandidaten, standaardBasis } from './planner/basis.js';
 import { esc } from './ui/html.js';
 
 // Alle winkels in data/winkels/ worden automatisch ingeladen.
@@ -67,7 +68,8 @@ const st = {
     instellingen: { budget: 50, personen: 2, aantal: 5, uitsluitingen: [], voorkeuren: [], nietLusten: '', seed: 1 },
     menu: [], // recept-ids
     vast: [], // recept-ids die blijven staan bij een nieuwe suggestie
-    voorraad: [], // product-ids die je al in huis hebt
+    basis: null, // "Altijd in huis": product-ids die nooit meetellen (null = nog standaard invullen)
+    voorraad: [], // "Heb ik nog": product-ids die je alleen deze week nog hebt
     toegevoegd: {}, // product-id → aantal dat vanuit het menu op de lijst is gezet
     recent: [], // recepten uit eerdere suggesties, voor afwisseling (max. 3 weken)
   }),
@@ -109,6 +111,12 @@ function bijwerken() {
   // Aanbiedingen die vandaag lopen: de actieprijs vervangt de normale prijs.
   st.alleProducten = pasToe(metAfdeling, actueleAanbiedingen(st.aanbiedingen));
   st.productenOpId = new Map(st.alleProducten.map((p) => [p.id, p]));
+  st.voorraadKandidaten = voorraadKandidaten(recepten, st.productenOpId);
+  if (!Array.isArray(st.planner.basis)) {
+    // Eerste keer: "Altijd in huis" vullen met de gebruikelijke basisproducten.
+    st.planner = { ...st.planner, basis: standaardBasis(st.voorraadKandidaten) };
+    opslag.bewaarPlanner(st.planner);
+  }
   try {
     // Pas als je iets hebt afgevinkt ben je "onderweg"; anders begint de route bij de ingang.
     const onderweg = st.lijst.some((r) => r.afgevinkt);
@@ -150,7 +158,7 @@ function slaAanbiedingOp() {
 // ---------- weekmenu ----------
 
 function plannerCtx() {
-  return { productenOpId: st.productenOpId, houdbaar: st.houdbaar, voorraad: new Set(st.planner.voorraad) };
+  return { productenOpId: st.productenOpId, houdbaar: st.houdbaar, voorraad: new Set([...(st.planner.basis ?? []), ...st.planner.voorraad]) };
 }
 
 /** Rekent het huidige menu (opnieuw) door, bijv. na "heb ik al" of een ander aantal personen. */
@@ -510,6 +518,10 @@ app.addEventListener('click', (e) => {
     case 'opruimen':
       zetPositie(null);
       vergeetMenuOpLijst();
+      // Nieuwe week: "Heb ik nog" begint weer leeg ("Altijd in huis" blijft).
+      st.planner = { ...st.planner, voorraad: [] };
+      opslag.bewaarPlanner(st.planner);
+      bijwerkenMenu();
       wijzigLijst(L.verwijderAfgevinkt(st.lijst));
       break;
     case 'vanaf-ingang':
@@ -619,6 +631,19 @@ app.addEventListener('click', (e) => {
       wijzigPlanner({ instellingen: ins, menu: resultaat.maaltijden.map((r) => r.id), bericht: null }, { opnieuwRekenen: true, melding: resultaat.melding });
       break;
     }
+    case 'basis-wissel': {
+      const basis = st.planner.basis.includes(id) ? st.planner.basis.filter((x) => x !== id) : [...st.planner.basis, id];
+      wijzigPlanner({ basis, voorraad: st.planner.voorraad.filter((x) => x !== id) }, { opnieuwRekenen: true });
+      break;
+    }
+    case 'basis-standaard':
+      wijzigPlanner({ basis: standaardBasis(st.voorraadKandidaten) }, { opnieuwRekenen: true });
+      break;
+    case 'basis-openen':
+      st.uitklap = { ...st.uitklap, basis: true };
+      teken();
+      app.querySelector('[data-uitklap=basis]')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      break;
     case 'menu-naar-lijst':
       menuNaarLijst();
       break;

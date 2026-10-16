@@ -39,6 +39,7 @@ export function menuScherm(st) {
       <button class="knop" data-actie="menu-maak">${menu ? 'Nieuw weekmenu maken' : 'Maak weekmenu'}</button>
       </div>
     </details>
+    ${altijdInHuis(st)}
     ${menu ? resultaat(st) : `<p class="leeg">Vul je wensen in en tik op <strong>Maak weekmenu</strong>.<br>De app kiest maaltijden uit ${st.recepten.length} recepten.</p>`}`;
 }
 
@@ -69,6 +70,8 @@ function resultaat(st) {
   const verseRest = kosten.regels.filter((r) => !r.houdbaar && r.over > 1e-6);
   const voorraadRest = kosten.regels.filter((r) => r.houdbaar && r.over > 1e-6);
   const tekoop = kosten.regels.filter((r) => r.pakken > 0);
+  const basis = new Set(planner.basis ?? []);
+  const inBasis = kosten.regels.filter((r) => basis.has(r.product.id)).map((r) => naamInHuis(st, r.product.id));
   const bespaard = tekoop.reduce((som, r) => som + (r.product.aanbieding ? r.pakken * (r.product.normalePrijs - r.product.prijs) : 0), 0);
 
   return `
@@ -90,8 +93,13 @@ function resultaat(st) {
 
     <details class="uitklap" data-uitklap="menu-boodschappen" ${open(st, 'menu-boodschappen')}>
       <summary><span><strong>Boodschappen voor dit menu</strong> <span class="zacht">(${tekoop.length})</span></span><span class="zacht cijfers">${euro(kosten.teBetalen)}</span></summary>
-      <p class="zacht klein">Vink aan wat je al in huis hebt; dat telt dan niet mee.</p>
-      <ul class="regels">${kosten.regels.map((r) => boodschap(r)).join('')}</ul>
+      <p class="zacht klein">Heb je iets deze week nog (bijv. rijst van vorige week)? Vink <em>Heb ik nog</em> aan, dan telt het niet mee.</p>
+      <ul class="regels">${kosten.regels.filter((r) => !basis.has(r.product.id)).map((r) => boodschap(r)).join('')}</ul>
+      ${
+        inBasis.length
+          ? `<p class="zacht klein">Altijd in huis, telt niet mee: ${esc(inBasis.join(', '))}. <button class="link" data-actie="basis-openen">Aanpassen</button></p>`
+          : ''
+      }
     </details>
 
     ${
@@ -167,13 +175,42 @@ function boodschap(r) {
   return `
     <li class="regel boodschap ${r.inHuis ? 'inhuis' : ''}">
       <span class="naam">${esc(productNaam(p))}</span>
-      <span class="meta cijfers">${r.inHuis ? 'Heb je al' : `${r.pakken}× ${esc(p.inhoud)} · ${euro(r.prijs)}${p.aanbieding ? ' <span class="actie">Actie</span>' : ''}`} · nodig ${toonHoeveelheid(r.nodig, r.eenheid)}</span>
-      <label class="inhuis-vink"><input type="checkbox" data-actie="menu-voorraad" data-id="${esc(p.id)}" ${r.inHuis ? 'checked' : ''} /> <span>Heb ik</span></label>
+      <span class="meta cijfers">${r.inHuis ? 'Heb je nog (deze week)' : `${r.pakken}× ${esc(p.inhoud)} · ${euro(r.prijs)}${p.aanbieding ? ' <span class="actie">Actie</span>' : ''}`} · nodig ${toonHoeveelheid(r.nodig, r.eenheid)}</span>
+      <label class="inhuis-vink"><input type="checkbox" data-actie="menu-voorraad" data-id="${esc(p.id)}" ${r.inHuis ? 'checked' : ''} /> <span>Heb ik nog</span></label>
     </li>`;
 }
 
 function rest(r) {
   return `<li><span>${esc(r.product.naam)}</span> <span class="zacht cijfers">${toonHoeveelheid(r.over, r.eenheid)} · ± ${euro(r.restWaarde)}</span></li>`;
+}
+
+/** Korte naam uit "Altijd in huis" ("bloem"), anders de productnaam. */
+function naamInHuis(st, productId) {
+  return st.voorraadKandidaten.find((k) => k.productId === productId)?.naam ?? st.productenOpId.get(productId)?.naam ?? productId;
+}
+
+/** Blok "Altijd in huis": basisproducten die nooit meetellen in je boodschappen. */
+function altijdInHuis(st) {
+  const basis = new Set(st.planner.basis ?? []);
+  const groepen = new Map();
+  for (const k of st.voorraadKandidaten) {
+    if (!groepen.has(k.categorie)) groepen.set(k.categorie, []);
+    groepen.get(k.categorie).push(k);
+  }
+  return `
+    <details class="uitklap" data-uitklap="basis" ${open(st, 'basis')}>
+      <summary><span><strong>Altijd in huis</strong></span><span class="zacht">${basis.size} ${basis.size === 1 ? 'product telt' : 'producten tellen'} niet mee</span></summary>
+      <p class="zacht klein">Tik aan wat je altijd in de kast hebt. Dat komt nooit op je boodschappenlijst en telt niet mee in je budget.</p>
+      ${[...groepen]
+        .map(
+          ([cat, items]) => `
+        <fieldset class="chips basis-groep"><legend class="label">${esc(st.categorieNamen[cat] ?? cat)}</legend>
+          ${items.map((k) => `<button class="chip" data-actie="basis-wissel" data-id="${esc(k.productId)}" aria-pressed="${basis.has(k.productId)}">${esc(k.naam)}</button>`).join('')}
+        </fieldset>`,
+        )
+        .join('')}
+      <button class="knop stil klein" data-actie="basis-standaard">Standaard herstellen</button>
+    </details>`;
 }
 
 /** Korte naam van een ingrediënt ("gehakt"), anders de productnaam. */
