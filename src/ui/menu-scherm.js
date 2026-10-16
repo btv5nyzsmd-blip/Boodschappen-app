@@ -1,5 +1,5 @@
 // Scherm "Menu": weekmenu samenstellen binnen je budget.
-import { esc, euro } from './html.js';
+import { esc, euro, productNaam } from './html.js';
 import { UITSLUITINGEN, VOORKEUREN } from '../planner/planner.js';
 import { toonHoeveelheid } from '../planner/verpakking.js';
 
@@ -156,7 +156,7 @@ function boodschap(r) {
   const p = r.product;
   return `
     <li class="regel boodschap ${r.inHuis ? 'inhuis' : ''}">
-      <span class="naam">${esc(p.merk && p.merk !== 'Jumbo' ? `${p.merk} ${p.naam}` : p.naam)}</span>
+      <span class="naam">${esc(productNaam(p))}</span>
       <span class="meta cijfers">${r.inHuis ? 'Heb je al' : `${r.pakken}× ${esc(p.inhoud)} · ${euro(r.prijs)}`} · nodig ${toonHoeveelheid(r.nodig, r.eenheid)}</span>
       <label class="inhuis-vink"><input type="checkbox" data-actie="menu-voorraad" data-id="${esc(p.id)}" ${r.inHuis ? 'checked' : ''} /> <span>Heb ik</span></label>
     </li>`;

@@ -1,5 +1,5 @@
 // Scherm "Lijst": producten zoeken en je boodschappenlijst beheren.
-import { esc, euro } from './html.js';
+import { esc, euro, extraInhoud, productNaam } from './html.js';
 
 export function lijstScherm(st) {
   const { lijst, productenOpId } = st;
@@ -23,7 +23,7 @@ export function lijstScherm(st) {
     ${
       regels.length === 0
         ? `<p class="leeg">Je lijst is leeg. Zoek hierboven een product om te beginnen.</p>`
-        : `<ul class="regels">${regels.map(regel).join('')}</ul>
+        : `<ul class="regels">${regels.map((r) => regel(r, st)).join('')}</ul>
            <div class="knoppen">
              <button class="knop" data-actie="naar-route">Route berekenen</button>
              ${
@@ -33,16 +33,16 @@ export function lijstScherm(st) {
                  : `<button class="knop stil" data-actie="leeg">Lijst leegmaken</button>`
              }
            </div>
-           <p class="zacht" style="font-size:.85rem;margin:0">Prijzen zijn indicaties, geen actuele Jumbo-prijzen.</p>`
+           <p class="zacht klein">${esc(st.bronTekst)}</p>`
     }`;
 }
 
-function regel(r) {
+function regel(r, st) {
   const p = r.product;
   return `
     <li class="regel">
-      <span class="naam">${esc(p.naam)}</span>
-      <span class="meta">${esc([p.merk, p.inhoud].filter(Boolean).join(' · '))}${p.prijs ? ` · ${euro(p.prijs)}` : ''}</span>
+      <span class="naam">${esc(productNaam(p))}</span>
+      <span class="meta">${esc([extraInhoud(p), p.prijs ? euro(p.prijs) : '', st.categorieNamen[p.categorie] ?? 'Afdeling onbekend'].filter(Boolean).join(' · '))}</span>
       <span class="stapper">
         <button data-actie="min" data-id="${esc(p.id)}" aria-label="Eén minder ${esc(p.naam)}">−</button>
         <output aria-label="Aantal">${r.aantal}</output>
@@ -62,8 +62,8 @@ export function zoekResultaten(st) {
       const al = opLijst.has(p.id);
       return `
         <button class="resultaat ${al ? 'toegevoegd' : ''}" data-actie="toevoegen" data-id="${esc(p.id)}">
-          <span class="naam">${esc(p.merk ? `${p.merk} ${p.naam}` : p.naam)}</span>
-          <span class="meta">${esc(p.inhoud ?? '')}${p.prijs ? ` · ${euro(p.prijs)}` : ''} · ${esc(st.categorieNamen[p.categorie] ?? p.categorie)}</span>
+          <span class="naam">${esc(productNaam(p))}</span>
+          <span class="meta">${esc([extraInhoud(p), p.prijs ? euro(p.prijs) : '', st.categorieNamen[p.categorie] ?? 'Afdeling onbekend'].filter(Boolean).join(' · '))}</span>
           <span class="plus" aria-hidden="true">${al ? '✓' : '+'}</span>
         </button>`;
     })

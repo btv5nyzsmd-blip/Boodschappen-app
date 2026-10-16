@@ -38,6 +38,11 @@ export const bewaarWinkelKeuze = (bestand) => schrijf(SLEUTEL_WINKEL, bestand);
 export const leesPositie = () => lees(SLEUTEL_POSITIE, null);
 export const bewaarPositie = (sectieId) => schrijf(SLEUTEL_POSITIE, sectieId);
 
+/** Afdelingen die je zelf hebt gekozen voor producten: product-id → categorie-id. */
+const SLEUTEL_AFDELINGEN = 'boodschappen.afdelingen.v1';
+export const leesAfdelingen = () => lees(SLEUTEL_AFDELINGEN, {});
+export const bewaarAfdelingen = (afdelingen) => schrijf(SLEUTEL_AFDELINGEN, afdelingen);
+
 /** Weekmenu: instellingen, gekozen recepten, vastgezette recepten en wat je al in huis hebt. */
 const SLEUTEL_PLANNER = 'boodschappen.planner.v1';
 export const leesPlanner = (standaard) => ({ ...standaard, ...lees(SLEUTEL_PLANNER, {}) });

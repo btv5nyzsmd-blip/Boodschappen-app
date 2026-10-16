@@ -3,8 +3,9 @@ import './stijl.css';
 import catalogus from '../data/producten.json';
 import categorieen from '../data/categorieen.json';
 import recepten from '../data/recepten.json';
+import bron from '../data/bron.json';
 import { bouwNetwerk } from './route/looppaden.js';
-import { zoekProducten, normaliseer } from './lijst/zoeken.js';
+import { zoekProducten, normaliseer, bereidZoekenVoor } from './lijst/zoeken.js';
 import * as L from './lijst/lijst.js';
 import * as opslag from './lijst/opslag.js';
 import { lijstScherm, zoekResultaten } from './ui/lijst-scherm.js';
@@ -20,11 +21,13 @@ const winkelBestanden = import.meta.glob('../data/winkels/*.json', { eager: true
 const winkels = Object.entries(winkelBestanden).map(([pad, winkel]) => ({ bestand: pad.split('/').pop(), winkel }));
 
 const VOORBEELDLIJST = [
-  ['jumbo-halfvolle-melk-1-l', 2], ['jumbo-bananen-5-stuks', 1], ['jumbo-spaghetti-500-g', 1],
-  ['jumbo-rundergehakt-500-g', 1], ['jumbo-pastasaus-basilicum-500-g', 1], ['jumbo-volkoren-brood-heel-800-g', 1],
-  ['jumbo-geraspte-kaas-jong-belegen-200-g', 1], ['coca-cola-zero-sugar-1-5-l', 2], ['jumbo-scharreleieren-10-stuks', 1],
-  ['page-toiletpapier-12-rollen', 1], ['jumbo-champignons-250-g', 1], ['jumbo-pizza-margherita-1-stuk', 2],
+  ['jumbo-verse-halfvolle-melk-1-l-498518pak', 2], ['jumbo-dole-bananen-5-stuks-532148zk', 1], ['jumbo-s-spaghetti-500-g-710328zk', 1],
+  ['jumbo-rundergehakt-500-g-131278bak', 1], ['jumbo-pesto-alla-genovese-190-g-747995pot', 1], ['jumbo-boeren-tijger-volkoren-631885stk', 1],
+  ['jumbo-geraspte-kaas-jong-belegen-48-175-g-395036zk', 1], ['coca-cola-zero-sugar-1,5-l-429181fls', 2], ['jumbo-scharreleieren-l-xl-10-stuks-610397stk', 1],
+  ['page-puur-toiletpapier-4-rollen-507415zk', 1], ['jumbo-fijne-champignons-250-g-304662pak', 1], ['jumbo-pizza-margherita-3-x-300-g-211767pak', 1],
 ];
+
+const datum = new Date(bron.bijgewerkt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
 
 const st = {
   tab: ['#menu', '#route', '#kaart'].includes(location.hash) ? location.hash.slice(1) : 'lijst',
@@ -35,6 +38,8 @@ const st = {
   categorieen,
   categorieNamen: Object.fromEntries(categorieen.map((c) => [c.id, c.naam])),
   eigenProducten: opslag.leesEigenProducten(),
+  afdelingen: opslag.leesAfdelingen(),
+  bronTekst: `Prijzen van ${datum}, via de open data van Checkjebon.nl. Aanbiedingen zitten er nog niet in.`,
   lijst: opslag.leesLijst(),
   positie: opslag.leesPositie(),
   recepten,
@@ -73,12 +78,16 @@ function netwerk() {
   return netwerken.get(w);
 }
 
+/** Catalogus + eigen producten, met de afdelingen die je zelf hebt gekozen. */
 function alleProducten() {
-  return [...catalogus, ...st.eigenProducten];
+  return st.alleProducten;
 }
 
 function bijwerken() {
-  st.productenOpId = new Map(alleProducten().map((p) => [p.id, p]));
+  st.alleProducten = [...catalogus, ...st.eigenProducten].map((p) =>
+    st.afdelingen[p.id] && st.afdelingen[p.id] !== p.categorie ? { ...p, categorie: st.afdelingen[p.id] } : p,
+  );
+  st.productenOpId = new Map(st.alleProducten.map((p) => [p.id, p]));
   try {
     // Pas als je iets hebt afgevinkt ben je "onderweg"; anders begint de route bij de ingang.
     const onderweg = st.lijst.some((r) => r.afgevinkt);
@@ -222,6 +231,12 @@ app.addEventListener('change', (e) => {
     opslag.bewaarWinkelKeuze(winkels[st.winkelIndex].bestand);
     bijwerken();
     teken();
+  } else if (e.target.dataset.actie === 'afdeling' && e.target.value) {
+    // Zelf gekozen afdeling onthouden; het product komt dan meteen in de route.
+    st.afdelingen = { ...st.afdelingen, [e.target.dataset.id]: e.target.value };
+    opslag.bewaarAfdelingen(st.afdelingen);
+    bijwerken();
+    teken();
   } else if (e.target.dataset.actie === 'menu-voorraad') {
     const id = e.target.dataset.id;
     const voorraad = e.target.checked ? [...st.planner.voorraad, id] : st.planner.voorraad.filter((v) => v !== id);
@@ -350,3 +365,5 @@ function focusZoek() {
 
 bijwerken();
 teken();
+// Zoekindex opbouwen zodra de telefoon even niets te doen heeft.
+(window.requestIdleCallback ?? ((f) => setTimeout(f, 300)))(() => bereidZoekenVoor(st.alleProducten, st.categorieNamen));

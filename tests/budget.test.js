@@ -179,7 +179,7 @@ describe('weekmenu', () => {
   });
 
   it('meldt het als er te weinig recepten passen', () => {
-    const menu = maakWeekmenu(recepten, { ...basis, aantal: 7, nietLusten: 'ui paprika tomaat aardappel rijst kip' }, ctx);
+    const menu = maakWeekmenu(recepten, { ...basis, aantal: 7, nietLusten: 'uien paprika tomaten aardappelen rijst kip melk' }, ctx);
     expect(menu.melding).toMatch(/passen maar/);
   });
 });

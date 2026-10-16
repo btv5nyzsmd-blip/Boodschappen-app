@@ -136,6 +136,7 @@
     { "id": "vers-brood", "naam": "Brood", "groep": "Bakkerij", "x": 15, "y": 35.8, "categorieen": ["brood"] },
     { "id": "vers-gebak", "naam": "Gebak", "groep": "Bakkerij", "x": 5.3, "y": 35.8, "categorieen": ["gebak"] },
     { "id": "vers-kantenklaar", "naam": "Kant-en-klaar", "groep": "Vers", "x": 36.4, "y": 35.8, "categorieen": ["kant-en-klaar"] },
+    { "id": "wand-tapas", "naam": "Salades, dips & tapas", "groep": "Linkerwand", "x": 3.3, "y": 29.4, "categorieen": ["tapas"] },
     { "id": "bloemen", "naam": "Bloemen en planten", "groep": "Bloemen", "x": 40.6, "y": 11.5, "categorieen": ["bloemen"] }
   ]
 }

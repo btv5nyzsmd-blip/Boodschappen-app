@@ -9,13 +9,26 @@ const winkels = import.meta.glob('../data/winkels/*.json', { eager: true, import
 const categorieIds = new Set(categorieen.map((c) => c.id));
 
 describe('producten.json', () => {
+  it('heeft voor ruim 90% van de producten een afdeling', () => {
+    const met = producten.filter((p) => p.categorie).length;
+    expect(met / producten.length).toBeGreaterThan(0.9);
+  });
+
+  it('heeft een afdeling voor elk product dat in een recept zit', async () => {
+    const recepten = (await import('../data/recepten.json')).default;
+    const opId = new Map(producten.map((p) => [p.id, p]));
+    const zonder = [...new Set(recepten.flatMap((r) => r.ingredienten.map((i) => i.product)))].filter((id) => !opId.get(id)?.categorie);
+    expect(zonder).toEqual([]);
+  });
+
   it('heeft unieke ids', () => {
     const ids = producten.map((p) => p.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('gebruikt alleen bestaande categorieën', () => {
-    const fout = producten.filter((p) => !categorieIds.has(p.categorie)).map((p) => `${p.id} → ${p.categorie}`);
+    // Een product zonder afdeling (null) mag: dan kiest de gebruiker die in de app.
+    const fout = producten.filter((p) => p.categorie !== null && !categorieIds.has(p.categorie)).map((p) => `${p.id} → ${p.categorie}`);
     expect(fout).toEqual([]);
   });
 

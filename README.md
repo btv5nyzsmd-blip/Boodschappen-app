@@ -18,7 +18,7 @@ Alles draait in de browser. Er is geen account of server nodig. Je lijst wordt o
 1. [Eenmalig installeren](#eenmalig-installeren)
 2. [De app starten en testen](#de-app-starten-en-testen)
 3. [Een eigen winkel toevoegen](#een-eigen-winkel-toevoegen)
-4. [Producten toevoegen](#producten-toevoegen)
+4. [Producten en prijzen](#producten-en-prijzen)
 5. [Recepten toevoegen](#recepten-toevoegen)
 6. [Online zetten (GitHub Pages)](#online-zetten-github-pages)
 7. [Hoe het werkt](#hoe-het-werkt)
@@ -123,30 +123,34 @@ Wat elk onderdeel betekent:
 
 ---
 
-## Producten toevoegen
+## Producten en prijzen
 
-### Via de app (snel)
+De productcatalogus (`data/producten.json`) bevat alle ±17.000 producten van Jumbo, met de actuele prijs. Die komen uit de **open data van [Checkjebon.nl](https://github.com/supermarkt/checkjebon)**. Dat project publiceert dagelijks de prijzen van Nederlandse supermarkten en staat hergebruik toe (MIT-licentie). Wij scrapen zelf niets.
 
-Zoek je iets dat er niet tussen staat? Onder de zoekresultaten kun je het als **eigen product** toevoegen: je kiest de afdeling en klaar. Eigen producten worden alleen op dat apparaat bewaard.
+**Prijzen bijwerken:**
+- Automatisch: als de app op GitHub staat, gebeurt dit elke ochtend (zie [Online zetten](#online-zetten-github-pages)).
+- Met de hand: `npm run prijzen`.
 
-### Via `data/producten.json` (blijvend, voor iedereen)
+De datum van de prijzen staat in `data/bron.json` en onder je boodschappenlijst.
 
-Elke regel is één product:
+> Aanbiedingen zitten nog niet in deze gegevens. De prijs is de prijs die op dat moment op jumbo.com stond.
 
-```json
-{ "id": "coca-cola-zero-sugar-1-5-l", "merk": "Coca-Cola", "naam": "Zero sugar", "inhoud": "1,5 L",
-  "categorie": "frisdrank", "prijs": 2.39, "zoekwoorden": ["cola"] }
-```
+### Afdeling van een product
 
-| Veld | Uitleg |
-|---|---|
-| `id` | Unieke code, kleine letters en streepjes. Handig: merk + naam + inhoud. |
-| `merk`, `naam`, `inhoud` | Zoals op de verpakking. Hierop wordt gezocht. |
-| `categorie` | Een id uit `data/categorieen.json`. Bepaalt waar in de winkel het ligt. |
-| `prijs` | Indicatieprijs in euro's. Nodig voor het budget in fase 2. |
-| `zoekwoorden` | Optioneel: extra woorden waarop het product gevonden moet worden (bijv. `"wc-papier"` bij toiletpapier). |
+Checkjebon geeft niet aan in welke afdeling een product ligt. De app bepaalt dat zelf met de trefwoorden in **`data/categorie-regels.json`**. Een regel zegt bijvoorbeeld: staat "kipfilet" in de naam, dan hoort het product bij *Kip & gevogelte*. De regels worden van boven naar beneden gecontroleerd en de eerste die past, wint. Zo komt "Whiskas kattenvoer met kip" bij *Huisdier*, omdat die regel bovenaan staat.
 
-De catalogus bevat nu zo'n 350 veelgekochte producten met **geschatte** prijzen. Ze zijn met de hand samengesteld en niet van de Jumbo-website gehaald.
+Ongeveer 91% van de producten krijgt zo automatisch een afdeling. Voor de rest:
+
+- **In de app:** een product zonder afdeling staat in de route onder **Afdeling onbekend**, met een keuzelijst. Kies de afdeling en het product komt meteen in de route. Je telefoon onthoudt die keuze.
+- **Voor iedereen:** zet het product in **`data/categorie-uitzonderingen.json`**, bijvoorbeeld:
+  ```json
+  { "producten": { "jumbo-erwten-450-g-699986zk": "diepvries" } }
+  ```
+  Het product-id staat in `data/producten.json`. Draai daarna `npm run prijzen`.
+
+### Producten die er niet in staan
+
+Zoek je iets dat er niet tussen staat? Onder de zoekresultaten kun je het als **eigen product** toevoegen. Je kiest de afdeling en het wordt op je telefoon bewaard.
 
 ### Een nieuwe categorie
 
@@ -165,9 +169,9 @@ Recepten staan in `data/recepten.json`. Elk recept ziet er zo uit:
   "soort": "vega", "bevat": [], "tags": ["snel"],
   "bereiding": "Fruit ui met currypasta. Voeg bloemkool, kikkererwten en kokosmelk toe…",
   "ingredienten": [
-    { "product": "jumbo-bloemkool-1-stuk", "hoeveelheid": 0.5 },
-    { "product": "jumbo-kokosmelk-400-ml", "hoeveelheid": 400 },
-    { "product": "jumbo-basmatirijst-1-kg", "hoeveelheid": 300 }
+    { "product": "jumbo-bloemkool-302249stk", "hoeveelheid": 0.5 },
+    { "product": "jumbo-kokosmelk-18-vet-400-ml-408583blk", "hoeveelheid": 400 },
+    { "product": "jumbo-basmati-rijst-voordeelverpakking-1-kg-186364zk", "hoeveelheid": 300 }
   ]
 }
 ```
@@ -188,7 +192,7 @@ Recepten staan in `data/recepten.json`. Elk recept ziet er zo uit:
 - verpakking in ml of liter → hoeveelheid in **ml** (250 ml room = `250`);
 - verpakking in stuks → hoeveelheid in **stuks** (een halve bloemkool = `0.5`, 2 eieren = `2`).
 
-Staat een ingrediënt nog niet in de catalogus? Voeg het eerst toe aan `data/producten.json`.
+Zoek het product-id op in `data/producten.json`, bijvoorbeeld door in je editor te zoeken op "bloemkool".
 
 Draai daarna `npm test`. De tests melden een onbekend product, een ontbrekend veld of een "vegetarisch" recept waar toch vlees in zit.
 
@@ -196,13 +200,24 @@ Draai daarna `npm test`. De tests melden een onbekend product, een ontbrekend ve
 
 ## Online zetten (GitHub Pages)
 
-Zo heb je de app altijd op je telefoon, ook in de winkel:
+Zo staat de app op je eigen webadres, worden de prijzen elke ochtend vanzelf bijgewerkt en heb je de app altijd op je telefoon. Het kost niets.
 
-1. Maak een gratis account op <https://github.com> en maak een nieuwe (lege) repository, bijv. `boodschappen-app`.
-2. Zet deze map erin (of vraag Claude om dat te doen).
-3. Ga in de repository naar **Settings → Pages** en kies bij **Source**: **GitHub Actions**.
-4. Bij elke wijziging draait GitHub de tests en publiceert de app op `https://<jouw-naam>.github.io/boodschappen-app/`.
-5. Open dat adres op je telefoon en kies **Zet op beginscherm**. Dan staat de app tussen je andere apps.
+**Eenmalig (± 10 minuten):**
+
+1. **Account maken.** Ga naar <https://github.com/signup> en maak een gratis account. Je gebruikersnaam komt in het webadres van de app, bijvoorbeeld `tijn.github.io`.
+2. **Lege repository maken.** Een repository is een map op GitHub waar de code in staat. Klik rechtsboven op **+** en dan **New repository**.
+   - Repository name: `boodschappen-app`
+   - Kies **Public**. GitHub Pages is alleen gratis voor openbare repositories. Er staan geen persoonlijke gegevens in de code: je lijst blijft op je telefoon.
+   - Vink verder niets aan en klik op **Create repository**.
+3. **Claude toegang geven.** Ga naar <https://claude.ai/connect-github>, koppel je GitHub-account en geef de Claude GitHub-app toegang tot `boodschappen-app`. Dan kan Claude de code erin zetten.
+4. **Pages aanzetten.** Ga in de repository naar **Settings → Pages** en kies bij **Source**: **GitHub Actions**.
+
+**Daarna gaat het vanzelf:**
+- Bij elke wijziging draait GitHub de tests en publiceert de app op `https://<jouw-naam>.github.io/boodschappen-app/`.
+- Elke ochtend om ± 07:17 haalt GitHub de nieuwste prijzen op en publiceert opnieuw.
+- Wil je het nu meteen? Ga in de repository naar **Actions → Publiceren → Run workflow**.
+
+Open het adres op je telefoon en kies **Zet op beginscherm**. Dan staat de app tussen je andere apps.
 
 ---
 
@@ -211,8 +226,12 @@ Zo heb je de app altijd op je telefoon, ook in de winkel:
 ```
 data/
   winkels/*.json        plattegronden
-  producten.json        productcatalogus
+  producten.json        productcatalogus (wordt overschreven door npm run prijzen)
   categorieen.json      afdelingen
+  categorie-regels.json trefwoorden om producten aan een afdeling te koppelen
+  recepten.json         recepten voor het weekmenu
+scripts/
+  prijzen-bijwerken.mjs haalt producten en prijzen op bij Checkjebon.nl
 src/
   route/looppaden.js    maakt een netwerk van looppaden en kruisingen
   route/afstanden.js    kortste loopafstand tussen twee punten (Dijkstra)

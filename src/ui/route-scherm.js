@@ -1,6 +1,6 @@
 // Scherm "Route": de stops in looproute-volgorde, met afvinken.
 // De route wordt berekend vanaf de plek waar je het laatst iets afvinkte.
-import { esc, meters } from './html.js';
+import { esc, meters, extraInhoud, productNaam } from './html.js';
 
 /** Index van de eerste stop waar nog iets af te vinken is (of -1). */
 export function volgendeStop(stops) {
@@ -40,8 +40,8 @@ export function routeScherm(st) {
       ${stops.map((stop, i) => stopKaart(stop, i, volgende)).join('')}
       ${
         nietGevonden.length
-          ? `<li class="stop"><div class="stopkop"><span class="nummer">?</span><span class="titel"><strong>Niet op de plattegrond</strong><small>Deze afdeling staat niet in de winkel-indeling</small></span></div>
-             ${nietGevonden.map(vink).join('')}</li>`
+          ? `<li class="stop"><div class="stopkop"><span class="nummer">?</span><span class="titel"><strong>Afdeling onbekend</strong><small>Kies de afdeling, dan komt het product in de route</small></span></div>
+             ${nietGevonden.map((r) => vink(r) + afdelingKiezen(r, st)).join('')}</li>`
           : ''
       }
     </ol>
@@ -83,7 +83,17 @@ function vink(r) {
   return `
     <label class="vink ${r.afgevinkt ? 'af' : ''}">
       <input type="checkbox" data-actie="vink" data-id="${esc(p.id)}" ${r.afgevinkt ? 'checked' : ''} />
-      <span class="naam">${esc(p.merk && p.merk !== 'Jumbo' ? `${p.merk} ${p.naam}` : p.naam)} <span class="zacht">${esc(p.inhoud ?? '')}</span></span>
+      <span class="naam">${esc(productNaam(p))} <span class="zacht">${esc(extraInhoud(p))}</span></span>
       ${r.aantal > 1 ? `<span class="aantal">${r.aantal}×</span>` : ''}
     </label>`;
+}
+
+function afdelingKiezen(r, st) {
+  const opties = st.categorieen.map((c) => `<option value="${esc(c.id)}">${esc(c.naam)}</option>`).join('');
+  return `
+    <div class="afdeling-kiezen">
+      <select data-actie="afdeling" data-id="${esc(r.product.id)}" aria-label="Afdeling voor ${esc(r.product.naam)}">
+        <option value="">Kies de afdeling…</option>${opties}
+      </select>
+    </div>`;
 }

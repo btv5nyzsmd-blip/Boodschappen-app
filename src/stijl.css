@@ -244,3 +244,6 @@ h2 { font: 600 1.15rem/1.2 var(--font-kop); margin: 0; text-wrap: balance; }
 .boodschap.inhuis .naam { color: var(--zacht); text-decoration: line-through; }
 .rest { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 0.95rem; }
 .rest li { display: flex; justify-content: space-between; gap: 12px; }
+
+.afdeling-kiezen { padding: 0 14px 12px 54px; }
+.afdeling-kiezen select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--lijn); background: var(--vlak); }

@@ -9,6 +9,7 @@
   { "id": "vis", "naam": "Vis", "houdbaar": false },
   { "id": "vegetarisch", "naam": "Vegetarisch & maaltijden", "houdbaar": false },
   { "id": "kant-en-klaar", "naam": "Kant-en-klaar", "houdbaar": false },
+  { "id": "tapas", "naam": "Salades, dips & tapas", "houdbaar": false },
   { "id": "vleeswaren", "naam": "Vleeswaren", "houdbaar": false },
   { "id": "kaas", "naam": "Kaas", "houdbaar": false },
   { "id": "zuivel", "naam": "Zuivel", "houdbaar": false },
