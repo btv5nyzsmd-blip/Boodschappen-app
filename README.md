@@ -3,8 +3,8 @@
 Een webapp voor op je telefoon. Je zet je boodschappen op een lijst en de app berekent de kortste looproute door de supermarkt. Onderweg vink je af wat je hebt.
 
 - **Lijst**: zoek specifieke producten (merk, inhoud) en zet ze op je lijst.
-- **Route**: de stops in looproute-volgorde, met per stop de producten om af te vinken.
-- **Kaart**: een plattegrond van de winkel met de route en de volgende stop.
+- **Route**: de stops in looproute-volgorde, met per stop de producten om af te vinken. Vink je iets af buiten de volgorde, of voeg je onderweg iets toe? Dan wordt de rest van de route opnieuw berekend vanaf waar je nu staat.
+- **Kaart**: een plattegrond van de winkel met de route, de volgende stop en waar je nu bent.
 
 Alles draait in de browser. Er is geen account of server nodig. Je lijst wordt op je eigen telefoon bewaard.
 
@@ -55,9 +55,7 @@ Wijzig je een bestand terwijl de app draait, dan ververst de pagina vanzelf.
 
 Winkels staan in `data/winkels/`. Elk `.json`-bestand in die map verschijnt automatisch in de app. Bij meer dan één winkel krijg je bovenaan een keuzelijst.
 
-De makkelijkste manier is `jumbo-zwolle-stadshagen.json` kopiëren en aanpassen.
-
-> De voorbeeldwinkel is een **schatting**, geen officiële plattegrond. Loop een keer door de winkel en noteer welke afdeling in welke gang staat.
+De makkelijkste manier is `jumbo-zwolle-stadshagen.json` kopiëren en aanpassen. Die winkel is overgenomen van de officiële Jumbo-plattegrond. Vraag in de winkel of op de website naar de plattegrond van jouw filiaal; daarop staan alle afdelingen.
 
 ### Stap 1: teken de winkel op ruitjespapier
 
@@ -67,13 +65,13 @@ Gebruik meters, met één hokje per meter. De linkerbovenhoek (achterwand, links
 - **y** loopt van de achterwand naar de voorkant (de ingang).
 
 ```
- (0,0) ──────────── achterwand ─────────────── x →
-   │   ┌────────── koeling ──────────┐
-   │   │ achterpad  y=4              │
-   │   │  ║ gang 1  ║ gang 2  ║ ...  │
-   │   │  ║  x=9    ║  x=12   ║      │
-   y   │ voorpad  y=29                │
-   ↓   └─ ingang (3,33) ── kassa's ──┘
+ (0,0) ─────────────────────────── x →
+   │   ┌───────── bier & wijn ─────────┐
+   │   │ ═══ pad (y=2.6) ════════════  │
+   │   │ ▓▓▓▓▓ schap ▓▓▓▓▓  ▓▓▓▓▓▓▓▓   │
+   │   │ ═══ pad (y=6) ══════════════  │   ═══ = looppad
+   y   │ ...                    kassa's│   ▓▓▓ = schap
+   ↓   └──────────────────── ingang ───┘
 ```
 
 ### Stap 2: vul het bestand in
@@ -110,6 +108,8 @@ Wat elk onderdeel betekent:
 | `secties` | Een plek in de winkel waar je stilstaat om iets te pakken. `x`/`y` is waar je dan staat, dus midden in het gangpad. De app koppelt een sectie automatisch aan het dichtstbijzijnde looppad. Wil je zelf kiezen, zet er dan `"looppad": "gang-1"` bij. |
 | `categorieen` | Welke afdelingen bij die sectie liggen. Gebruik de ids uit `data/categorieen.json`. **Elke categorie mag maar in één sectie staan.** |
 | `schappen` | Alleen voor de tekening: grijze rechthoeken (`x`, `y` = linkerbovenhoek). Met `"soort": "kassa"` worden ze oranje. Ze hebben geen invloed op de route. |
+| `omtrek` | Optioneel: de buitenmuur als lijst hoekpunten `[x, y]`, voor een winkel die niet rechthoekig is. |
+| `labels` | Optioneel: afdelingsnamen op de kaart, bijv. `{ "tekst": "Zuivel", "x": 1.6, "y": 11, "draai": -90 }`. |
 | `kassas` | Elke kassa is een mogelijk eindpunt. De app kiest de kassa die de totale route het kortst maakt. |
 
 ### Tips
@@ -184,8 +184,11 @@ tests/                  automatische tests
 1. De app berekent voor elk paar stops hoe ver je moet lopen, via de gangpaden en niet hemelsbreed.
 2. Hij maakt een eerste route door steeds naar de dichtstbijzijnde stop te lopen die je nog niet had.
 3. Daarna probeert hij stukken van de route om te draaien ("2-opt"). Wordt de route daar korter van, dan houdt hij die versie. Dat herhaalt hij tot er niets meer te winnen valt.
-4. Dat doet hij voor elke kassa als eindpunt en kiest de kortste uitkomst.
+4. Dan probeert hij losse stops (of groepjes van 2–3) naar een betere plek te verplaatsen ("or-opt"). Bijvoorbeeld de groente die achteraan stond, terwijl je er bij binnenkomst al langsliep.
+5. Stap 3 en 4 herhaalt hij tot er niets meer te winnen valt, voor elke kassa als eindpunt. De kortste uitkomst wint.
 
-Dit is niet gegarandeerd de allerkortste route, maar een test controleert dat hij in de voorbeeldwinkel nooit meer dan 10% langer is dan de kortst mogelijke route.
+Dit is niet gegarandeerd de allerkortste route, maar het komt heel dicht in de buurt. In de Jumbo Zwolle Stadshagen, met 200 willekeurige lijsten van 12 stops, was de route gemiddeld 0,3% langer dan de kortst mogelijke, en in het slechtste geval 5%.
+
+**Onderweg herberekenen:** zodra je iets afvinkt, onthoudt de app dat je bij die afdeling staat. De rest van de route wordt dan vanaf daar berekend. Met **Vanaf ingang** op het routescherm begin je weer bij de ingang. Met **Klaar met boodschappen** haal je de afgevinkte producten van de lijst, en begint de volgende keer weer bij de ingang.
 
 **Techniek:** gewoon JavaScript zonder framework, [Vite](https://vite.dev) om te starten en te bouwen, en [Vitest](https://vitest.dev) voor de tests. Er zijn weinig onderdelen die kunnen verouderen.

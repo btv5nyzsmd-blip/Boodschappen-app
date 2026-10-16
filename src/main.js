@@ -32,6 +32,7 @@ const st = {
   categorieNamen: Object.fromEntries(categorieen.map((c) => [c.id, c.naam])),
   eigenProducten: opslag.leesEigenProducten(),
   lijst: opslag.leesLijst(),
+  positie: opslag.leesPositie(),
 };
 
 // Eerste keer openen: een voorbeeldlijst, zodat je meteen ziet wat de app doet.
@@ -66,10 +67,17 @@ function alleProducten() {
 function bijwerken() {
   st.productenOpId = new Map(alleProducten().map((p) => [p.id, p]));
   try {
-    st.routeInfo = L.routeVoorLijst(huidigeWinkel(), st.lijst, st.productenOpId, netwerk());
+    // Pas als je iets hebt afgevinkt ben je "onderweg"; anders begint de route bij de ingang.
+    const onderweg = st.lijst.some((r) => r.afgevinkt);
+    st.routeInfo = L.routeVoorLijst(huidigeWinkel(), st.lijst, st.productenOpId, netwerk(), onderweg ? st.positie : null);
   } catch (fout) {
     st.routeInfo = { fout: fout.message, stops: [], nietGevonden: [] };
   }
+}
+
+function zetPositie(sectieId) {
+  st.positie = sectieId;
+  opslag.bewaarPositie(sectieId);
 }
 
 function wijzigLijst(nieuw) {
@@ -146,7 +154,10 @@ app.addEventListener('change', (e) => {
     bijwerken();
     teken();
   } else if (e.target.dataset.actie === 'vink') {
-    wijzigLijst(L.wisselAfgevinkt(st.lijst, e.target.dataset.id));
+    const id = e.target.dataset.id;
+    // Afvinken = je staat nu bij dit product. De rest van de route gaat vanaf hier.
+    if (e.target.checked) zetPositie(L.sectieVanProduct(huidigeWinkel(), st.productenOpId.get(id)));
+    wijzigLijst(L.wisselAfgevinkt(st.lijst, id));
   }
 });
 
@@ -199,10 +210,17 @@ app.addEventListener('click', (e) => {
       break;
     case 'leeg-bevestigd':
       st.bevestigLeeg = false;
+      zetPositie(null);
       wijzigLijst([]);
       break;
     case 'opruimen':
+      zetPositie(null);
       wijzigLijst(L.verwijderAfgevinkt(st.lijst));
+      break;
+    case 'vanaf-ingang':
+      zetPositie(null);
+      bijwerken();
+      teken();
       break;
     case 'naar-route':
       naarTab('route');

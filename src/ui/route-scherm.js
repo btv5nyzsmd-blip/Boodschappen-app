@@ -1,4 +1,5 @@
 // Scherm "Route": de stops in looproute-volgorde, met afvinken.
+// De route wordt berekend vanaf de plek waar je het laatst iets afvinkte.
 import { esc, meters } from './html.js';
 
 /** Index van de eerste stop waar nog iets af te vinken is (of -1). */
@@ -13,20 +14,27 @@ export function routeScherm(st) {
   }
   if (routeInfo.fout) return `<p class="melding">De route kon niet worden berekend: ${esc(routeInfo.fout)}</p>`;
 
-  const { route, stops, nietGevonden } = routeInfo;
-  const alle = [...stops.flatMap((s) => s.regels), ...nietGevonden];
-  const af = alle.filter((r) => r.afgevinkt).length;
+  const { route, vanaf, stops, inKar, nietGevonden } = routeInfo;
+  const totaal = st.lijst.length;
+  const af = st.lijst.filter((r) => r.afgevinkt).length;
   const volgende = volgendeStop(stops);
+  const open = stops.filter((s) => s.regels.some((r) => !r.afgevinkt)).length;
 
   return `
     <section class="samenvatting">
-      <div><span class="label">Stops</span><strong>${stops.length}</strong></div>
-      <div><span class="label">Afstand</span><strong>± ${route ? meters(route.totaleAfstand) : '–'}</strong></div>
-      <div><span class="label">Afgevinkt</span><strong class="cijfers">${af}/${alle.length}</strong></div>
+      <div><span class="label">Nog stops</span><strong>${open}</strong></div>
+      <div><span class="label">Nog lopen</span><strong>± ${route ? meters(route.totaleAfstand) : '–'}</strong></div>
+      <div><span class="label">Afgevinkt</span><strong class="cijfers">${af}/${totaal}</strong></div>
     </section>
-    <div class="voortgang" role="progressbar" aria-valuemin="0" aria-valuemax="${alle.length}" aria-valuenow="${af}">
-      <span style="width:${alle.length ? (100 * af) / alle.length : 0}%"></span>
+    <div class="voortgang" role="progressbar" aria-valuemin="0" aria-valuemax="${totaal}" aria-valuenow="${af}">
+      <span style="width:${totaal ? (100 * af) / totaal : 0}%"></span>
     </div>
+    ${
+      vanaf
+        ? `<div class="vanaf"><span>Route berekend vanaf <strong>${esc(vanaf.naam)}</strong>, waar je het laatst iets afvinkte.</span>
+           <button class="knop stil klein" data-actie="vanaf-ingang">Vanaf ingang</button></div>`
+        : ''
+    }
 
     <ol class="stops">
       ${stops.map((stop, i) => stopKaart(stop, i, volgende)).join('')}
@@ -37,20 +45,33 @@ export function routeScherm(st) {
           : ''
       }
     </ol>
-    ${route ? `<div class="kassa-eind"><span class="label">Eindpunt</span><strong>${esc(route.kassa.naam)}</strong></div>` : ''}
-    ${af > 0 ? `<div class="knoppen"><button class="knop stil" data-actie="opruimen">Afgevinkte producten van de lijst halen</button></div>` : ''}`;
+    ${
+      route
+        ? `<div class="kassa-eind"><span class="label">${volgende === -1 ? 'Klaar, loop naar' : 'Eindpunt'}</span><strong>${esc(route.kassa.naam)}</strong></div>`
+        : ''
+    }
+    ${
+      inKar.length
+        ? `<details class="inkar">
+             <summary><strong>In je kar</strong> <span class="zacht">(${inKar.length})</span></summary>
+             ${inKar.map(vink).join('')}
+           </details>`
+        : ''
+    }
+    ${af > 0 ? `<div class="knoppen"><button class="knop stil" data-actie="opruimen">Klaar met boodschappen: afgevinkte producten van de lijst halen</button></div>` : ''}`;
 }
 
 function stopKaart(stop, i, volgende) {
   const klaar = stop.regels.every((r) => r.afgevinkt);
   const status = i === volgende ? 'volgende' : klaar ? 'klaar' : '';
+  const open = stop.regels.filter((r) => !r.afgevinkt).length;
   return `
     <li class="stop ${status}">
       <div class="stopkop">
         <span class="nummer">${i + 1}</span>
         <span class="titel">
           <strong>${esc(stop.sectie.naam)}</strong>
-          <small>${i === volgende ? 'Volgende stop · ' : ''}${stop.regels.length} ${stop.regels.length === 1 ? 'product' : 'producten'}</small>
+          <small>${i === volgende ? 'Volgende stop · ' : ''}${open} ${open === 1 ? 'product' : 'producten'} te pakken</small>
         </span>
       </div>
       ${stop.regels.map(vink).join('')}

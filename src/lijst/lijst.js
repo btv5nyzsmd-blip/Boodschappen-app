@@ -27,30 +27,46 @@ export function verwijderAfgevinkt(lijst) {
   return lijst.filter((r) => !r.afgevinkt);
 }
 
+/** In welke sectie van de winkel ligt dit product? (sectie-id of null) */
+export function sectieVanProduct(winkel, product) {
+  return winkel.secties.find((s) => s.categorieen.includes(product?.categorie))?.id ?? null;
+}
+
 /**
- * Koppelt de lijst aan de winkel en berekent de route.
+ * Koppelt de lijst aan de winkel en berekent de route voor wat je nog moet pakken.
+ *
+ * De route begint bij `positie` (de plek waar je het laatst iets afvinkte) of bij
+ * de ingang. Zo wordt de route vanzelf opnieuw berekend als je iets in een andere
+ * volgorde pakt of onderweg iets aan je lijst toevoegt.
+ *
  * @param {object} winkel
  * @param {{productId:string, aantal:number, afgevinkt:boolean}[]} lijst
  * @param {Map<string,object>} productenOpId
- * @returns {{ route: object|null, stops: {sectie: object, regels: object[]}[], nietGevonden: object[] }}
- *   Elke regel is { ...lijstregel, product }.
+ * @param {object} [netwerk]
+ * @param {string|null} [positie]  sectie-id waar je nu staat
+ * @returns {{ route: object|null, vanaf: object|null, stops: {sectie: object, regels: object[]}[], inKar: object[], nietGevonden: object[] }}
+ *   Elke regel is { ...lijstregel, product }. Stops bevatten de nog te pakken producten,
+ *   plus wat je in diezelfde sectie al hebt afgevinkt.
  */
-export function routeVoorLijst(winkel, lijst, productenOpId, netwerk) {
+export function routeVoorLijst(winkel, lijst, productenOpId, netwerk, positie = null) {
   const regels = lijst
     .map((r) => ({ ...r, product: productenOpId.get(r.productId) }))
     .filter((r) => r.product);
+  const nogTeDoen = regels.filter((r) => !r.afgevinkt);
 
-  const { perSectie, nietGevonden } = sectiesVoorCategorieen(winkel, regels.map((r) => r.product.categorie));
-  const sectieVanCategorie = new Map();
-  for (const [sectieId, cats] of perSectie) for (const c of cats) sectieVanCategorie.set(c, sectieId);
+  const { perSectie, nietGevonden } = sectiesVoorCategorieen(winkel, nogTeDoen.map((r) => r.product.categorie));
+  const sectieVan = (r) => sectieVanProduct(winkel, r.product);
 
-  const regelsNietGevonden = regels.filter((r) => nietGevonden.includes(r.product.categorie));
-  if (perSectie.size === 0) return { route: null, stops: [], nietGevonden: regelsNietGevonden };
+  const vanaf = winkel.secties.find((s) => s.id === positie) ?? null;
+  const regelsNietGevonden = regels.filter((r) => nietGevonden.includes(r.product.categorie) || (r.afgevinkt && !sectieVan(r)));
 
-  const route = berekenRoute(winkel, [...perSectie.keys()], netwerk);
-  const stops = route.stops.map(({ sectie }) => ({
+  const route = perSectie.size > 0 || vanaf ? berekenRoute(winkel, [...perSectie.keys()], netwerk, vanaf ? vanaf.id : 'ingang') : null;
+  const stops = (route?.stops ?? []).map(({ sectie }) => ({
     sectie,
-    regels: regels.filter((r) => sectieVanCategorie.get(r.product.categorie) === sectie.id),
+    regels: regels.filter((r) => sectieVan(r) === sectie.id),
   }));
-  return { route, stops, nietGevonden: regelsNietGevonden };
+  const inStop = new Set(stops.flatMap((s) => s.regels));
+  const inKar = regels.filter((r) => r.afgevinkt && !inStop.has(r) && sectieVan(r));
+
+  return { route, vanaf, stops, inKar, nietGevonden: regelsNietGevonden };
 }

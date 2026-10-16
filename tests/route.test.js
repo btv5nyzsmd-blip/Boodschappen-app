@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { bouwNetwerk } from '../src/route/looppaden.js';
 import { afstandenTabel } from '../src/route/afstanden.js';
-import { berekenRoute, tweeOpt, routeLengte, dichtstbijzijndeBuur, sectiesVoorCategorieen } from '../src/route/route.js';
+import { berekenRoute, tweeOpt, orOpt, verbeter, routeLengte, dichtstbijzijndeBuur, sectiesVoorCategorieen } from '../src/route/route.js';
 import jumbo from '../data/winkels/jumbo-zwolle-stadshagen.json';
 
 // Een winkel met één rechte gang: ingang links, kassa rechts.
@@ -84,16 +84,16 @@ describe('berekenRoute', () => {
   });
 
   it('begint bij de ingang en eindigt bij een kassa', () => {
-    const route = berekenRoute(jumbo, ['achter-zuivel', 'gang-3-voor']);
+    const route = berekenRoute(jumbo, ['wand-zuivel', 'pad1-pasta']);
     expect(route.lijn[0]).toEqual({ x: jumbo.ingang.x, y: jumbo.ingang.y });
     const laatste = route.lijn[route.lijn.length - 1];
     expect(jumbo.kassas.some((k) => k.x === laatste.x && k.y === laatste.y)).toBe(true);
   });
 
   it('bezoekt elke sectie precies één keer, ook bij dubbele invoer', () => {
-    const ids = ['gang-5-voor', 'achter-kaas', 'gang-5-voor', 'agf-fruit'];
+    const ids = ['pad3-bakken', 'vers-kaas', 'pad3-bakken', 'vers-fruit'];
     const route = berekenRoute(jumbo, ids);
-    expect(route.stops.map((s) => s.sectie.id).sort()).toEqual(['achter-kaas', 'agf-fruit', 'gang-5-voor']);
+    expect(route.stops.map((s) => s.sectie.id).sort()).toEqual(['pad3-bakken', 'vers-fruit', 'vers-kaas']);
   });
 
   it('kiest de kassa die de route het kortst maakt', () => {
@@ -105,13 +105,22 @@ describe('berekenRoute', () => {
     expect(berekenRoute(winkel, ['a']).kassa.naam).toBe('Dichtbij');
   });
 
+  it('kan starten vanaf een sectie in plaats van de ingang', () => {
+    // Je staat bij b (x = 5): eerst c (x = 8) en dan pas a (x = 2) zou omlopen zijn.
+    const winkel = { ...gangWinkel, kassas: [{ naam: 'Kassa', x: 0, y: 0 }] };
+    const route = berekenRoute(winkel, ['a', 'c'], undefined, 'b');
+    expect(route.stops.map((s) => s.sectie.id)).toEqual(['c', 'a']);
+    expect(route.lijn[0]).toEqual({ x: 5, y: 0 });
+    expect(route.totaleAfstand).toBeCloseTo(3 + 8);
+  });
+
   it('werkt ook met een lege lijst (ingang → kassa)', () => {
     const route = berekenRoute(gangWinkel, []);
     expect(route.stops).toEqual([]);
     expect(route.totaleAfstand).toBeCloseTo(10);
   });
 
-  it('komt in de voorbeeldwinkel dicht bij de echte kortste route', () => {
+  it('komt in de Jumbo dicht bij de echte kortste route', () => {
     const netwerk = bouwNetwerk(jumbo);
     const random = maakRandom(42);
     for (let poging = 0; poging < 25; poging++) {
@@ -121,7 +130,7 @@ describe('berekenRoute', () => {
       const tabel = afstandenTabel(netwerk, ['ingang', ...gekozen, ...kassaIds]);
       const stops = gekozen.map((_, i) => i + 1);
       const besteMogelijk = Math.min(...kassaIds.map((_, k) => optimaal(tabel.d, 0, stops, 1 + gekozen.length + k)));
-      expect(route.totaleAfstand).toBeLessThanOrEqual(besteMogelijk * 1.1 + 1e-9);
+      expect(route.totaleAfstand).toBeLessThanOrEqual(besteMogelijk * 1.05 + 1e-9);
     }
   });
 });
@@ -151,6 +160,30 @@ describe('2-opt', () => {
   });
 });
 
+describe('or-opt', () => {
+  it('verplaatst een stop die achteraan staat naar waar je er al langs liep', () => {
+    // Punten op een lijn: 0 (ingang) — 1 — 2 — 3 — 4 (kassa). Stop 1 staat achteraan.
+    const x = [0, 1, 2, 3, 4];
+    const d = x.map((a) => x.map((b) => Math.abs(a - b)));
+    expect(orOpt(d, [0, 2, 3, 1, 4])).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('maakt een route nooit langer en houdt begin en eind vast', () => {
+    const random = maakRandom(11);
+    for (let poging = 0; poging < 50; poging++) {
+      const punten = Array.from({ length: 9 }, () => ({ x: random() * 50, y: random() * 50 }));
+      const d = punten.map((a) => punten.map((b) => Math.hypot(a.x - b.x, a.y - b.y)));
+      const start = [0, ...[1, 2, 3, 4, 5, 6, 7].sort(() => random() - 0.5), 8];
+      for (const beter of [orOpt(d, start), verbeter(d, start)]) {
+        expect(routeLengte(d, beter)).toBeLessThanOrEqual(routeLengte(d, start) + 1e-9);
+        expect(beter[0]).toBe(0);
+        expect(beter[8]).toBe(8);
+        expect([...beter].sort()).toEqual([...start].sort());
+      }
+    }
+  });
+});
+
 describe('nearest neighbour', () => {
   it('gaat steeds naar het dichtstbijzijnde punt', () => {
     const d = [
@@ -166,8 +199,8 @@ describe('nearest neighbour', () => {
 describe('sectiesVoorCategorieen', () => {
   it('groepeert categorieën per sectie en meldt onbekende', () => {
     const { perSectie, nietGevonden } = sectiesVoorCategorieen(jumbo, ['pasta', 'rijst', 'zuivel', 'onbekend']);
-    expect(perSectie.get('gang-3-voor')).toEqual(['pasta', 'rijst']);
-    expect(perSectie.get('achter-zuivel')).toEqual(['zuivel']);
+    expect(perSectie.get('pad1-pasta')).toEqual(['pasta', 'rijst']);
+    expect(perSectie.get('wand-zuivel')).toEqual(['zuivel']);
     expect(nietGevonden).toEqual(['onbekend']);
   });
 });

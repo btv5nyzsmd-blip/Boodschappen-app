@@ -178,3 +178,14 @@ h2 { font: 600 1.15rem/1.2 var(--font-kop); margin: 0; text-wrap: balance; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* Herberekende route en positie */
+.vanaf { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; font-size: 0.92rem; color: var(--zacht); }
+.vanaf span { min-width: 0; flex: 1 1 200px; }
+.knop.klein { min-height: 36px; padding: 6px 12px; font-size: 0.9rem; }
+.inkar { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 12px; overflow: hidden; }
+.inkar summary { padding: 12px 14px; cursor: pointer; min-height: 48px; }
+.kaart .afdeling { fill: var(--zacht); font: 700 1.05px var(--font-kop); text-anchor: middle; opacity: 0.9; paint-order: stroke; stroke: var(--vloer); stroke-width: 0.35px; }
+.kaart .hier circle { fill: var(--volgende); opacity: 0.25; }
+.kaart .hier circle.kern { fill: var(--inkt); opacity: 1; stroke: var(--vlak); stroke-width: 0.25; }
+.legenda .hier-stip { background: var(--inkt); box-shadow: 0 0 0 3px color-mix(in srgb, var(--volgende) 35%, transparent); }

@@ -4,6 +4,7 @@
 const SLEUTEL_LIJST = 'boodschappen.lijst.v1';
 const SLEUTEL_EIGEN = 'boodschappen.eigen-producten.v1';
 const SLEUTEL_WINKEL = 'boodschappen.winkel.v1';
+const SLEUTEL_POSITIE = 'boodschappen.positie.v1';
 
 function lees(sleutel, standaard) {
   try {
@@ -32,3 +33,7 @@ export const bewaarEigenProducten = (producten) => schrijf(SLEUTEL_EIGEN, produc
 
 export const leesWinkelKeuze = () => lees(SLEUTEL_WINKEL, null);
 export const bewaarWinkelKeuze = (bestand) => schrijf(SLEUTEL_WINKEL, bestand);
+
+/** De sectie waar je het laatst iets afvinkte (vanaf daar wordt de route berekend). */
+export const leesPositie = () => lees(SLEUTEL_POSITIE, null);
+export const bewaarPositie = (sectieId) => schrijf(SLEUTEL_POSITIE, sectieId);

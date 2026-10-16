@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { zoekProducten, normaliseer } from '../src/lijst/zoeken.js';
-import { voegToe, wijzigAantal, wisselAfgevinkt, verwijderAfgevinkt, routeVoorLijst } from '../src/lijst/lijst.js';
+import { voegToe, wijzigAantal, wisselAfgevinkt, verwijderAfgevinkt, routeVoorLijst, sectieVanProduct } from '../src/lijst/lijst.js';
 import producten from '../data/producten.json';
 import jumbo from '../data/winkels/jumbo-zwolle-stadshagen.json';
 
@@ -57,7 +57,7 @@ describe('lijst', () => {
     }
     const { stops, nietGevonden } = routeVoorLijst(jumbo, lijst, opId);
     expect(nietGevonden).toEqual([]);
-    const pastaStop = stops.find((s) => s.sectie.id === 'gang-3-voor');
+    const pastaStop = stops.find((s) => s.sectie.id === 'pad1-pasta');
     expect(pastaStop.regels.map((r) => r.product.naam).sort()).toEqual(['Basmatirijst', 'Spaghetti']);
     expect(stops.flatMap((s) => s.regels)).toHaveLength(4);
   });
@@ -69,3 +69,61 @@ describe('lijst', () => {
     expect(nietGevonden.map((r) => r.productId)).toEqual(['x']);
   });
 });
+
+describe('route herberekenen onderweg', () => {
+  const melk = 'jumbo-halfvolle-melk-1-l'; // zuivelwand
+  const spaghetti = 'jumbo-spaghetti-500-g'; // pad 1
+  const bananen = 'jumbo-bananen-5-stuks'; // groente & fruit
+  const brood = 'jumbo-volkoren-brood-heel-800-g'; // bakkerij
+  const lijstMet = (...ids) => ids.reduce((l, id) => voegToe(l, id), []);
+
+  it('laat afgevinkte producten uit de route en berekent de rest vanaf je positie', () => {
+    let lijst = lijstMet(melk, spaghetti, bananen, brood);
+    lijst = wisselAfgevinkt(lijst, melk);
+    const positie = sectieVanProduct(jumbo, opId.get(melk));
+    expect(positie).toBe('wand-zuivel');
+
+    const info = routeVoorLijst(jumbo, lijst, opId, undefined, positie);
+    expect(info.vanaf.id).toBe('wand-zuivel');
+    expect(info.route.lijn[0].x).toBeCloseTo(info.vanaf.x);
+    expect(info.route.lijn[0].y).toBeCloseTo(info.vanaf.y);
+    expect(info.stops.map((s) => s.sectie.id)).not.toContain('wand-zuivel');
+    expect(info.inKar.map((r) => r.productId)).toEqual([melk]);
+    expect(info.stops.flatMap((s) => s.regels).map((r) => r.productId).sort()).toEqual([bananen, brood, spaghetti].sort());
+  });
+
+  it('is vanaf je positie nooit langer dan de oude route vanaf daar', () => {
+    const lijst = wisselAfgevinkt(lijstMet(melk, spaghetti, bananen, brood), bananen);
+    const vanIngang = routeVoorLijst(jumbo, lijst, opId);
+    const vanFruit = routeVoorLijst(jumbo, lijst, opId, undefined, 'vers-fruit');
+    // Vanaf het fruit (vlak bij de ingang) is de resterende route ongeveer even lang of korter.
+    expect(vanFruit.route.totaleAfstand).toBeLessThanOrEqual(vanIngang.route.totaleAfstand + 15);
+  });
+
+  it('laat een product dat je onderweg toevoegt meteen in de route zien', () => {
+    let lijst = wisselAfgevinkt(lijstMet(melk, spaghetti), melk);
+    lijst = voegToe(lijst, brood);
+    const info = routeVoorLijst(jumbo, lijst, opId, undefined, 'wand-zuivel');
+    expect(info.stops.map((s) => s.sectie.id)).toContain('vers-brood');
+  });
+
+  it('houdt een afgevinkt product zichtbaar bij een stop waar nog iets te halen is', () => {
+    // Spaghetti en rijst liggen op dezelfde plek; je hebt de spaghetti al.
+    const lijst = wisselAfgevinkt(lijstMet(spaghetti, 'jumbo-basmatirijst-1-kg'), spaghetti);
+    const info = routeVoorLijst(jumbo, lijst, opId, undefined, 'pad1-pasta');
+    expect(info.stops).toHaveLength(1);
+    expect(info.stops[0].regels.map((r) => [r.productId, r.afgevinkt])).toEqual([
+      [spaghetti, true],
+      ['jumbo-basmatirijst-1-kg', false],
+    ]);
+    expect(info.inKar).toEqual([]);
+  });
+
+  it('wijst naar de kassa als alles is afgevinkt', () => {
+    const lijst = wisselAfgevinkt(lijstMet(melk), melk);
+    const info = routeVoorLijst(jumbo, lijst, opId, undefined, 'wand-zuivel');
+    expect(info.stops).toEqual([]);
+    expect(info.route.kassa).toBeTruthy();
+  });
+});
+
