@@ -5,7 +5,7 @@ Een webapp voor op je telefoon. Je zet je boodschappen op een lijst en de app be
 - **Menu**: geef je weekbudget, het aantal personen en maaltijden en je wensen op. De app stelt een weekmenu samen dat binnen je budget blijft en zo min mogelijk verse restjes overlaat. Met één tik staat alles op je boodschappenlijst.
 - **Acties**: vul de aanbiedingen uit de folder in. De actieprijs telt mee in je lijst, budget en weekmenu, en maaltijden met aanbiedingen krijgen voorrang.
 - **Lijst**: wat vanuit het weekmenu komt staat onder een eigen kopje, apart van je overige boodschappen. Zoek specifieke producten (merk, inhoud) en zet ze op je lijst.
-- **Route**: de stops in looproute-volgorde, met per stop de producten om af te vinken. Ligt iets er niet? Tik op **Ligt er niet**: het product gaat uit de route, maar blijft op je lijst voor de volgende keer. Vink je iets af buiten de volgorde, of voeg je onderweg iets toe? Dan wordt de rest van de route opnieuw berekend vanaf waar je nu staat.
+- **Route**: de stops in looproute-volgorde, met per stop de producten om af te vinken. Ligt iets er niet? Tik op **Ligt er niet**: de app stelt twee alternatieven voor die op dezelfde plek liggen (zelfde soort product, vergelijkbare verpakking en prijs). Kies er een, dan vervangt die het product op je lijst. Of kies **Nee, overslaan**: dan gaat het product uit de route, maar blijft het op je lijst voor de volgende keer. Vink je iets af buiten de volgorde, of voeg je onderweg iets toe? Dan wordt de rest van de route opnieuw berekend vanaf waar je nu staat.
 - **Kaart**: een interactieve plattegrond, zoals in een navigatie-app. Knijp of dubbeltik om in te zoomen en sleep om te schuiven. Het stuk route naar je volgende stop is dik gemarkeerd, met pijltjes in de looprichting. De kaart volgt je vanzelf naar de volgende stop; tik op een stop om te zien wat je daar pakt, en vink het direct af.
 
 De tabbladen staan in de volgorde waarin je ze gebruikt: Acties → Menu → Lijst → Route → Kaart. Bij de eerste keer openen legt een kort welkom dat uit; via de **?** rechtsboven zie je het terug.
@@ -286,7 +286,7 @@ src/
   route/looppaden.js    maakt een netwerk van looppaden en kruisingen
   route/afstanden.js    kortste loopafstand tussen twee punten (Dijkstra)
   route/route.js        volgorde van de stops (nearest neighbour + 2-opt)
-  lijst/                zoeken, lijst bewerken, bewaren op je telefoon
+  lijst/                zoeken, lijst bewerken, alternatieven, bewaren op je telefoon
   planner/              weekmenu, kosten in hele verpakkingen, budget
   aanbiedingen/         losse module: bronnen, geldigheid, actieprijs toepassen
   ui/                   de schermen (kaart-beeld.js = zoom-rekenwerk, kaart-gebaren.js = vinger/muis)

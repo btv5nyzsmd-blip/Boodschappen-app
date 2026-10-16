@@ -31,6 +31,20 @@ export function wisselOvergeslagen(lijst, productId) {
   return lijst.map((r) => (r.productId === productId ? { ...r, overgeslagen: !r.overgeslagen, afgevinkt: false } : r));
 }
 
+/**
+ * Vervangt een product dat er niet lag door een alternatief, met hetzelfde aantal.
+ * Staat het alternatief al op de lijst, dan worden de aantallen opgeteld.
+ */
+export function vervangProduct(lijst, oudId, nieuwId) {
+  const oud = lijst.find((r) => r.productId === oudId);
+  if (!oud) return lijst;
+  const zonder = lijst.filter((r) => r !== oud);
+  if (zonder.some((r) => r.productId === nieuwId)) {
+    return zonder.map((r) => (r.productId === nieuwId ? { ...r, aantal: r.aantal + oud.aantal, afgevinkt: false, overgeslagen: false } : r));
+  }
+  return lijst.map((r) => (r === oud ? { productId: nieuwId, aantal: oud.aantal, afgevinkt: false } : r));
+}
+
 /** Klaar met boodschappen: afgevinkte producten eraf; wat je niet vond blijft staan voor de volgende keer. */
 export function verwijderAfgevinkt(lijst) {
   return lijst.filter((r) => !r.afgevinkt).map(({ overgeslagen, ...r }) => r);

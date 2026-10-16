@@ -1,6 +1,6 @@
 // Scherm "Route": de stops in looproute-volgorde, met afvinken.
 // De route wordt berekend vanaf de plek waar je het laatst iets afvinkte.
-import { esc, meters, extraInhoud, productNaam } from './html.js';
+import { esc, euro, meters, extraInhoud, productNaam } from './html.js';
 
 /** Index van de eerste stop waar nog iets af te vinken is (of -1). */
 export function volgendeStop(stops) {
@@ -37,11 +37,11 @@ export function routeScherm(st) {
     }
 
     <ol class="stops">
-      ${stops.map((stop, i) => stopKaart(stop, i, volgende)).join('')}
+      ${stops.map((stop, i) => stopKaart(st, stop, i, volgende)).join('')}
       ${
         nietGevonden.length
           ? `<li class="stop"><div class="stopkop"><span class="nummer">?</span><span class="titel"><strong>Afdeling onbekend</strong><small>Kies de afdeling, dan komt het product in de route</small></span></div>
-             ${nietGevonden.map((r) => vink(r) + afdelingKiezen(r, st)).join('')}</li>`
+             ${nietGevonden.map((r) => vink(r, st) + afdelingKiezen(r, st)).join('')}</li>`
           : ''
       }
     </ol>
@@ -55,14 +55,14 @@ export function routeScherm(st) {
       inKar.length
         ? `<details class="inkar">
              <summary><strong>In je kar</strong> <span class="zacht">(${inKar.length})</span></summary>
-             ${inKar.map(vink).join('')}
+             ${inKar.map((r) => vink(r, st)).join('')}
            </details>`
         : ''
     }
     ${af > 0 ? `<div class="knoppen"><button class="knop stil" data-actie="opruimen">Klaar met boodschappen: afgevinkte producten van de lijst halen</button></div>` : ''}`;
 }
 
-function stopKaart(stop, i, volgende) {
+function stopKaart(st, stop, i, volgende) {
   const klaar = stop.regels.every((r) => r.afgevinkt);
   const status = i === volgende ? 'volgende' : klaar ? 'klaar' : '';
   const open = stop.regels.filter((r) => !r.afgevinkt).length;
@@ -75,12 +75,12 @@ function stopKaart(stop, i, volgende) {
           <small>${i === volgende ? 'Volgende stop · ' : ''}${open} ${open === 1 ? 'product' : 'producten'} te pakken</small>
         </span>
       </div>
-      ${stop.regels.map(vink).join('')}
+      ${stop.regels.map((r) => vink(r, st)).join('')}
     </li>`;
 }
 
 /** Eén product om af te vinken, met een knop "Ligt er niet" zolang je het nog niet hebt. */
-export function vink(r) {
+export function vink(r, st) {
   const p = r.product;
   return `
     <div class="vink-rij">
@@ -90,6 +90,33 @@ export function vink(r) {
         ${r.aantal > 1 ? `<span class="aantal">${r.aantal}×</span>` : ''}
       </label>
       ${r.afgevinkt ? '' : `<button class="overslaan" data-actie="overslaan" data-id="${esc(p.id)}" aria-label="${esc(p.naam)} niet gevonden">Ligt er niet</button>`}
+    </div>
+    ${st?.vervang?.productId === p.id ? alternatievenKeuze(p, st.vervang.opties) : ''}`;
+}
+
+/** Na "Ligt er niet": kies een van twee alternatieven, of sla het product over. */
+function alternatievenKeuze(product, opties) {
+  const verschil = (alt) => {
+    const d = alt.prijs - product.prijs;
+    if (Math.abs(d) < 0.005) return 'zelfde prijs';
+    return `${euro(Math.abs(d))} ${d > 0 ? 'duurder' : 'goedkoper'}`;
+  };
+  return `
+    <div class="alternatieven" role="group" aria-label="Alternatieven voor ${esc(product.naam)}">
+      <p><strong>Ligt er niet?</strong> Neem in plaats daarvan, op dezelfde plek:</p>
+      ${opties
+        .map(
+          (alt) => `
+        <button class="alt" data-actie="vervang-kies" data-id="${esc(alt.id)}">
+          <span class="naam">${esc(productNaam(alt))}</span>
+          <span class="meta cijfers">${euro(alt.prijs)} · ${verschil(alt)}${alt.aanbieding ? ' · <span class="actie">Actie</span>' : ''}</span>
+        </button>`,
+        )
+        .join('')}
+      <div class="knoppen">
+        <button class="knop stil klein" data-actie="vervang-overslaan">Nee, overslaan</button>
+        <button class="link" data-actie="vervang-annuleer">Toch gevonden</button>
+      </div>
     </div>`;
 }
 

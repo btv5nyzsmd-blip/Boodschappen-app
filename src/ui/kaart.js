@@ -137,6 +137,6 @@ function stopKaart(st, index, volgende) {
         </div>
         <button class="knop stil klein" data-actie="kaart-volgende" ${index === stops.length - 1 ? 'disabled' : ''} aria-label="Volgende stop">›</button>
       </div>
-      ${stop.regels.map(vink).join('')}
+      ${stop.regels.map((r) => vink(r, st)).join('')}
     </section>`;
 }

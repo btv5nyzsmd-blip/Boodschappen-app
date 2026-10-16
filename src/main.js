@@ -13,6 +13,7 @@ import * as opslag from './lijst/opslag.js';
 import { lijstScherm, zoekResultaten } from './ui/lijst-scherm.js';
 import { routeScherm } from './ui/route-scherm.js';
 import { kaartScherm, getoondeStop } from './ui/kaart.js';
+import { zoekAlternatieven } from './lijst/alternatieven.js';
 import { koppelGebaren, animeer } from './ui/kaart-gebaren.js';
 import { beeldVoorPunten, heleWinkel, zoomRond } from './ui/kaart-beeld.js';
 import { menuScherm } from './ui/menu-scherm.js';
@@ -43,6 +44,7 @@ const st = {
   kaart: { beeld: null, volgen: true, gekozen: null, naarStop: false },
   // Welke inklapbare blokken je zelf open of dicht hebt gezet, zodat ze zo blijven na het opnieuw tekenen.
   uitklap: {},
+  vervang: null, // { productId, opties } na "Ligt er niet": keuze uit alternatieven
   welkom: !opslag.welkomGezien(),
   aanbiedingen: [], // alle aanbiedingen uit alle bronnen (ook verlopen)
   actieZoek: '',
@@ -204,6 +206,13 @@ function menuNaarLijst() {
 function vergeetMenuOpLijst() {
   st.planner = { ...st.planner, toegevoegd: {}, bericht: null };
   opslag.bewaarPlanner(st.planner);
+}
+
+/** Product overslaan: uit de route, de route gaat verder vanaf waar je nu staat. */
+function slaOver(id) {
+  zetPositie(L.sectieVanProduct(huidigeWinkel(), st.productenOpId.get(id)));
+  st.kaart = { ...st.kaart, gekozen: null, volgen: true };
+  wijzigLijst(L.wisselOvergeslagen(st.lijst, id));
 }
 
 /** De voorbeeldlijst verdwijnt zodra je zelf iets toevoegt. */
@@ -454,13 +463,50 @@ app.addEventListener('click', (e) => {
       wijzigLijst([]);
       break;
     case 'overslaan': {
-      // Je stond bij dit product: de route gaat vanaf hier verder, zonder dit product.
       const regel = st.lijst.find((r) => r.productId === id);
-      if (regel && !regel.overgeslagen) zetPositie(L.sectieVanProduct(huidigeWinkel(), st.productenOpId.get(id)));
-      st.kaart = { ...st.kaart, gekozen: null, volgen: true };
-      wijzigLijst(L.wisselOvergeslagen(st.lijst, id));
+      if (regel?.overgeslagen) {
+        // "Toch zoeken": terug in de route.
+        wijzigLijst(L.wisselOvergeslagen(st.lijst, id));
+        break;
+      }
+      // "Ligt er niet": eerst twee alternatieven voorstellen; zijn die er niet, dan meteen overslaan.
+      const opLijst = new Set(st.lijst.filter((r) => r.overgeslagen).map((r) => r.productId));
+      const opties = zoekAlternatieven(st.productenOpId.get(id), alleProducten(), { uitsluiten: opLijst });
+      if (opties.length) {
+        st.vervang = { productId: id, opties };
+        teken();
+        // Zorg dat de keuze in beeld komt (op de kaart staat het stopkaartje onder de kaart).
+        const keuze = app.querySelector('.alternatieven');
+        const minderBeweging = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        keuze?.scrollIntoView({ block: 'nearest', behavior: minderBeweging ? 'auto' : 'smooth' });
+      } else slaOver(id);
       break;
     }
+    case 'vervang-kies': {
+      const oud = st.vervang.productId;
+      zetPositie(L.sectieVanProduct(huidigeWinkel(), st.productenOpId.get(oud)));
+      // Hoorde het product bij het weekmenu, dan het alternatief ook.
+      const toegevoegd = { ...st.planner.toegevoegd };
+      if (toegevoegd[oud]) {
+        toegevoegd[id] = (toegevoegd[id] ?? 0) + toegevoegd[oud];
+        delete toegevoegd[oud];
+        st.planner = { ...st.planner, toegevoegd };
+        opslag.bewaarPlanner(st.planner);
+      }
+      st.vervang = null;
+      wijzigLijst(L.vervangProduct(st.lijst, oud, id));
+      break;
+    }
+    case 'vervang-overslaan': {
+      const oud = st.vervang.productId;
+      st.vervang = null;
+      slaOver(oud);
+      break;
+    }
+    case 'vervang-annuleer':
+      st.vervang = null;
+      teken();
+      break;
     case 'opruimen':
       zetPositie(null);
       vergeetMenuOpLijst();
