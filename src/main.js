@@ -10,7 +10,9 @@ import * as L from './lijst/lijst.js';
 import * as opslag from './lijst/opslag.js';
 import { lijstScherm, zoekResultaten } from './ui/lijst-scherm.js';
 import { routeScherm } from './ui/route-scherm.js';
-import { kaartScherm } from './ui/kaart.js';
+import { kaartScherm, getoondeStop } from './ui/kaart.js';
+import { koppelGebaren, animeer } from './ui/kaart-gebaren.js';
+import { beeldVoorPunten, heleWinkel, zoomRond } from './ui/kaart-beeld.js';
 import { menuScherm } from './ui/menu-scherm.js';
 import { aanbiedingenScherm, actieResultaten } from './ui/aanbiedingen-scherm.js';
 import { laadAanbiedingen, actueleAanbiedingen, pasToe, isActueel, vandaag } from './aanbiedingen/index.js';
@@ -34,6 +36,8 @@ const datum = new Date(bron.bijgewerkt).toLocaleDateString('nl-NL', { day: 'nume
 
 const st = {
   tab: ['#menu', '#route', '#kaart', '#acties'].includes(location.hash) ? location.hash.slice(1) : 'lijst',
+  // Kaart: wat je ziet (beeld in meters), of de kaart je volgt, en welke stop je hebt aangetikt.
+  kaart: { beeld: null, volgen: true, gekozen: null, naarStop: false },
   aanbiedingen: [], // alle aanbiedingen uit alle bronnen (ook verlopen)
   actieZoek: '',
   actieResultaten: [],
@@ -241,6 +245,62 @@ function teken() {
         )
         .join('')}
     </nav>`;
+  if (st.tab === 'kaart') initKaart();
+}
+
+// ---------- kaart ----------
+
+let kaartBediening = null;
+
+/** Waar de kaart naartoe moet: je positie en de (gekozen of volgende) stop samen in beeld. */
+function kaartDoel(verhouding) {
+  const winkel = huidigeWinkel();
+  const stops = st.routeInfo?.stops ?? [];
+  const i = getoondeStop(st);
+  const start = st.routeInfo?.vanaf ?? winkel.ingang;
+  if (i >= 0 && st.kaart.naarStop) return beeldVoorPunten([stops[i].sectie], verhouding, 7);
+  if (i >= 0) return beeldVoorPunten([start, stops[i].sectie], verhouding, 5);
+  const kassa = st.routeInfo?.route?.kassa;
+  if (kassa) return beeldVoorPunten([start, kassa], verhouding, 5);
+  return heleWinkel(winkel, verhouding);
+}
+
+/** Na elke keer tekenen: bediening koppelen, vorig beeld terugzetten en zo nodig meebewegen. */
+function initKaart() {
+  const svg = document.getElementById('kaart');
+  if (!svg) return;
+  const rect = svg.getBoundingClientRect();
+  const verhouding = rect.width / rect.height || 0.75;
+  kaartBediening = koppelGebaren(svg, {
+    winkel: huidigeWinkel(),
+    beeld: () => st.kaart.beeld,
+    zetBeeld: (beeld, doorGebruiker) => {
+      st.kaart.beeld = beeld;
+      if (doorGebruiker && st.kaart.volgen) {
+        st.kaart.volgen = false; // zelf geschoven: niet meer automatisch volgen
+        document.querySelector('.kaart-volg')?.removeAttribute('hidden');
+      }
+    },
+    tikOpStop: (i) => {
+      st.kaart = { ...st.kaart, gekozen: i, volgen: false, naarStop: true };
+      teken();
+    },
+  });
+  // Vorig beeld (bijv. na afvinken) met de vorm van het huidige scherm.
+  const vorig = st.kaart.beeld;
+  const huidig = vorig ? { ...vorig, h: vorig.w / verhouding, y: vorig.y + (vorig.h - vorig.w / verhouding) / 2 } : heleWinkel(huidigeWinkel(), verhouding);
+  kaartBediening.toon(huidig, false);
+  if (st.kaart.volgen || st.kaart.naarStop) {
+    animeer(svg, st.kaart.beeld, kaartDoel(verhouding), (b) => kaartBediening.toon(b, false));
+    st.kaart.naarStop = false;
+  }
+}
+
+function kaartZoom(factor) {
+  const svg = document.getElementById('kaart');
+  const b = st.kaart.beeld;
+  if (!svg || !b) return;
+  animeer(svg, b, zoomRond(b, b.x + b.w / 2, b.y + b.h / 2, factor), (x) => kaartBediening.toon(x, true));
 }
 
 function tekenZoekresultaten() {
@@ -281,6 +341,7 @@ app.addEventListener('input', (e) => {
 app.addEventListener('change', (e) => {
   if (e.target.id === 'winkel') {
     st.winkelIndex = Number(e.target.value);
+    st.kaart = { ...st.kaart, beeld: null, gekozen: null, volgen: true };
     opslag.bewaarWinkelKeuze(winkels[st.winkelIndex].bestand);
     bijwerken();
     teken();
@@ -298,6 +359,8 @@ app.addEventListener('change', (e) => {
     const id = e.target.dataset.id;
     // Afvinken = je staat nu bij dit product. De rest van de route gaat vanaf hier.
     if (e.target.checked) zetPositie(L.sectieVanProduct(huidigeWinkel(), st.productenOpId.get(id)));
+    // Na afvinken volgt de kaart weer de route naar de volgende stop.
+    st.kaart = { ...st.kaart, gekozen: null, volgen: true };
     wijzigLijst(L.wisselAfgevinkt(st.lijst, id));
   }
 });
@@ -369,6 +432,32 @@ app.addEventListener('click', (e) => {
     case 'naar-lijst':
       naarTab('lijst');
       break;
+
+    // Kaart
+    case 'kaart-in':
+      kaartZoom(1.6);
+      break;
+    case 'kaart-uit':
+      kaartZoom(1 / 1.6);
+      break;
+    case 'kaart-alles': {
+      const svg = document.getElementById('kaart');
+      const r = svg.getBoundingClientRect();
+      animeer(svg, st.kaart.beeld, heleWinkel(huidigeWinkel(), r.width / r.height), (b) => kaartBediening.toon(b, true));
+      break;
+    }
+    case 'kaart-volg':
+      st.kaart = { ...st.kaart, gekozen: null, volgen: true };
+      teken();
+      break;
+    case 'kaart-vorige':
+    case 'kaart-volgende': {
+      const aantal = st.routeInfo?.stops.length ?? 0;
+      const i = getoondeStop(st) + (knop.dataset.actie === 'kaart-vorige' ? -1 : 1);
+      st.kaart = { ...st.kaart, gekozen: Math.max(0, Math.min(aantal - 1, i)), volgen: false, naarStop: true };
+      teken();
+      break;
+    }
 
     // Aanbiedingen
     case 'actie-kies':

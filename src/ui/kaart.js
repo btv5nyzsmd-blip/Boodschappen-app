@@ -1,6 +1,37 @@
-// Tekent de winkel als SVG-plattegrond met de route erin.
-import { esc, meters } from './html.js';
+// Scherm "Kaart": interactieve plattegrond (zoomen, schuiven) met de route, zoals een navigatie-app.
+// Inzoomen en schuiven gebeurt in kaart-gebaren.js; dit bestand tekent alleen.
+import { esc, meters, productNaam } from './html.js';
 import { volgendeStop } from './route-scherm.js';
+import { alsViewBox, heleWinkel } from './kaart-beeld.js';
+
+/** Punten om de ±4 meter langs een looppad, met de richting, voor de pijltjes. */
+export function pijlpunten(lijn, afstand = 4) {
+  const punten = [];
+  let tegoed = afstand / 2;
+  for (let i = 1; i < lijn.length; i++) {
+    const a = lijn[i - 1];
+    const b = lijn[i];
+    const lengte = Math.hypot(b.x - a.x, b.y - a.y);
+    const hoek = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
+    let pos = tegoed;
+    while (pos < lengte) {
+      punten.push({ x: a.x + ((b.x - a.x) * pos) / lengte, y: a.y + ((b.y - a.y) * pos) / lengte, hoek });
+      pos += afstand;
+    }
+    tegoed = pos - lengte;
+  }
+  return punten;
+}
+
+const lijnPunten = (lijn) => lijn.map((p) => `${p.x},${p.y}`).join(' ');
+
+/** Welke stop toont de kaart onderin: de gekozen stop, anders de volgende. */
+export function getoondeStop(st) {
+  const stops = st.routeInfo?.stops ?? [];
+  const gekozen = st.kaart.gekozen;
+  if (gekozen !== null && gekozen < stops.length) return gekozen;
+  return volgendeStop(stops);
+}
 
 export function kaartScherm(st) {
   const { winkel, routeInfo } = st;
@@ -8,74 +39,113 @@ export function kaartScherm(st) {
   const stops = routeInfo?.stops ?? [];
   const vanaf = routeInfo?.vanaf;
   const volgende = volgendeStop(stops);
-  const m = 1.5; // marge rond de winkel in meters
+  const getoond = getoondeStop(st);
+  const beeld = st.kaart.beeld ?? heleWinkel(winkel, 0.75);
 
   const vloer = winkel.omtrek
     ? `<polygon class="vloer" points="${winkel.omtrek.map(([x, y]) => `${x},${y}`).join(' ')}" />`
-    : `<rect class="vloer" x="0" y="0" width="${winkel.breedte}" height="${winkel.diepte}" rx="0.5" />`;
-
+    : `<rect class="vloer" x="0" y="0" width="${winkel.breedte}" height="${winkel.diepte}" />`;
   const schappen = (winkel.schappen ?? [])
-    .map((s) => `<rect class="schap ${s.soort === 'kassa' ? 'kassa' : ''}" x="${s.x}" y="${s.y}" width="${s.breedte}" height="${s.hoogte}" rx="0.2"><title>${esc(s.label ?? '')}</title></rect>`)
+    .map((s) => `<rect class="schap ${s.soort === 'kassa' ? 'kassa' : ''}" x="${s.x}" y="${s.y}" width="${s.breedte}" height="${s.hoogte}" rx="0.2" />`)
     .join('');
-
   const afdelingen = (winkel.labels ?? [])
     .map((l) => `<text class="afdeling" x="${l.x}" y="${l.y}"${l.draai ? ` transform="rotate(${l.draai} ${l.x} ${l.y})"` : ''}>${esc(l.tekst)}</text>`)
     .join('');
+  const paden = winkel.looppaden.map((p) => `<line class="pad" x1="${p.van[0]}" y1="${p.van[1]}" x2="${p.naar[0]}" y2="${p.naar[1]}" />`).join('');
 
-  const paden = winkel.looppaden
-    .map((p) => `<line class="pad" x1="${p.van[0]}" y1="${p.van[1]}" x2="${p.naar[0]}" y2="${p.naar[1]}" />`)
-    .join('');
-
-  // Gangnummers onderaan elke gang (alleen bij looppaden die "Gang <nummer>" heten).
-  const gangLabels = winkel.looppaden
-    .filter((p) => /^Gang \d+/.test(p.naam ?? ''))
-    .map((p) => {
-      const onder = Math.max(p.van[1], p.naar[1]);
-      return `<text class="tekst" x="${p.van[0]}" y="${onder - 1}">${esc(p.naam.replace('Gang ', ''))}</text>`;
+  // Route in stukken: gedaan (grijs), naar de volgende stop (dik), daarna (dunner).
+  const stukken = route?.stukken ?? [];
+  const actief = volgende === -1 ? stukken.length - 1 : volgende;
+  const routeLijnen = stukken
+    .map((stuk, i) => {
+      const soort = i < actief ? 'gedaan' : i === actief ? 'actief' : 'later';
+      return `<polyline class="route ${soort}" points="${lijnPunten(stuk)}" />${soort === 'actief' ? `<polyline class="route actief-stippel" points="${lijnPunten(stuk)}" />` : ''}`;
     })
     .join('');
-
-  const lijn = route ? `<polyline class="route" points="${route.lijn.map((p) => `${p.x},${p.y}`).join(' ')}" />` : '';
+  const pijlen = stukken
+    .slice(Math.max(0, actief))
+    .flatMap((stuk) => pijlpunten(stuk))
+    .map((p) => `<g transform="translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${p.hoek.toFixed(0)})"><path class="pijl schaal" d="M-0.35 -0.45 L0.25 0 L-0.35 0.45" /></g>`)
+    .join('');
 
   const stippen = stops
     .map((stop, i) => {
       const klaar = stop.regels.every((r) => r.afgevinkt);
-      const status = i === volgende ? 'volgende' : klaar ? 'klaar' : '';
-      return `<g class="stip ${status}"><circle cx="${stop.sectie.x}" cy="${stop.sectie.y}" r="1.15" /><text x="${stop.sectie.x}" y="${stop.sectie.y}">${i + 1}</text><title>${esc(stop.sectie.naam)}</title></g>`;
+      const status = [i === volgende ? 'volgende' : klaar ? 'klaar' : '', i === getoond ? 'gekozen' : ''].join(' ');
+      return `
+        <g class="stip ${status}" data-stop="${i}" transform="translate(${stop.sectie.x} ${stop.sectie.y})">
+          <g class="schaal"><circle class="ring" r="1.45" /><circle r="1" /><text>${i + 1}</text></g>
+          <text class="stopnaam" dy="2.5em">${esc(stop.sectie.naam)}</text>
+        </g>`;
     })
     .join('');
 
-  const hier = vanaf
-    ? `<g class="hier"><circle cx="${vanaf.x}" cy="${vanaf.y}" r="1.4" /><circle class="kern" cx="${vanaf.x}" cy="${vanaf.y}" r="0.7" /><title>Je bent hier: ${esc(vanaf.naam)}</title></g>`
-    : '';
-
-  const ingang = `<text class="tekst groot" x="${winkel.ingang.x}" y="${winkel.ingang.y - 1.2}">Ingang</text>`;
+  const start = vanaf ?? winkel.ingang;
+  const hier = `
+    <g class="hier" transform="translate(${start.x} ${start.y})">
+      <g class="schaal"><circle class="puls" r="1.3" /><circle class="kern" r="0.55" /></g>
+      <text class="stopnaam" dy="2.5em">${vanaf ? 'Je bent hier' : 'Ingang'}</text>
+    </g>`;
   const kassas = winkel.kassas
-    // "Kassa 2" wordt "K2" zodat de labels naast elkaar passen.
-    .map((k) => `<text class="tekst ${route?.kassa.naam === k.naam ? 'groot' : ''}" x="${k.x + 1.8}" y="${k.y + 0.35}">${esc(k.naam.replace(/^Kassa\s*/, 'K'))}<title>${esc(k.naam)}</title></text>`)
+    .map(
+      (k) => `<g class="kassa-punt ${route?.kassa.naam === k.naam ? 'eind' : ''}" transform="translate(${k.x} ${k.y})">
+        <g class="schaal"><rect x="-0.7" y="-0.7" width="1.4" height="1.4" rx="0.3" /></g>
+        <text class="stopnaam" dy="2.5em">${esc(k.naam)}</text></g>`,
+    )
     .join('');
 
-  const volgendeTekst =
-    volgende >= 0
-      ? `<p class="melding"><strong>Volgende stop ${volgende + 1}:</strong> ${esc(stops[volgende].sectie.naam)} · ${esc(
-          stops[volgende].regels.filter((r) => !r.afgevinkt).map((r) => r.product.naam).join(', '),
-        )}</p>`
-      : route && st.lijst.some((r) => r.afgevinkt)
-        ? `<p class="melding"><strong>Alles gevonden.</strong> Loop naar ${esc(route.kassa.naam)}.</p>`
-        : `<p class="melding">Zet producten op je lijst om de route te zien.</p>`;
-
   return `
-    ${volgendeTekst}
-    <div class="kaart">
-      <svg viewBox="${-m} ${-m} ${winkel.breedte + 2 * m} ${winkel.diepte + 2 * m}" role="img"
-        aria-label="Plattegrond van ${esc(winkel.naam)}${route ? ` met route van ${meters(route.totaleAfstand)}` : ''}">
-        ${vloer}${schappen}${afdelingen}${paden}${gangLabels}${lijn}${hier}${stippen}${ingang}${kassas}
+    <div class="kaart-vak">
+      <svg id="kaart" viewBox="${alsViewBox(beeld)}" preserveAspectRatio="xMidYMid meet" role="img"
+        aria-label="Plattegrond van ${esc(winkel.naam)}${route ? ` met route van ${meters(route.totaleAfstand)}` : ''}. Sleep om te schuiven, knijp of dubbeltik om te zoomen.">
+        ${vloer}${schappen}${afdelingen}${paden}${routeLijnen}${pijlen}${kassas}${hier}${stippen}
       </svg>
+      <div class="kaart-knoppen" role="group" aria-label="Kaart bedienen">
+        <button data-actie="kaart-in" aria-label="Inzoomen">+</button>
+        <button data-actie="kaart-uit" aria-label="Uitzoomen">−</button>
+        <button data-actie="kaart-alles" aria-label="Hele winkel tonen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
+        </button>
+      </div>
+      <button class="kaart-volg" data-actie="kaart-volg" ${st.kaart.volgen ? 'hidden' : ''}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" /></svg> Volgen
+      </button>
     </div>
-    <div class="legenda">
-      <span><i style="background:var(--volgende)"></i>Volgende stop</span>
-      <span><i style="background:var(--accent)"></i>Nog te doen</span>
-      ${vanaf ? '<span><i class="hier-stip"></i>Je bent hier</span>' : ''}
-    </div>
-    <p class="zacht" style="font-size:.85rem;margin:0">${esc(winkel.toelichting ?? '')}</p>`;
+    ${stopKaart(st, getoond, volgende)}`;
+}
+
+/** Het kaartje onder de kaart: de stop met de producten om af te vinken. */
+function stopKaart(st, index, volgende) {
+  const { routeInfo } = st;
+  const stops = routeInfo?.stops ?? [];
+  if (st.lijst.length === 0) return `<p class="melding">Zet producten op je lijst om de route te zien.</p>`;
+  if (index === -1) {
+    const kassa = routeInfo?.route?.kassa;
+    return `<section class="stopblad klaar"><strong>Alles gevonden.</strong> ${kassa ? `Loop naar ${esc(kassa.naam)}.` : ''}</section>`;
+  }
+  const stop = stops[index];
+  const open = stop.regels.filter((r) => !r.afgevinkt).length;
+  const label = index === volgende ? 'Volgende stop' : `Stop ${index + 1}`;
+  return `
+    <section class="stopblad" aria-live="polite">
+      <div class="stopblad-kop">
+        <button class="knop stil klein" data-actie="kaart-vorige" ${index === 0 ? 'disabled' : ''} aria-label="Vorige stop">‹</button>
+        <div class="stopblad-titel">
+          <span class="label">${label} · ${index + 1} van ${stops.length}</span>
+          <strong>${esc(stop.sectie.naam)}</strong>
+          <small class="zacht">${open} ${open === 1 ? 'product' : 'producten'} te pakken</small>
+        </div>
+        <button class="knop stil klein" data-actie="kaart-volgende" ${index === stops.length - 1 ? 'disabled' : ''} aria-label="Volgende stop">›</button>
+      </div>
+      ${stop.regels
+        .map(
+          (r) => `
+        <label class="vink ${r.afgevinkt ? 'af' : ''}">
+          <input type="checkbox" data-actie="vink" data-id="${esc(r.product.id)}" ${r.afgevinkt ? 'checked' : ''} />
+          <span class="naam">${esc(productNaam(r.product))}${r.product.aanbieding ? ' <span class="actie">Actie</span>' : ''}</span>
+          ${r.aantal > 1 ? `<span class="aantal">${r.aantal}×</span>` : ''}
+        </label>`,
+        )
+        .join('')}
+    </section>`;
 }

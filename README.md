@@ -6,7 +6,7 @@ Een webapp voor op je telefoon. Je zet je boodschappen op een lijst en de app be
 - **Acties**: vul de aanbiedingen uit de folder in. De actieprijs telt mee in je lijst, budget en weekmenu, en maaltijden met aanbiedingen krijgen voorrang.
 - **Lijst**: zoek specifieke producten (merk, inhoud) en zet ze op je lijst.
 - **Route**: de stops in looproute-volgorde, met per stop de producten om af te vinken. Vink je iets af buiten de volgorde, of voeg je onderweg iets toe? Dan wordt de rest van de route opnieuw berekend vanaf waar je nu staat.
-- **Kaart**: een plattegrond van de winkel met de route, de volgende stop en waar je nu bent.
+- **Kaart**: een interactieve plattegrond, zoals in een navigatie-app. Knijp of dubbeltik om in te zoomen en sleep om te schuiven. Het stuk route naar je volgende stop is dik gemarkeerd, met pijltjes in de looprichting. De kaart volgt je vanzelf naar de volgende stop; tik op een stop om te zien wat je daar pakt, en vink het direct af.
 
 Alles draait in de browser. Er is geen account of server nodig. Je lijst wordt op je eigen telefoon bewaard.
 
@@ -287,7 +287,7 @@ src/
   lijst/                zoeken, lijst bewerken, bewaren op je telefoon
   planner/              weekmenu, kosten in hele verpakkingen, budget
   aanbiedingen/         losse module: bronnen, geldigheid, actieprijs toepassen
-  ui/                   de drie schermen
+  ui/                   de schermen (kaart-beeld.js = zoom-rekenwerk, kaart-gebaren.js = vinger/muis)
 tests/                  automatische tests
 ```
 

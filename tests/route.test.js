@@ -96,6 +96,16 @@ describe('berekenRoute', () => {
     expect(route.stops.map((s) => s.sectie.id).sort()).toEqual(['pad3-bakken', 'vers-fruit', 'vers-kaas']);
   });
 
+  it('levert het looppad per stop, aansluitend van ingang tot kassa', () => {
+    const route = berekenRoute(jumbo, ['wand-zuivel', 'pad1-pasta', 'vers-fruit']);
+    expect(route.stukken).toHaveLength(route.stops.length + 1);
+    route.stops.forEach((stop, i) => {
+      const eind = route.stukken[i].at(-1);
+      expect(Math.hypot(eind.x - stop.sectie.x, eind.y - stop.sectie.y)).toBeLessThan(1.5);
+    });
+    for (let i = 1; i < route.stukken.length; i++) expect(route.stukken[i][0]).toEqual(route.stukken[i - 1].at(-1));
+  });
+
   it('kiest de kassa die de route het kortst maakt', () => {
     const winkel = {
       ...gangWinkel,

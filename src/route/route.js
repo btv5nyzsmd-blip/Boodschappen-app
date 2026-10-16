@@ -129,7 +129,9 @@ export function sectiesVoorCategorieen(winkel, categorieen) {
  * @param {string[]} sectieIds  secties die bezocht moeten worden
  * @param {object} [netwerk]  optioneel een eerder gebouwd netwerk (sneller)
  * @param {string} [start]  waar je nu staat: "ingang" of een sectie-id
- * @returns {{ stops: {sectie: object, afstand: number}[], kassa: object, totaleAfstand: number, lijn: {x:number,y:number}[] }}
+ * @returns {{ stops: {sectie: object, afstand: number}[], kassa: object, totaleAfstand: number,
+ *   lijn: {x:number,y:number}[], stukken: {x:number,y:number}[][] }}
+ *   `stukken[i]` is het looppad naar stop i; het laatste stuk loopt naar de kassa.
  */
 export function berekenRoute(winkel, sectieIds, netwerk = bouwNetwerk(winkel), start = 'ingang') {
   const uniek = [...new Set(sectieIds)];
@@ -151,9 +153,11 @@ export function berekenRoute(winkel, sectieIds, netwerk = bouwNetwerk(winkel), s
   const { volgorde } = beste;
   const stops = [];
   const lijn = [];
+  const stukken = [];
   for (let i = 0; i < volgorde.length; i++) {
     if (i > 0) {
       const stuk = tabel.pad(volgorde[i - 1], volgorde[i]);
+      stukken.push(stuk);
       lijn.push(...(lijn.length ? stuk.slice(1) : stuk));
     }
     const id = ids[volgorde[i]];
@@ -167,5 +171,6 @@ export function berekenRoute(winkel, sectieIds, netwerk = bouwNetwerk(winkel), s
     kassa: winkel.kassas.find((k) => k.naam === kassaNaam),
     totaleAfstand: beste.lengte,
     lijn,
+    stukken,
   };
 }

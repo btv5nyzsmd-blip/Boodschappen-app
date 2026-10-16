@@ -33,6 +33,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; } /* ook als een element een eigen display heeft */
 html, body { margin: 0; }
 body {
   background: var(--bg);
@@ -156,24 +157,60 @@ h2 { font: 600 1.15rem/1.2 var(--font-kop); margin: 0; text-wrap: balance; }
 .vink .aantal { margin-left: auto; font-weight: 700; color: var(--zacht); font-variant-numeric: tabular-nums; }
 .kassa-eind { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 2px dashed var(--lijn); border-radius: 12px; }
 
-/* Kaart */
-.kaart { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 12px; padding: 8px; overflow-x: auto; }
-.kaart svg { display: block; width: 100%; height: auto; min-width: 320px; }
-.kaart .vloer { fill: var(--vloer); stroke: var(--zacht); stroke-width: 0.15; }
-.kaart .schap { fill: var(--schap); }
-.kaart .schap.kassa { fill: var(--kassa); }
-.kaart .pad { stroke: var(--lijn); stroke-width: 0.25; stroke-dasharray: 0.6 0.6; fill: none; }
-.kaart .route { stroke: var(--accent); stroke-width: 0.55; fill: none; stroke-linejoin: round; stroke-linecap: round; opacity: 0.85; }
-.kaart .stip circle { fill: var(--accent); stroke: var(--vlak); stroke-width: 0.25; }
-.kaart .stip text { fill: var(--accent-inkt); font: 700 1.1px var(--font-tekst); text-anchor: middle; dominant-baseline: central; }
-.kaart .stip.klaar circle { fill: var(--zacht); }
-.kaart .stip.volgende circle { fill: var(--volgende); }
-.kaart .stip.volgende text { fill: var(--vlak); }
-.kaart .tekst { fill: var(--zacht); font: 700 1px var(--font-tekst); text-anchor: middle; paint-order: stroke; stroke: var(--vloer); stroke-width: 0.4px; stroke-linejoin: round; }
-.kaart .tekst.groot { fill: var(--inkt); font-size: 1.15px; }
-.legenda { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.85rem; color: var(--zacht); }
-.legenda span { display: inline-flex; align-items: center; gap: 6px; }
-.legenda i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+/* Kaart: vult het scherm boven het stopkaartje; lijnen en stippen houden dezelfde schermgrootte bij elk zoomniveau. */
+.kaart-vak {
+  position: relative; height: calc(100dvh - var(--navhoogte) - 310px - env(safe-area-inset-bottom, 0px)); min-height: 340px;
+  border: 1px solid var(--lijn); border-radius: 14px; overflow: hidden; background: var(--bg);
+}
+#kaart { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; --m: 0.15; }
+#kaart:active { cursor: grabbing; }
+#kaart .vloer { fill: var(--vloer); stroke: var(--zacht); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+#kaart .schap { fill: var(--schap); }
+#kaart .schap.kassa { fill: var(--kassa); }
+#kaart .pad { stroke: var(--lijn); stroke-width: 1px; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; fill: none; }
+#kaart .afdeling { fill: var(--zacht); font: 700 calc(var(--m) * 11px) var(--font-kop); text-anchor: middle; paint-order: stroke; stroke: var(--vloer); stroke-width: calc(var(--m) * 3px); }
+#kaart .route { fill: none; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+#kaart .route.gedaan { stroke: var(--zacht); stroke-width: 3px; opacity: 0.35; }
+#kaart .route.later { stroke: var(--accent); stroke-width: 4px; opacity: 0.55; }
+#kaart .route.actief { stroke: var(--accent); stroke-width: 7px; }
+#kaart .route.actief-stippel { stroke: var(--vlak); stroke-width: 2px; stroke-dasharray: 2 10; animation: lopen 1s linear infinite; }
+@keyframes lopen { to { stroke-dashoffset: -12; } }
+#kaart .pijl { fill: none; stroke: var(--vlak); stroke-width: 0.22; stroke-linecap: round; stroke-linejoin: round; }
+#kaart .schaal { transform: scale(calc(var(--m) * 14)); }
+#kaart .stip { cursor: pointer; }
+#kaart .stip circle { fill: var(--accent); stroke: var(--vlak); stroke-width: 0.18; }
+#kaart .stip .ring { fill: none; stroke: none; }
+#kaart .stip.gekozen .ring { stroke: var(--inkt); stroke-width: 0.2; }
+#kaart .stip .schaal text { fill: var(--accent-inkt); font: 700 1.05px var(--font-tekst); text-anchor: middle; dominant-baseline: central; }
+#kaart .stip.klaar circle { fill: var(--zacht); }
+#kaart .stip.volgende circle { fill: var(--volgende); }
+#kaart .stip.volgende .schaal text { fill: var(--vlak); }
+#kaart .stopnaam { display: none; fill: var(--inkt); font: 700 calc(var(--m) * 11px) var(--font-tekst); text-anchor: middle; paint-order: stroke; stroke: var(--vloer); stroke-width: calc(var(--m) * 3px); }
+#kaart.dichtbij .stopnaam, #kaart .stip.volgende .stopnaam, #kaart .stip.gekozen .stopnaam, #kaart .hier .stopnaam, #kaart .kassa-punt.eind .stopnaam { display: block; }
+#kaart .hier .kern { fill: var(--hier); stroke: var(--vlak); stroke-width: 0.22; }
+#kaart .hier .puls { fill: var(--hier); opacity: 0.2; animation: puls 2s ease-in-out infinite; }
+@keyframes puls { 50% { opacity: 0.05; } }
+#kaart .kassa-punt rect { fill: var(--kassa); stroke: var(--zacht); stroke-width: 0.12; }
+#kaart .kassa-punt.eind rect { fill: var(--accent); stroke: var(--vlak); }
+
+.kaart-knoppen {
+  position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 1px;
+  background: var(--lijn); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+}
+.kaart-knoppen button { width: 44px; height: 44px; border: 0; background: var(--vlak); color: var(--inkt); font: 700 1.4rem/1 var(--font-tekst); display: grid; place-items: center; }
+.kaart-knoppen svg, .kaart-volg svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.kaart-volg {
+  position: absolute; left: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 6px;
+  border: 0; border-radius: 999px; padding: 10px 16px; background: var(--vlak); color: var(--accent); font-weight: 700;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.18);
+}
+.stopblad { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 14px; overflow: hidden; }
+.stopblad.klaar { padding: 14px; }
+.stopblad-kop { display: flex; align-items: center; gap: 8px; padding: 10px; }
+.stopblad-kop .knop { width: 44px; padding: 0; font-size: 1.5rem; flex: none; }
+.stopblad-titel { flex: 1; min-width: 0; display: flex; flex-direction: column; text-align: center; }
+.stopblad-titel strong { font: 600 1.1rem/1.2 var(--font-kop); }
+@media (prefers-reduced-motion: reduce) { #kaart .route.actief-stippel, #kaart .hier .puls { animation: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
@@ -185,10 +222,6 @@ h2 { font: 600 1.15rem/1.2 var(--font-kop); margin: 0; text-wrap: balance; }
 .knop.klein { min-height: 36px; padding: 6px 12px; font-size: 0.9rem; }
 .inkar { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 12px; overflow: hidden; }
 .inkar summary { padding: 12px 14px; cursor: pointer; min-height: 48px; }
-.kaart .afdeling { fill: var(--zacht); font: 700 1.05px var(--font-kop); text-anchor: middle; opacity: 0.9; paint-order: stroke; stroke: var(--vloer); stroke-width: 0.35px; }
-.kaart .hier circle { fill: var(--volgende); opacity: 0.25; }
-.kaart .hier circle.kern { fill: var(--inkt); opacity: 1; stroke: var(--vlak); stroke-width: 0.25; }
-.legenda .hier-stip { background: var(--inkt); box-shadow: 0 0 0 3px color-mix(in srgb, var(--volgende) 35%, transparent); }
 
 /* Weekmenu */
 .klein { font-size: 0.85rem; margin: 0; }
@@ -249,9 +282,9 @@ h2 { font: 600 1.15rem/1.2 var(--font-kop); margin: 0; text-wrap: balance; }
 .afdeling-kiezen select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--lijn); background: var(--vlak); }
 
 /* Aanbiedingen */
-:root { --actie: #c2410c; --actie-licht: #ffedd5; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { --actie: #fdba74; --actie-licht: #431407; } }
-:root[data-theme='dark'] { --actie: #fdba74; --actie-licht: #431407; }
+:root { --actie: #c2410c; --actie-licht: #ffedd5; --hier: #2563eb; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { --actie: #fdba74; --actie-licht: #431407; --hier: #60a5fa; } }
+:root[data-theme='dark'] { --actie: #fdba74; --actie-licht: #431407; --hier: #60a5fa; }
 .actie { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 1px 6px; border-radius: 5px; background: var(--actie-licht); color: var(--actie); vertical-align: 1px; }
 .meta s, .regel s { color: var(--zacht); }
 .bespaard { color: var(--actie); }
