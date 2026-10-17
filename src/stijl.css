@@ -350,6 +350,14 @@ h2 { font: 600 1.15rem/1.2 var(--font-kop); margin: 0; text-wrap: balance; }
 .alternatieven .alt .naam { font-weight: 700; }
 .alternatieven .alt .meta { font-size: 0.85rem; color: var(--zacht); }
 .alternatieven .knoppen { align-items: center; justify-content: space-between; }
+.alternatieven .alt.elders { background: transparent; border-style: dashed; }
+.alternatieven select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--lijn); background: var(--vlak); color: inherit; font: inherit; }
+.plekvraag {
+  position: fixed; left: 50%; transform: translateX(-50%); width: min(560px, calc(100% - 24px)); margin: 0; z-index: 5;
+  bottom: calc(var(--navhoogte) + env(safe-area-inset-bottom, 0px) + 10px);
+  border: 1px solid var(--accent); box-shadow: 0 6px 24px rgb(0 0 0 / 0.2);
+}
+.plekvraag .knoppen { flex-wrap: wrap; justify-content: flex-start; gap: 8px; }
 
 /* Altijd in huis */
 .basis-groep { margin-top: 12px; }

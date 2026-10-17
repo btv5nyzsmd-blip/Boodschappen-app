@@ -11,7 +11,7 @@ import categorieRegels from '../data/categorie-regels.json';
 import * as L from './lijst/lijst.js';
 import * as opslag from './lijst/opslag.js';
 import { lijstScherm, zoekResultaten } from './ui/lijst-scherm.js';
-import { routeScherm } from './ui/route-scherm.js';
+import { routeScherm, plekVraag } from './ui/route-scherm.js';
 import { kaartScherm, getoondeStop } from './ui/kaart.js';
 import { zoekAlternatieven } from './lijst/alternatieven.js';
 import { koppelGebaren, animeer } from './ui/kaart-gebaren.js';
@@ -25,6 +25,8 @@ import { maakWeekmenu, vervangMaaltijd } from './planner/planner.js';
 import { berekenKosten, gedeeldeVerseProducten } from './planner/kosten.js';
 import { voorraadKandidaten, standaardBasis } from './planner/basis.js';
 import { esc } from './ui/html.js';
+import meldingenOpen from '../data/meldingen-open.json';
+import { meld, verstuur, alGemeld } from './meldingen/versturen.js';
 
 // Alle winkels in data/winkels/ worden automatisch ingeladen.
 const winkelBestanden = import.meta.glob('../data/winkels/*.json', { eager: true, import: 'default' });
@@ -45,7 +47,8 @@ const st = {
   kaart: { beeld: null, volgen: true, gekozen: null, naarStop: false },
   // Welke inklapbare blokken je zelf open of dicht hebt gezet, zodat ze zo blijven na het opnieuw tekenen.
   uitklap: {},
-  vervang: null, // { productId, opties } na "Ligt er niet": keuze uit alternatieven
+  vervang: null, // { productId, opties, elders } na "Ligt er niet": keuze uit alternatieven of een andere plek
+  vraag: null, // { productId, naar } na afvinken: andere klanten meldden een andere plek
   welkom: !opslag.welkomGezien(),
   aanbiedingen: [], // alle aanbiedingen uit alle bronnen (ook verlopen)
   actieZoek: '',
@@ -223,6 +226,21 @@ function slaOver(id) {
   wijzigLijst(L.wisselOvergeslagen(st.lijst, id));
 }
 
+/** Meldingen waar nog te weinig klanten iets over zeiden: product-id → gemelde afdeling. */
+const OPEN_MELDINGEN = new Map(meldingenOpen.map((m) => [m.product, m.naar]));
+
+function meldPlek(productId, afdeling, soort) {
+  meld({ product: productId, afdeling, winkel: winkels[st.winkelIndex].bestand.replace(/\.json$/, ''), soort });
+}
+
+/** Keuze na "Ligt er niet" tekenen en in beeld brengen (op de kaart staat die onder de kaart). */
+function toonKeuze() {
+  teken();
+  const keuze = app.querySelector('.alternatieven');
+  const minderBeweging = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  keuze?.scrollIntoView({ block: 'nearest', behavior: minderBeweging ? 'auto' : 'smooth' });
+}
+
 /** De voorbeeldlijst verdwijnt zodra je zelf iets toevoegt. */
 function zonderVoorbeeld(lijst) {
   return lijst.some((r) => r.voorbeeld) ? lijst.filter((r) => !r.voorbeeld) : lijst;
@@ -279,6 +297,7 @@ function teken() {
         )
         .join('')}
     </nav>
+    ${st.vraag && (st.tab === 'route' || st.tab === 'kaart') ? plekVraag(st) : ''}
     ${st.welkom ? welkomScherm() : ''}`;
   if (st.welkom) app.querySelector('.welkom .knop')?.focus();
   if (st.tab === 'kaart') initKaart();
@@ -399,8 +418,13 @@ app.addEventListener('change', (e) => {
     teken();
   } else if (e.target.dataset.actie === 'afdeling' && e.target.value) {
     // Zelf gekozen afdeling onthouden; het product komt dan meteen in de route.
-    st.afdelingen = { ...st.afdelingen, [e.target.dataset.id]: e.target.value };
+    const id = e.target.dataset.id;
+    const product = st.productenOpId.get(id);
+    st.afdelingen = { ...st.afdelingen, [id]: e.target.value };
     opslag.bewaarAfdelingen(st.afdelingen);
+    // En anoniem melden, zodat de app het voor iedereen aanpast als meer klanten dit zien.
+    if (product && !product.eigen && product.categorie !== e.target.value) meldPlek(id, e.target.value, 'melding');
+    if (st.vervang?.productId === id) st.vervang = null;
     bijwerken();
     teken();
   } else if (e.target.dataset.actie === 'menu-voorraad') {
@@ -411,6 +435,9 @@ app.addEventListener('change', (e) => {
     const id = e.target.dataset.id;
     // Afvinken = je staat nu bij dit product. De rest van de route gaat vanaf hier.
     if (e.target.checked) zetPositie(L.sectieVanProduct(huidigeWinkel(), st.productenOpId.get(id)));
+    // Hebben andere klanten een andere plek gemeld? Dan even vragen waar jij het vond.
+    const naar = OPEN_MELDINGEN.get(id);
+    st.vraag = e.target.checked && naar && naar !== st.productenOpId.get(id)?.categorie && !alGemeld(id) ? { productId: id, naar } : null;
     // Na afvinken volgt de kaart weer de route naar de volgende stop.
     st.kaart = { ...st.kaart, gekozen: null, volgen: true };
     wijzigLijst(L.wisselAfgevinkt(st.lijst, id));
@@ -477,19 +504,35 @@ app.addEventListener('click', (e) => {
         wijzigLijst(L.wisselOvergeslagen(st.lijst, id));
         break;
       }
-      // "Ligt er niet": eerst twee alternatieven voorstellen; zijn die er niet, dan meteen overslaan.
+      // "Ligt er niet": twee alternatieven voorstellen, of melden dat het ergens anders ligt.
       const opLijst = new Set(st.lijst.filter((r) => r.overgeslagen).map((r) => r.productId));
       const opties = zoekAlternatieven(st.productenOpId.get(id), alleProducten(), { uitsluiten: opLijst });
-      if (opties.length) {
-        st.vervang = { productId: id, opties };
-        teken();
-        // Zorg dat de keuze in beeld komt (op de kaart staat het stopkaartje onder de kaart).
-        const keuze = app.querySelector('.alternatieven');
-        const minderBeweging = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-        keuze?.scrollIntoView({ block: 'nearest', behavior: minderBeweging ? 'auto' : 'smooth' });
-      } else slaOver(id);
+      st.vervang = { productId: id, opties, elders: false };
+      toonKeuze();
       break;
     }
+    case 'elders':
+    case 'elders-terug':
+      st.vervang = { ...st.vervang, elders: knop.dataset.actie === 'elders' };
+      toonKeuze();
+      break;
+    case 'plek-ja':
+    case 'plek-nee': {
+      const afdeling = knop.dataset.actie === 'plek-ja' ? st.vraag.naar : st.productenOpId.get(id).categorie;
+      meldPlek(id, afdeling, knop.dataset.actie === 'plek-ja' ? 'bevestiging' : 'tegenspraak');
+      if (knop.dataset.actie === 'plek-ja') {
+        st.afdelingen = { ...st.afdelingen, [id]: afdeling };
+        opslag.bewaarAfdelingen(st.afdelingen);
+      }
+      st.vraag = null;
+      bijwerken();
+      teken();
+      break;
+    }
+    case 'plek-sluit':
+      st.vraag = null;
+      teken();
+      break;
     case 'vervang-kies': {
       const oud = st.vervang.productId;
       zetPositie(L.sectieVanProduct(huidigeWinkel(), st.productenOpId.get(oud)));
@@ -661,5 +704,8 @@ function focusZoek() {
 bijwerken();
 teken();
 herlaadAanbiedingen();
+// Meldingen die nog niet weg konden (geen bereik in de winkel) alsnog versturen.
+verstuur();
+window.addEventListener('online', verstuur);
 // Zoekindex opbouwen zodra de telefoon even niets te doen heeft.
 (window.requestIdleCallback ?? ((f) => setTimeout(f, 300)))(() => bereidZoekenVoor(st.alleProducten, st.categorieNamen));

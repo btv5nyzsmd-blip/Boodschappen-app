@@ -24,9 +24,10 @@ Alles draait in de browser. Er is geen account of server nodig. Je lijst wordt o
 4. [Producten en prijzen](#producten-en-prijzen)
 5. [Recepten toevoegen](#recepten-toevoegen)
 6. [Aanbiedingen](#aanbiedingen)
-7. [Online zetten (GitHub Pages)](#online-zetten-github-pages)
-8. [Hoe het werkt](#hoe-het-werkt)
-9. [Hoe het weekmenu wordt gekozen](#hoe-het-weekmenu-wordt-gekozen)
+7. [Meldingen: product ligt ergens anders](#meldingen-product-ligt-ergens-anders)
+8. [Online zetten (GitHub Pages)](#online-zetten-github-pages)
+9. [Hoe het werkt](#hoe-het-werkt)
+10. [Hoe het weekmenu wordt gekozen](#hoe-het-weekmenu-wordt-gekozen)
 
 ---
 
@@ -151,6 +152,7 @@ Ongeveer 91% van de producten krijgt zo automatisch een afdeling. Voor de rest:
   { "producten": { "jumbo-erwten-450-g-699986zk": "diepvries" } }
   ```
   Het product-id staat in `data/producten.json`. Draai daarna `npm run prijzen`.
+- **Door klanten:** zie [Meldingen](#meldingen-product-ligt-ergens-anders). Melden genoeg klanten dezelfde andere plek, dan vult de app dit bestand zelf aan.
 
 ### Producten die er niet in staan
 
@@ -246,6 +248,41 @@ Aanbiedingen in dit bestand gelden voor iedereen die de app gebruikt. Je kunt he
 De aanbiedingen zijn een losse module (`src/aanbiedingen/`). Een bron is een klein object met een naam en een functie `laad()`, die een lijst aanbiedingen in het formaat hierboven teruggeeft. De twee huidige bronnen staan in `src/aanbiedingen/bronnen.js`. Een nieuwe bron, bijvoorbeeld een online lijst, voeg je daar toe en zet je in `main.js` in de lijst `[bestandBron, eigenBron]`. Werkt een bron een keer niet, dan gaan de andere gewoon door.
 
 ---
+
+## Meldingen: product ligt ergens anders
+
+Net als bij Flitsmeister helpen klanten elkaar. Ligt een product niet waar de app zegt?
+
+1. Tik in de route of op de kaart op **Ligt er niet** en dan op **Ligt het ergens anders?**. Kies de afdeling waar je het zag. Je eigen route klopt meteen weer, en de app stuurt een **anonieme melding**: een willekeurige code van je telefoon (geen naam, e-mail of locatie), het product, de afdeling en de winkel.
+2. Andere klanten die dat product afvinken, krijgen onderaan het scherm de vraag: *"Andere klanten melden dat dit bij Brood ligt. Waar vond jij het?"* Hun antwoord telt ook mee, in beide richtingen.
+3. Elke ochtend telt GitHub de meldingen (`npm run meldingen`). Een product verhuist als **minstens 3 verschillende telefoons** dezelfde nieuwe afdeling noemen én dat er meer zijn dan telefoons die zeggen dat het op de oude plek ligt. Het product komt dan in `data/categorie-uitzonderingen.json` en ligt de volgende dag voor iedereen op de nieuwe plek.
+
+Misbruik wordt beperkt doordat elke telefoon maar één keer per product telt (de laatste melding telt). Zonder internet in de winkel wacht een melding gewoon tot er weer verbinding is.
+
+**De drempel aanpassen:** zet in `data/meldingen.json` bij `"drempel"` een ander getal, bijvoorbeeld 5 als er veel gebruikers zijn.
+
+### Eenmalig instellen: het Google Formulier
+
+De meldingen komen binnen in een Google Formulier van jezelf (gratis, je hebt alleen een Google-account nodig).
+
+1. Ga naar [forms.google.com](https://forms.google.com) en maak een **leeg formulier**, bijvoorbeeld "Meldingen boodschappenapp".
+2. Maak vijf vragen van het type **Kort antwoord**, met precies deze titels (kleine letters): `apparaat`, `product`, `afdeling`, `winkel`, `soort`. Zet geen enkele vraag op "verplicht".
+3. Kijk bij **Instellingen → Antwoorden**: *E-mailadressen verzamelen* moet **uit** staan en *Beperken tot 1 reactie* ook **uit**.
+4. Tabblad **Antwoorden** → **Koppelen aan Spreadsheets** → *Een nieuwe spreadsheet maken*.
+5. In die spreadsheet: **Bestand → Delen → Publiceren op internet**. Kies het blad met de antwoorden en **Door komma's gescheiden waarden (.csv)**, en klik op *Publiceren*. Kopieer de link: dat is de **CSV-link**.
+6. Terug in het formulier: menu **⋮ → Vooraf ingevulde link ophalen**. Vul bij elke vraag het woord zelf in (dus bij `apparaat` het woord *apparaat*, enzovoort), klik **Link ophalen** en kopieer de link: dat is de **formulierlink**.
+7. Zet de gegevens in `data/meldingen.json` (of geef de twee links aan je ontwikkelaar):
+   ```json
+   {
+     "formulier": "https://docs.google.com/forms/d/e/1FAIpQL.../viewform",
+     "velden": { "apparaat": "entry.111", "product": "entry.222", "afdeling": "entry.333", "winkel": "entry.444", "soort": "entry.555" },
+     "csv": "https://docs.google.com/spreadsheets/d/e/2PACX.../pub?output=csv",
+     "drempel": 3
+   }
+   ```
+   De `entry.`-nummers staan in de vooraf ingevulde link, telkens vóór het woord dat je invulde (`entry.111=apparaat`).
+
+Is `formulier` leeg, dan werkt melden alleen op je eigen telefoon; er gaat dan niets naar internet.
 
 ## Online zetten (GitHub Pages)
 

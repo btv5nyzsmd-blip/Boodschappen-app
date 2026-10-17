@@ -91,19 +91,47 @@ export function vink(r, st) {
       </label>
       ${r.afgevinkt ? '' : `<button class="overslaan" data-actie="overslaan" data-id="${esc(p.id)}" aria-label="${esc(p.naam)} niet gevonden">Ligt er niet</button>`}
     </div>
-    ${st?.vervang?.productId === p.id ? alternatievenKeuze(p, st.vervang.opties) : ''}`;
+    ${st?.vervang?.productId === p.id ? alternatievenKeuze(p, st.vervang, st) : ''}`;
 }
 
-/** Na "Ligt er niet": kies een van twee alternatieven, of sla het product over. */
-function alternatievenKeuze(product, opties) {
+/** Na afvinken: andere klanten meldden een andere plek. Klopt dat? (Zweeft onderaan het scherm.) */
+export function plekVraag(st) {
+  const product = st.productenOpId.get(st.vraag.productId);
+  if (!product) return '';
+  const naam = (id) => esc(st.categorieNamen[id] ?? id);
+  return `
+    <div class="alternatieven plekvraag" role="dialog" aria-live="polite" aria-label="Waar lag ${esc(product.naam)}?">
+      <p><strong>${esc(productNaam(product))}</strong>: andere klanten melden dat dit bij <strong>${naam(st.vraag.naar)}</strong> ligt. Waar vond jij het?</p>
+      <div class="knoppen">
+        <button class="knop klein" data-actie="plek-ja" data-id="${esc(product.id)}">Bij ${naam(st.vraag.naar)}</button>
+        <button class="knop stil klein" data-actie="plek-nee" data-id="${esc(product.id)}">Bij ${naam(product.categorie)}</button>
+        <button class="link" data-actie="plek-sluit">Weet ik niet</button>
+      </div>
+    </div>`;
+}
+
+/** Na "Ligt er niet": kies een van twee alternatieven, meld een andere plek, of sla het product over. */
+function alternatievenKeuze(product, { opties, elders }, st) {
   const verschil = (alt) => {
     const d = alt.prijs - product.prijs;
     if (Math.abs(d) < 0.005) return 'zelfde prijs';
     return `${euro(Math.abs(d))} ${d > 0 ? 'duurder' : 'goedkoper'}`;
   };
+  if (elders) {
+    return `
+    <div class="alternatieven" role="group" aria-label="Waar ligt ${esc(product.naam)}?">
+      <p><strong>Waar lag het?</strong> Dan klopt je route meteen weer. Je melding gaat anoniem naar de app; als meer klanten hetzelfde zien, past de app het voor iedereen aan.</p>
+      ${afdelingKeuze(product, st, product.categorie)}
+      <div class="knoppen"><button class="link" data-actie="elders-terug">Terug</button></div>
+    </div>`;
+  }
   return `
     <div class="alternatieven" role="group" aria-label="Alternatieven voor ${esc(product.naam)}">
-      <p><strong>Ligt er niet?</strong> Neem in plaats daarvan, op dezelfde plek:</p>
+      ${
+        opties.length
+          ? `<p><strong>Ligt er niet?</strong> Neem in plaats daarvan, op dezelfde plek:</p>`
+          : `<p><strong>Ligt er niet?</strong> Er is geen vergelijkbaar product gevonden.</p>`
+      }
       ${opties
         .map(
           (alt) => `
@@ -113,6 +141,10 @@ function alternatievenKeuze(product, opties) {
         </button>`,
         )
         .join('')}
+      <button class="alt elders" data-actie="elders">
+        <span class="naam">Ligt het ergens anders?</span>
+        <span class="meta">Kies de afdeling waar je het zag</span>
+      </button>
       <div class="knoppen">
         <button class="knop stil klein" data-actie="vervang-overslaan">Nee, overslaan</button>
         <button class="link" data-actie="vervang-annuleer">Toch gevonden</button>
@@ -139,11 +171,17 @@ function nietGevondenBlok(overgeslagen) {
 }
 
 function afdelingKiezen(r, st) {
-  const opties = st.categorieen.map((c) => `<option value="${esc(c.id)}">${esc(c.naam)}</option>`).join('');
+  return `<div class="afdeling-kiezen">${afdelingKeuze(r.product, st)}</div>`;
+}
+
+/** Keuzelijst met alle afdelingen; kiezen = onthouden (en melden, zie main.js). */
+function afdelingKeuze(product, st, zonder = null) {
+  const opties = st.categorieen
+    .filter((c) => c.id !== zonder)
+    .map((c) => `<option value="${esc(c.id)}">${esc(c.naam)}</option>`)
+    .join('');
   return `
-    <div class="afdeling-kiezen">
-      <select data-actie="afdeling" data-id="${esc(r.product.id)}" aria-label="Afdeling voor ${esc(r.product.naam)}">
+      <select data-actie="afdeling" data-id="${esc(product.id)}" aria-label="Afdeling voor ${esc(product.naam)}">
         <option value="">Kies de afdeling…</option>${opties}
-      </select>
-    </div>`;
+      </select>`;
 }

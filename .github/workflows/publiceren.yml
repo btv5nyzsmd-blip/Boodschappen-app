@@ -1,6 +1,6 @@
 # Publiceert de app op GitHub Pages:
 # - bij elke wijziging op de main-branch;
-# - elke ochtend, met de nieuwste prijzen van Checkjebon.nl;
+# - elke ochtend, met de nieuwste prijzen van Checkjebon.nl en de meldingen van klanten;
 # - met de hand via de knop "Run workflow" op GitHub.
 # De tests moeten slagen; anders wordt er niets gepubliceerd.
 name: Publiceren
@@ -32,17 +32,20 @@ jobs:
           cache: npm
       - run: npm ci
 
-      - name: Prijzen bijwerken
+      # Eerst de meldingen "ligt ergens anders" tellen, dan de prijzen ophalen
+      # (die neemt de verhuisde producten mee).
+      - name: Meldingen en prijzen bijwerken
         if: github.event_name != 'push'
         run: |
+          npm run meldingen
           npm run prijzen
           if git diff --quiet -- data/; then
-            echo "Geen nieuwe prijzen."
+            echo "Niets nieuws."
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/producten.json data/bron.json
-            git commit -m "Prijzen bijgewerkt ($(date +%F))"
+            git add data/producten.json data/bron.json data/categorie-uitzonderingen.json data/meldingen-open.json
+            git commit -m "Prijzen en meldingen bijgewerkt ($(date +%F))"
             git push
           fi
 

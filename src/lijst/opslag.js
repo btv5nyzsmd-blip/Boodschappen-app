@@ -1,5 +1,6 @@
 // Bewaart de boodschappenlijst en eigen producten in de browser (localStorage).
-// Er gaat niets naar internet; alles blijft op je eigen telefoon.
+// Alles blijft op je eigen telefoon. Alleen meldingen "ligt ergens anders" gaan anoniem
+// naar internet (zie src/meldingen/versturen.js), met een willekeurige code in plaats van je naam.
 
 const SLEUTEL_LIJST = 'boodschappen.lijst.v1';
 const SLEUTEL_EIGEN = 'boodschappen.eigen-producten.v1';
@@ -52,3 +53,15 @@ export const bewaarPlanner = (planner) => schrijf(SLEUTEL_PLANNER, planner);
 const SLEUTEL_WELKOM = 'boodschappen.welkom.v1';
 export const welkomGezien = () => lees(SLEUTEL_WELKOM, false);
 export const bewaarWelkomGezien = () => schrijf(SLEUTEL_WELKOM, true);
+
+/** Meldingen "ligt ergens anders": willekeurige code van deze telefoon, nog te versturen meldingen,
+ *  en waarover je al iets hebt gemeld (product-id → afdeling). */
+const SLEUTEL_APPARAAT = 'boodschappen.apparaat.v1';
+const SLEUTEL_WACHTRIJ = 'boodschappen.meldingen-wachtrij.v1';
+const SLEUTEL_GESTEMD = 'boodschappen.meldingen-gemeld.v1';
+export const leesApparaat = () => lees(SLEUTEL_APPARAAT, null);
+export const bewaarApparaat = (code) => schrijf(SLEUTEL_APPARAAT, code);
+export const leesWachtrij = () => lees(SLEUTEL_WACHTRIJ, []);
+export const bewaarWachtrij = (rij) => schrijf(SLEUTEL_WACHTRIJ, rij);
+export const leesGestemd = () => lees(SLEUTEL_GESTEMD, {});
+export const bewaarGestemd = (gestemd) => schrijf(SLEUTEL_GESTEMD, gestemd);

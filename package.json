@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview --host",
     "test": "vitest run",
-    "prijzen": "node scripts/prijzen-bijwerken.mjs"
+    "prijzen": "node scripts/prijzen-bijwerken.mjs",
+    "meldingen": "node scripts/meldingen-verwerken.mjs"
   },
   "devDependencies": {
     "vite": "^6.4.4",

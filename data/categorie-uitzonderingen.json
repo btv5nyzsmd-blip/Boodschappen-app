@@ -1,5 +1,5 @@
 {
-  "uitleg": "Producten die de automatische regels in de verkeerde afdeling zetten. Vul in: \"product-id\": \"categorie-id\".",
+  "uitleg": "Producten die de automatische regels in de verkeerde afdeling zetten. Vul in: \"product-id\": \"categorie-id\". De dagelijkse taak vult dit ook aan met meldingen van klanten (zie data/meldingen.json).",
   "producten": {
     "jumbo-erwten-450-g-699986zk": "diepvries",
     "jumbo-vers-pizzadeeg-rol-400-g-575505rp": "zuivel"

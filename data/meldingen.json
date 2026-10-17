@@ -1,0 +1,7 @@
+{
+  "uitleg": "Meldingen 'ligt ergens anders' gaan naar een Google Formulier. Zodra 'drempel' verschillende telefoons dezelfde nieuwe afdeling voor een product melden, verplaatst de dagelijkse GitHub-taak het product (in categorie-uitzonderingen.json). Leeg formulier = meldingen blijven alleen op de telefoon.",
+  "formulier": "",
+  "velden": { "apparaat": "", "product": "", "afdeling": "", "winkel": "", "soort": "" },
+  "csv": "",
+  "drempel": 3
+}
