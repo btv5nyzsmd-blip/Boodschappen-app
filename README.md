@@ -118,7 +118,7 @@ Wat elk onderdeel betekent:
 | `schappen` | Alleen voor de tekening: grijze rechthoeken (`x`, `y` = linkerbovenhoek). Met `"soort": "kassa"` worden ze oranje. Ze hebben geen invloed op de route. |
 | `omtrek` | Optioneel: de buitenmuur als lijst hoekpunten `[x, y]`, voor een winkel die niet rechthoekig is. |
 | `labels` | Optioneel: afdelingsnamen op de kaart, bijv. `{ "tekst": "Zuivel", "x": 1.6, "y": 11, "draai": -90 }`. |
-| `kassas` | Elke kassa is een mogelijk eindpunt. De app kiest de kassa die de totale route het kortst maakt. |
+| `kassas` | Elke kassa is een mogelijk eindpunt. Geef met `"soort": "kassa"` of `"soort": "zelfscan"` aan wat voor kassa het is. Standaard kiest de app de kassa die de route het kortst maakt; in de route kun je bij **Afrekenen bij** kiezen voor alleen gewone kassa's of de zelfscan. |
 
 ### Tips
 

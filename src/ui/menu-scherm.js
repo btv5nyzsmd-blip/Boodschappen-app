@@ -1,4 +1,5 @@
 // Scherm "Menu": weekmenu samenstellen binnen je budget.
+import { prijsUitleg } from './lijst-scherm.js';
 import { esc, euro, productNaam } from './html.js';
 import { UITSLUITINGEN, VOORKEUREN } from '../planner/planner.js';
 import { toonHoeveelheid } from '../planner/verpakking.js';
@@ -83,6 +84,7 @@ function resultaat(st) {
       <div class="meter" role="meter" aria-valuemin="0" aria-valuemax="${budget}" aria-valuenow="${kosten.teBetalen.toFixed(2)}" aria-label="Deel van je budget"><span style="width:${deel}%"></span></div>
       <p class="zacht klein">${euro(maaltijdPrijs)} per persoon per maaltijd · ${verseRest.length ? `± ${euro(kosten.verspilling)} aan verse restjes` : 'geen verse restjes'}${bespaard > 0 ? ` · <strong class="bespaard">${euro(bespaard)} bespaard met aanbiedingen</strong>` : ''}</p>
       ${menu.melding ? `<p class="melding waarschuwing">${esc(menu.melding)}</p>` : ''}
+      ${prijsUitleg(st)}
     </section>
 
     ${planner.bericht ? `<p class="melding">${esc(planner.bericht)} <button class="link" data-actie="naar-route">Naar je route</button></p>` : ''}

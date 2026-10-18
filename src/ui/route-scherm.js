@@ -47,7 +47,7 @@ export function routeScherm(st) {
     </ol>
     ${
       route
-        ? `<div class="kassa-eind"><span class="label">${volgende === -1 ? 'Klaar, loop naar' : 'Eindpunt'}</span><strong>${esc(route.kassa.naam)}</strong></div>`
+        ? `<div class="kassa-eind"><span class="label">${volgende === -1 ? 'Klaar, loop naar' : 'Eindpunt'}</span><strong>${esc(route.kassa.naam)}</strong>${kassaKeuze(st)}</div>`
         : ''
     }
     ${nietGevondenBlok(overgeslagen)}
@@ -150,6 +150,20 @@ function alternatievenKeuze(product, { opties, elders }, st) {
         <button class="link" data-actie="vervang-annuleer">Toch gevonden</button>
       </div>
     </div>`;
+}
+
+/** Waar je wilt afrekenen; de route eindigt daar. Alleen als de winkel meer soorten kassa's heeft. */
+function kassaKeuze(st) {
+  if ((st.kassaSoorten ?? []).length < 2) return '';
+  const opties = [
+    ['snelste', 'Snelste route'],
+    ['kassa', 'Gewone kassa'],
+    ['zelfscan', 'Zelfscan'],
+  ].filter(([w]) => w === 'snelste' || st.kassaSoorten.includes(w));
+  return `
+    <label class="kassa-voorkeur"><span class="zacht">Afrekenen bij</span>
+      <select id="kassa-voorkeur">${opties.map(([w, t]) => `<option value="${w}" ${st.kassaVoorkeur === w ? 'selected' : ''}>${t}</option>`).join('')}</select>
+    </label>`;
 }
 
 function nietGevondenBlok(overgeslagen) {

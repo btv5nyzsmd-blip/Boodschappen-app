@@ -129,13 +129,16 @@ export function sectiesVoorCategorieen(winkel, categorieen) {
  * @param {string[]} sectieIds  secties die bezocht moeten worden
  * @param {object} [netwerk]  optioneel een eerder gebouwd netwerk (sneller)
  * @param {string} [start]  waar je nu staat: "ingang" of een sectie-id
+ * @param {{ kassaSoort?: string }} [opties]  kassaSoort: alleen kassa's van deze soort ("kassa" of "zelfscan");
+ *   leeg of onbekend = de kassa die de route het kortst maakt
  * @returns {{ stops: {sectie: object, afstand: number}[], kassa: object, totaleAfstand: number,
  *   lijn: {x:number,y:number}[], stukken: {x:number,y:number}[][] }}
  *   `stukken[i]` is het looppad naar stop i; het laatste stuk loopt naar de kassa.
  */
-export function berekenRoute(winkel, sectieIds, netwerk = bouwNetwerk(winkel), start = 'ingang') {
+export function berekenRoute(winkel, sectieIds, netwerk = bouwNetwerk(winkel), start = 'ingang', { kassaSoort } = {}) {
   const uniek = [...new Set(sectieIds)];
-  const kassaIds = winkel.kassas.map((k) => `kassa:${k.naam}`);
+  const passend = winkel.kassas.filter((k) => kassaSoortVan(k) === kassaSoort);
+  const kassaIds = (passend.length ? passend : winkel.kassas).map((k) => `kassa:${k.naam}`);
   if (kassaIds.length === 0) throw new Error('De winkel heeft geen kassa.');
   const ids = [start, ...uniek, ...kassaIds];
   const tabel = afstandenTabel(netwerk, ids);
@@ -174,3 +177,6 @@ export function berekenRoute(winkel, sectieIds, netwerk = bouwNetwerk(winkel), s
     stukken,
   };
 }
+
+/** Soort kassa: "kassa" (met caissière) of "zelfscan". */
+export const kassaSoortVan = (kassa) => kassa.soort ?? (/zelf/i.test(kassa.naam) ? 'zelfscan' : 'kassa');

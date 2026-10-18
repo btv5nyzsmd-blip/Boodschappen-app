@@ -49,7 +49,7 @@ export function lijstScherm(st) {
                  : `<button class="knop stil" data-actie="leeg">Lijst leegmaken</button>`
              }
            </div>
-           <p class="zacht klein">${esc(st.bronTekst)}</p>`
+           ${prijsUitleg(st)}`
     }`;
 }
 
@@ -98,4 +98,14 @@ export function zoekResultaten(st) {
     </div>`;
 
   return `<div class="resultaten">${items}${eigen}</div>`;
+}
+
+/** Waar de prijzen vandaan komen, en waarom het bedrag in de winkel iets kan verschillen. */
+export function prijsUitleg(st) {
+  return `
+    <details class="prijsuitleg zacht klein" data-uitklap="prijsuitleg" ${st.uitklap?.prijsuitleg ? 'open' : ''}>
+      <summary>Kloppen deze prijzen in de winkel?</summary>
+      <p>${esc(st.bronTekst)} Dat zijn de prijzen van de webwinkel. In de winkel zijn ze meestal hetzelfde, maar soms een paar cent anders, en versproducten (groente, vlees, kaas aan het stuk) kunnen per stuk of gewicht verschillen.</p>
+      <p>Aanbiedingen uit de folder staan er alleen in als ze bij <strong>Acties</strong> zijn ingevoerd. Bedragen met ± zijn dus een goede schatting, geen kassabon.</p>
+    </details>`;
 }

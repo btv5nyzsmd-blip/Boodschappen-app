@@ -54,6 +54,11 @@ const SLEUTEL_KAARTHOEK = 'boodschappen.kaarthoek.v1';
 export const leesKaartHoek = () => lees(SLEUTEL_KAARTHOEK, 0);
 export const bewaarKaartHoek = (hoek) => schrijf(SLEUTEL_KAARTHOEK, hoek);
 
+/** Waar je wilt afrekenen: "snelste", "kassa" of "zelfscan". */
+const SLEUTEL_KASSA = 'boodschappen.kassa.v1';
+export const leesKassaVoorkeur = () => lees(SLEUTEL_KASSA, 'snelste');
+export const bewaarKassaVoorkeur = (voorkeur) => schrijf(SLEUTEL_KASSA, voorkeur);
+
 /** Of het welkomstscherm al eens is getoond. */
 const SLEUTEL_WELKOM = 'boodschappen.welkom.v1';
 export const welkomGezien = () => lees(SLEUTEL_WELKOM, false);

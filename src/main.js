@@ -5,6 +5,7 @@ import categorieen from '../data/categorieen.json';
 import recepten from '../data/recepten.json';
 import bron from '../data/bron.json';
 import { bouwNetwerk } from './route/looppaden.js';
+import { kassaSoortVan } from './route/route.js';
 import { zoekProducten, normaliseer, bereidZoekenVoor } from './lijst/zoeken.js';
 import { bepaalCategorie } from './data/import.js';
 import categorieRegels from '../data/categorie-regels.json';
@@ -62,9 +63,10 @@ const st = {
   categorieNamen: Object.fromEntries(categorieen.map((c) => [c.id, c.naam])),
   eigenProducten: opslag.leesEigenProducten(),
   afdelingen: opslag.leesAfdelingen(),
-  bronTekst: `Prijzen van ${datum}, via de open data van Checkjebon.nl. Aanbiedingen zitten er nog niet in.`,
+  bronTekst: `Online prijzen van jumbo.com van ${datum}, via de open data van Checkjebon.nl.`,
   lijst: opslag.leesLijst(),
   positie: opslag.leesPositie(),
+  kassaVoorkeur: opslag.leesKassaVoorkeur(), // 'snelste', 'kassa' of 'zelfscan'
   recepten,
   houdbaar: Object.fromEntries(categorieen.map((c) => [c.id, c.houdbaar])),
   planner: opslag.leesPlanner({
@@ -123,7 +125,8 @@ function bijwerken() {
   try {
     // Pas als je iets hebt afgevinkt ben je "onderweg"; anders begint de route bij de ingang.
     const onderweg = st.lijst.some((r) => r.afgevinkt);
-    st.routeInfo = L.routeVoorLijst(huidigeWinkel(), st.lijst, st.productenOpId, netwerk(), onderweg ? st.positie : null);
+    st.kassaSoorten = [...new Set(huidigeWinkel().kassas.map(kassaSoortVan))];
+    st.routeInfo = L.routeVoorLijst(huidigeWinkel(), st.lijst, st.productenOpId, netwerk(), onderweg ? st.positie : null, { kassaSoort: st.kassaVoorkeur });
   } catch (fout) {
     st.routeInfo = { fout: fout.message, stops: [], nietGevonden: [] };
   }
@@ -422,6 +425,11 @@ app.addEventListener('change', (e) => {
     st.winkelIndex = Number(e.target.value);
     st.kaart = { ...st.kaart, beeld: null, gekozen: null, volgen: true };
     opslag.bewaarWinkelKeuze(winkels[st.winkelIndex].bestand);
+    bijwerken();
+    teken();
+  } else if (e.target.id === 'kassa-voorkeur') {
+    st.kassaVoorkeur = e.target.value;
+    opslag.bewaarKassaVoorkeur(st.kassaVoorkeur);
     bijwerken();
     teken();
   } else if (e.target.dataset.actie === 'afdeling' && e.target.value) {

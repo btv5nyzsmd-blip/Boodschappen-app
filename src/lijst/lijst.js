@@ -73,7 +73,7 @@ export function sectieVanProduct(winkel, product) {
  *   Elke regel is { ...lijstregel, product }. Stops bevatten de nog te pakken producten,
  *   plus wat je in diezelfde sectie al hebt afgevinkt.
  */
-export function routeVoorLijst(winkel, lijst, productenOpId, netwerk, positie = null) {
+export function routeVoorLijst(winkel, lijst, productenOpId, netwerk, positie = null, opties = {}) {
   const regels = lijst
     .map((r) => ({ ...r, product: productenOpId.get(r.productId) }))
     .filter((r) => r.product);
@@ -86,7 +86,7 @@ export function routeVoorLijst(winkel, lijst, productenOpId, netwerk, positie = 
   const vanaf = winkel.secties.find((s) => s.id === positie) ?? null;
   const regelsNietGevonden = regels.filter((r) => nietGevonden.includes(r.product.categorie) || (r.afgevinkt && !sectieVan(r)));
 
-  const route = perSectie.size > 0 || vanaf ? berekenRoute(winkel, [...perSectie.keys()], netwerk, vanaf ? vanaf.id : 'ingang') : null;
+  const route = perSectie.size > 0 || vanaf ? berekenRoute(winkel, [...perSectie.keys()], netwerk, vanaf ? vanaf.id : 'ingang', opties) : null;
   const stops = (route?.stops ?? []).map(({ sectie }) => ({
     sectie,
     regels: regels.filter((r) => sectieVan(r) === sectie.id && !r.overgeslagen),

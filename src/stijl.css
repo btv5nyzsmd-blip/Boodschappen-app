@@ -155,7 +155,12 @@ h2 { font: 600 1.15rem/1.2 var(--font-kop); margin: 0; text-wrap: balance; }
 .vink .naam { min-width: 0; overflow-wrap: anywhere; }
 .vink.af .naam { text-decoration: line-through; color: var(--zacht); }
 .vink .aantal { margin-left: auto; font-weight: 700; color: var(--zacht); font-variant-numeric: tabular-nums; }
-.kassa-eind { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 2px dashed var(--lijn); border-radius: 12px; }
+.kassa-eind { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 14px; border: 2px dashed var(--lijn); border-radius: 12px; }
+.kassa-voorkeur { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.kassa-voorkeur select { padding: 8px 10px; min-height: 40px; border-radius: 10px; border: 1px solid var(--lijn); background: var(--vlak); color: inherit; font: inherit; }
+.prijsuitleg { margin-top: 4px; }
+.prijsuitleg summary { cursor: pointer; color: var(--accent); font-weight: 700; min-height: 32px; display: inline-flex; align-items: center; }
+.prijsuitleg p { margin: 6px 0 0; }
 
 /* Kaart: vult het scherm boven het stopkaartje; lijnen en stippen houden dezelfde schermgrootte bij elk zoomniveau. */
 .kaart-vak {

@@ -90,6 +90,19 @@ describe('berekenRoute', () => {
     expect(jumbo.kassas.some((k) => k.x === laatste.x && k.y === laatste.y)).toBe(true);
   });
 
+  it('eindigt bij de gekozen soort kassa', () => {
+    const ids = ['wand-zuivel', 'pad1-pasta', 'vers-fruit'];
+    expect(berekenRoute(jumbo, ids, undefined, 'ingang', { kassaSoort: 'zelfscan' }).kassa.naam).toBe('Zelfscan');
+    expect(berekenRoute(jumbo, ids, undefined, 'ingang', { kassaSoort: 'kassa' }).kassa.naam).toMatch(/^Kassa \d$/);
+    // Snelste: nooit langer dan een vaste keuze.
+    const snelste = berekenRoute(jumbo, ids).totaleAfstand;
+    for (const kassaSoort of ['kassa', 'zelfscan']) {
+      expect(snelste).toBeLessThanOrEqual(berekenRoute(jumbo, ids, undefined, 'ingang', { kassaSoort }).totaleAfstand + 1e-9);
+    }
+    // Onbekende soort (bijv. een winkel zonder zelfscan): gewoon de snelste.
+    expect(berekenRoute(jumbo, ids, undefined, 'ingang', { kassaSoort: 'onbekend' }).totaleAfstand).toBeCloseTo(snelste);
+  });
+
   it('bezoekt elke sectie precies één keer, ook bij dubbele invoer', () => {
     const ids = ['pad3-bakken', 'vers-kaas', 'pad3-bakken', 'vers-fruit'];
     const route = berekenRoute(jumbo, ids);
