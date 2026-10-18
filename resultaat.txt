@@ -1,0 +1,11 @@
+== GET viewform
+status 401 url https://docs.google.com/forms/d/e/1FAIpQLSftD04HFFbVIj-njViMMkD0u7PDN8GB1OW3ALhHH1sK4ylLFQ/viewform
+      1 ServiceLogin
+      2 Sign in
+      1 accounts.google.com
+      1 sign in
+== POST formResponse
+status 401 url https://docs.google.com/forms/d/e/1FAIpQLSftD04HFFbVIj-njViMMkD0u7PDN8GB1OW3ALhHH1sK4ylLFQ/formResponse
+== CSV
+Tijdstempel,apparaat,product,afdeling,winkel,soort
+status 200
