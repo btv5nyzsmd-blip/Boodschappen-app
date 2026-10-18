@@ -11,6 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
+          set +e
           F=https://docs.google.com/forms/d/e/1FAIpQLSftD04HFFbVIj-njViMMkD0u7PDN8GB1OW3ALhHH1sK4ylLFQ
           {
             echo "== GET viewform"; curl -sS -L -o view.html -w "status %{http_code} url %{url_effective}\n" "$F/viewform"
