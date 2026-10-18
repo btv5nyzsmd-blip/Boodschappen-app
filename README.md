@@ -206,7 +206,7 @@ Draai daarna `npm test`. De tests melden een onbekend product, een ontbrekend ve
 
 ## Aanbiedingen
 
-Aanbiedingen voer je zelf in; de app haalt ze niet automatisch bij Jumbo op.
+Aanbiedingen worden ingevoerd door mensen, niet automatisch van jumbo.com gehaald (we lezen bewust geen supermarktwebsites uit). Doordat iedereen ze kan delen, hoeft niet iedereen de folder over te typen. Nieuwe Jumbo-aanbiedingen beginnen op **woensdag**.
 
 ### In de app (tabblad Acties)
 
@@ -214,7 +214,20 @@ Aanbiedingen voer je zelf in; de app haalt ze niet automatisch bij Jumbo op.
 2. De normale prijs staat al ingevuld. Vul de **actieprijs** in. Bij "1+1 gratis" is dat de prijs per stuk die je dan betaalt (de helft); bij "2e halve prijs" driekwart.
 3. Kies tot en met wanneer de actie loopt. Standaard is dat de eerstvolgende dinsdag, omdat Jumbo-acties meestal van woensdag tot en met dinsdag lopen.
 
-Wat je in de app invoert, staat alleen op die telefoon. Verlopen aanbiedingen doen niet meer mee en kun je met één knop opruimen.
+4. Laat **Deel met iedereen** aangevinkt om de aanbieding anoniem met andere gebruikers te delen.
+
+Wat je invoert, geldt meteen op je eigen telefoon. Verlopen aanbiedingen doen niet meer mee en kun je met één knop opruimen.
+
+### Gedeelde aanbiedingen (beheerder gaat voor)
+
+Gedeelde aanbiedingen gaan via hetzelfde Google Formulier als de [meldingen](#meldingen-product-ligt-ergens-anders):
+
+- **Van de beheerder:** geldt meteen voor iedereen, en gaat voor als klanten iets anders melden voor hetzelfde product. Welke telefoons beheerder zijn, staat in `data/meldingen.json` bij `"beheerders"`. De code van een telefoon staat in de app onderaan **Acties → Beheerder van de app?**.
+- **Van een klant:** geldt zodra **2 verschillende telefoons** precies dezelfde aanbieding melden (zelfde product, actieprijs en einddatum; aan te passen met `"aanbiedingMinimum"`). Tot die tijd zien andere gebruikers hem bij **Acties → Klopt dit?** en kunnen ze met één tik bevestigen.
+- GitHub verwerkt ze elke ochtend, en op **woensdag elk uur** (van 8:47 tot 22:47 zomertijd), zodat de nieuwe folder snel voor iedereen klopt. Wil je niet wachten: op GitHub bij **Actions → Publiceren → Run workflow**.
+- Het resultaat staat in `data/aanbiedingen-gedeeld.json` (niet met de hand aanpassen; dat wordt elke keer opnieuw gemaakt).
+
+Hiervoor heeft het formulier vijf extra vragen nodig (Kort antwoord, niet verplicht): `prijs`, `normaal`, `vanaf`, `tot`, `omschrijving`. De app stuurt prijzen in centen (`399`), zodat de spreadsheet ze niet verkeerd omzet.
 
 ### Voor iedereen: `data/aanbiedingen.json`
 
@@ -234,7 +247,7 @@ Aanbiedingen in dit bestand gelden voor iedereen die de app gebruikt. Je kunt he
 | `productId` | Het id uit `data/producten.json`. |
 | `normalePrijs`, `actiePrijs` | Prijzen in euro's, met een punt: `3.99`. |
 | `geldigTot` | Laatste dag van de actie: `JJJJ-MM-DD`. |
-| `geldigVanaf` | Optioneel: eerste dag. Zonder deze datum geldt de actie meteen. |
+| `geldigVanaf` | Optioneel: eerste dag (bij Jumbo meestal een woensdag). Zonder deze datum geldt de actie meteen. |
 | `omschrijving` | Optioneel: "1+1 gratis", "2e halve prijs", … |
 
 ### Wat de app met aanbiedingen doet

@@ -10,6 +10,7 @@ on:
     branches: [main]
   schedule:
     - cron: '17 5 * * *' # elke dag 05:17 UTC (07:17 zomertijd), na de update van Checkjebon
+    - cron: '47 6-20 * * 3' # op woensdag (nieuwe Jumbo-aanbiedingen) elk uur, zodat gedeelde aanbiedingen snel voor iedereen gelden
   workflow_dispatch:
 
 permissions:
@@ -44,7 +45,7 @@ jobs:
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/producten.json data/bron.json data/categorie-uitzonderingen.json data/meldingen-open.json
+            git add data/producten.json data/bron.json data/categorie-uitzonderingen.json data/meldingen-open.json data/aanbiedingen-gedeeld.json
             git commit -m "Prijzen en meldingen bijgewerkt ($(date +%F))"
             git push
           fi

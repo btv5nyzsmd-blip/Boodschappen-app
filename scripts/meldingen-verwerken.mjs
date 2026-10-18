@@ -3,6 +3,7 @@
 // data/categorie-uitzonderingen.json en verhuist het bij de volgende `npm run prijzen`.
 // Producten met te weinig meldingen gaan naar data/meldingen-open.json: de app vraagt andere
 // klanten dan na het afvinken waar zij het vonden.
+// Gedeelde aanbiedingen (soort "aanbieding") gaan naar data/aanbiedingen-gedeeld.json.
 //
 // Gebruik:  npm run meldingen
 //           node scripts/meldingen-verwerken.mjs [pad-of-url-naar-csv]
@@ -10,6 +11,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { leesCsv, telMeldingen } from '../src/meldingen/tellen.js';
 import { bepaalCategorie } from '../src/data/import.js';
+import { telAanbiedingen } from '../src/aanbiedingen/tellen.js';
 
 const pad = (bestand) => new URL(`../data/${bestand}`, import.meta.url);
 const leesJson = (bestand) => JSON.parse(readFileSync(pad(bestand), 'utf8'));
@@ -47,5 +49,16 @@ writeFileSync(pad('categorie-uitzonderingen.json'), JSON.stringify(bestand, null
 
 const openLijst = open.map(({ product, naar }) => ({ product, naar })).sort((a, b) => a.product.localeCompare(b.product));
 writeFileSync(pad('meldingen-open.json'), JSON.stringify(openLijst, null, 2) + '\n');
+
+// Aanbiedingen: de beheerder gaat voor, klanten tellen vanaf `aanbiedingMinimum` telefoons.
+const vandaag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Amsterdam' }); // JJJJ-MM-DD
+const acties = telAanbiedingen(meldingen, {
+  prijzen: new Map(producten.map((p) => [p.id, p.prijs])),
+  beheerders: new Set(instellingen.beheerders ?? []),
+  minimum: instellingen.aanbiedingMinimum ?? 2,
+  vandaag,
+});
+writeFileSync(pad('aanbiedingen-gedeeld.json'), JSON.stringify(acties, null, 2) + '\n');
+console.log(`Aanbiedingen: ${acties.aanbiedingen.length} geldig, ${acties.open.length} wachten op bevestiging.`);
 
 console.log(`${meldingen.length} meldingen gelezen: ${verplaatsen.length} producten verplaatst, ${open.length} wachten op meer meldingen (drempel ${instellingen.drempel}).`);

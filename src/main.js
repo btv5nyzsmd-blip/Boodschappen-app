@@ -21,7 +21,7 @@ import { menuScherm } from './ui/menu-scherm.js';
 import { aanbiedingenScherm, actieResultaten } from './ui/aanbiedingen-scherm.js';
 import { welkomScherm } from './ui/welkom.js';
 import { laadAanbiedingen, actueleAanbiedingen, pasToe, isActueel, vandaag } from './aanbiedingen/index.js';
-import { bestandBron, eigenBron, leesEigen, bewaarEigen } from './aanbiedingen/bronnen.js';
+import { bestandBron, eigenBron, leesEigen, bewaarEigen, teBevestigen } from './aanbiedingen/bronnen.js';
 import { maakWeekmenu, vervangMaaltijd } from './planner/planner.js';
 import { berekenKosten, gedeeldeVerseProducten } from './planner/kosten.js';
 import { voorraadKandidaten, standaardBasis } from './planner/basis.js';
@@ -56,6 +56,7 @@ const st = {
   actieResultaten: [],
   actieKeuze: null, // product-id waarvoor je een aanbieding invoert
   actieFout: null,
+  teBevestigen: teBevestigen(), // gedeelde aanbiedingen die nog een tweede telefoon nodig hebben
   zoek: '',
   zoekResultaten: [],
   bevestigLeeg: false,
@@ -148,17 +149,43 @@ function slaAanbiedingOp() {
   const normalePrijs = getal('actie-normaal');
   const actiePrijs = getal('actie-prijs');
   const geldigTot = document.getElementById('actie-tot').value;
+  const geldigVanaf = document.getElementById('actie-vanaf').value;
   const omschrijving = document.getElementById('actie-omschrijving').value.trim();
+  const delen = document.getElementById('actie-delen')?.checked ?? false;
   if (!(actiePrijs > 0)) st.actieFout = 'Vul de actieprijs in.';
   else if (actiePrijs >= normalePrijs) st.actieFout = 'De actieprijs moet lager zijn dan de normale prijs.';
   else if (!geldigTot || geldigTot < vandaag()) st.actieFout = 'Kies een einddatum van vandaag of later.';
+  else if (geldigVanaf && geldigVanaf > geldigTot) st.actieFout = 'De begindatum moet vóór de einddatum liggen.';
   else st.actieFout = null;
   if (st.actieFout) return teken();
 
-  const nieuw = { id: `eigen-${Date.now()}`, productId: st.actieKeuze, normalePrijs, actiePrijs, geldigTot, ...(omschrijving ? { omschrijving } : {}) };
+  const nieuw = {
+    id: `eigen-${Date.now()}`,
+    productId: st.actieKeuze,
+    normalePrijs,
+    actiePrijs,
+    ...(geldigVanaf && geldigVanaf > vandaag() ? { geldigVanaf } : {}),
+    geldigTot,
+    ...(omschrijving ? { omschrijving } : {}),
+  };
   bewaarEigen([...leesEigen(), nieuw]);
+  if (delen) deelAanbieding(nieuw);
   st.actieKeuze = null;
   herlaadAanbiedingen();
+}
+
+/** Aanbieding anoniem delen via het formulier; prijzen in centen, zodat de spreadsheet ze niet verhaspelt. */
+function deelAanbieding(a) {
+  meld({
+    soort: 'aanbieding',
+    product: a.productId,
+    winkel: winkels[st.winkelIndex].bestand.replace(/\.json$/, ''),
+    prijs: String(Math.round(a.actiePrijs * 100)),
+    normaal: String(Math.round(a.normalePrijs * 100)),
+    vanaf: a.geldigVanaf ?? '',
+    tot: a.geldigTot,
+    omschrijving: a.omschrijving ?? '',
+  });
 }
 
 // ---------- weekmenu ----------
@@ -661,6 +688,16 @@ app.addEventListener('click', (e) => {
       bewaarEigen(leesEigen().filter((a) => a.id !== id));
       herlaadAanbiedingen();
       break;
+    case 'actie-bevestig': {
+      // "Klopt": zelf ook delen (telt als tweede telefoon) en meteen op deze telefoon laten gelden.
+      const a = st.teBevestigen[Number(knop.dataset.index)];
+      if (!a) break;
+      const { door, telefoons, ...aanbieding } = a;
+      bewaarEigen([...leesEigen(), { ...aanbieding, id: `eigen-${Date.now()}` }]);
+      deelAanbieding(aanbieding);
+      herlaadAanbiedingen();
+      break;
+    }
     case 'actie-opruimen':
       bewaarEigen(leesEigen().filter((a) => a.geldigTot >= vandaag()));
       herlaadAanbiedingen();

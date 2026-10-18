@@ -1,6 +1,7 @@
 // Scherm "Acties": aanbiedingen bekijken en zelf invoeren.
 import { esc, euro, productNaam, extraInhoud } from './html.js';
 import { isActueel, vandaag } from '../aanbiedingen/index.js';
+import { kanAanbiedingDelen, alGedeeld, apparaatCode } from '../meldingen/versturen.js';
 
 /** De eerstvolgende dinsdag (Jumbo-acties lopen meestal van woensdag t/m dinsdag). */
 export function volgendeDinsdag(datum = new Date()) {
@@ -23,10 +24,11 @@ export function aanbiedingenScherm(st) {
   return `
     <section class="blok">
       <h2>Aanbiedingen</h2>
-      <p class="zacht klein">Vul de aanbiedingen uit de folder in. In je lijst, je budget en het weekmenu telt dan de actieprijs, en maaltijden met deze producten krijgen voorrang.</p>
+      <p class="zacht klein">Vul de aanbiedingen uit de folder in. In je lijst, je budget en het weekmenu telt dan de actieprijs, en maaltijden met deze producten krijgen voorrang. Nieuwe Jumbo-aanbiedingen beginnen op woensdag.</p>
     </section>
 
     ${invoer(st)}
+    ${bevestigen(st, dag)}
 
     <section class="blok">
       <h2>Loopt nu <span class="zacht">(${lopend.length})</span></h2>
@@ -38,7 +40,40 @@ export function aanbiedingenScherm(st) {
         ? `<section class="blok"><h2>Verlopen</h2><ul class="regels verlopen">${verlopen.map((a) => regel(st, a)).join('')}</ul>
            <div class="knoppen"><button class="knop stil" data-actie="actie-opruimen">Verlopen aanbiedingen verwijderen</button></div></section>`
         : ''
-    }`;
+    }
+    ${kanAanbiedingDelen() ? beheerder(st) : ''}`;
+}
+
+/** Aanbiedingen die één klant deelde: klopt het, dan telt jouw bevestiging mee. */
+function bevestigen(st, dag) {
+  if (!kanAanbiedingDelen()) return '';
+  const lijst = st.teBevestigen.map((a, i) => ({ a, i })).filter(({ a }) => a.geldigTot >= dag && st.productenOpId.has(a.productId) && !alGedeeld(a));
+  if (!lijst.length) return '';
+  return `
+    <section class="blok">
+      <h2>Klopt dit? <span class="zacht">(${lijst.length})</span></h2>
+      <p class="zacht klein">Een andere klant zag deze aanbieding. Zie jij hem ook in de folder of de winkel? Dan geldt hij voor iedereen.</p>
+      <ul class="regels">${lijst
+        .map(
+          ({ a, i }) => `
+        <li class="regel">
+          <span class="naam">${esc(productNaam(st.productenOpId.get(a.productId)))}</span>
+          <span class="meta cijfers">${a.omschrijving ? `${esc(a.omschrijving)} · ` : ''}<s>${euro(a.normalePrijs)}</s> ${euro(a.actiePrijs)} · ${a.geldigVanaf ? `${datumTekst(a.geldigVanaf)} – ` : 't/m '}${datumTekst(a.geldigTot)}</span>
+          <button class="knop klein" data-actie="actie-bevestig" data-index="${i}">Klopt</button>
+        </li>`,
+        )
+        .join('')}</ul>
+    </section>`;
+}
+
+/** De code van deze telefoon, zodat de beheerder zijn telefoon kan laten herkennen (zijn aanbiedingen gaan voor). */
+function beheerder(st) {
+  return `
+    <details class="blok beheerder zacht klein" data-uitklap="beheerder" ${st.uitklap?.beheerder ? 'open' : ''}>
+      <summary>Beheerder van de app?</summary>
+      <p>Aanbiedingen van de beheerder gelden meteen voor iedereen. Geef deze code door om je telefoon als beheerder te laten instellen:</p>
+      <p><code class="code">${esc(apparaatCode())}</code></p>
+    </details>`;
 }
 
 function invoer(st) {
@@ -54,12 +89,19 @@ function invoer(st) {
             <span class="euro-invoer"><span aria-hidden="true">€</span><input id="actie-normaal" type="text" inputmode="decimal" autocomplete="off" value="${normaal.toFixed(2).replace('.', ',')}" /></span></label>
           <label class="veld"><span class="label">Actieprijs</span>
             <span class="euro-invoer"><span aria-hidden="true">€</span><input id="actie-prijs" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" /></span></label>
+          <label class="veld"><span class="label">Geldig vanaf</span>
+            <input id="actie-vanaf" type="date" value="${vandaag()}" /></label>
           <label class="veld"><span class="label">Geldig t/m</span>
             <input id="actie-tot" type="date" value="${volgendeDinsdag()}" min="${vandaag()}" /></label>
         </div>
         <label class="veld breed"><span class="label">Omschrijving (mag leeg)</span>
           <input id="actie-omschrijving" type="text" autocomplete="off" placeholder="bijv. 1+1 gratis of 2e halve prijs" /></label>
         <p class="zacht klein">Bij "1+1 gratis" vul je de prijs per stuk in die je dan betaalt: de helft van de normale prijs.</p>
+        ${
+          kanAanbiedingDelen()
+            ? `<label class="vink-optie"><input id="actie-delen" type="checkbox" checked /> <span>Deel met iedereen <span class="zacht">(anoniem; geldt zodra een tweede klant hem ook meldt)</span></span></label>`
+            : ''
+        }
         ${st.actieFout ? `<p class="melding waarschuwing">${esc(st.actieFout)}</p>` : ''}
         <div class="knoppen">
           <button class="knop" data-actie="actie-opslaan">Opslaan</button>
@@ -98,7 +140,7 @@ function regel(st, a) {
   return `
     <li class="regel">
       <span class="naam">${esc(naam)}</span>
-      <span class="meta cijfers">${a.omschrijving ? `${esc(a.omschrijving)} · ` : ''}<s>${euro(a.normalePrijs)}</s> ${euro(a.actiePrijs)}${procent > 0 ? ` (−${procent}%)` : ''} · t/m ${datumTekst(a.geldigTot)}${eigen ? '' : ' · gedeelde lijst'}</span>
+      <span class="meta cijfers">${a.omschrijving ? `${esc(a.omschrijving)} · ` : ''}<s>${euro(a.normalePrijs)}</s> ${euro(a.actiePrijs)}${procent > 0 ? ` (−${procent}%)` : ''} · ${a.geldigVanaf && a.geldigVanaf > vandaag() ? `${datumTekst(a.geldigVanaf)} – ` : 't/m '}${datumTekst(a.geldigTot)}${eigen ? '' : a.door === 'klanten' ? ' · gemeld door klanten' : ' · voor iedereen'}</span>
       ${eigen ? `<button class="knop stil klein verwijder" data-actie="actie-verwijder" data-id="${esc(a.id)}" aria-label="Aanbieding ${esc(naam)} verwijderen">Verwijder</button>` : ''}
     </li>`;
 }
