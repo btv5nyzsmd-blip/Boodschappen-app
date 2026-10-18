@@ -85,7 +85,7 @@ export function zoekResultaten(st) {
     })
     .join('');
 
-  const opties = st.categorieen.map((c) => `<option value="${esc(c.id)}">${esc(c.naam)}</option>`).join('');
+  const opties = [...st.categorieen].sort((a, b) => a.naam.localeCompare(b.naam, 'nl')).map((c) => `<option value="${esc(c.id)}">${esc(c.naam)}</option>`).join('');
   const eigen = `
     <div class="eigen">
       <span>${treffers.length ? 'Staat het er niet tussen?' : 'Niet gevonden.'} Voeg <strong>${esc(tekst)}</strong> toe als eigen product:</span>

@@ -174,10 +174,11 @@ function afdelingKiezen(r, st) {
   return `<div class="afdeling-kiezen">${afdelingKeuze(r.product, st)}</div>`;
 }
 
-/** Keuzelijst met alle afdelingen; kiezen = onthouden (en melden, zie main.js). */
+/** Keuzelijst met alle afdelingen op alfabet; kiezen = onthouden (en melden, zie main.js). */
 function afdelingKeuze(product, st, zonder = null) {
   const opties = st.categorieen
     .filter((c) => c.id !== zonder)
+    .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')) // alfabetisch: makkelijker zoeken
     .map((c) => `<option value="${esc(c.id)}">${esc(c.naam)}</option>`)
     .join('');
   return `
