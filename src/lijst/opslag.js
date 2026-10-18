@@ -49,6 +49,11 @@ const SLEUTEL_PLANNER = 'boodschappen.planner.v1';
 export const leesPlanner = (standaard) => ({ ...standaard, ...lees(SLEUTEL_PLANNER, {}) });
 export const bewaarPlanner = (planner) => schrijf(SLEUTEL_PLANNER, planner);
 
+/** Hoe ver je de kaart hebt gedraaid (graden), zodat die de volgende keer net zo staat. */
+const SLEUTEL_KAARTHOEK = 'boodschappen.kaarthoek.v1';
+export const leesKaartHoek = () => lees(SLEUTEL_KAARTHOEK, 0);
+export const bewaarKaartHoek = (hoek) => schrijf(SLEUTEL_KAARTHOEK, hoek);
+
 /** Of het welkomstscherm al eens is getoond. */
 const SLEUTEL_WELKOM = 'boodschappen.welkom.v1';
 export const welkomGezien = () => lees(SLEUTEL_WELKOM, false);

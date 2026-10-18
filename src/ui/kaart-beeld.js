@@ -1,6 +1,9 @@
 // Rekenwerk voor het kaartbeeld: welk stuk van de winkel je ziet (de "viewBox"),
-// inzoomen rond een punt, verschuiven en binnen de winkel blijven.
+// inzoomen rond een punt, verschuiven, draaien en binnen de winkel blijven.
 // Alles in meters; geen schermcode, zodat het makkelijk te testen is.
+//
+// Draaien: de hele plattegrond draait rond het midden van de winkel. Het beeld (viewBox)
+// ligt in die gedraaide ruimte; met `draai` reken je een winkelpunt om naar die ruimte.
 
 export const MIN_BREEDTE = 6; // verder inzoomen dan 6 meter breed heeft geen zin
 
@@ -31,16 +34,52 @@ export function beeldVoorPunten(punten, verhouding, marge = 4) {
   return { x, y, w, h };
 }
 
+export const middenVan = (winkel) => ({ x: winkel.breedte / 2, y: winkel.diepte / 2 });
+
+/** Winkelpunt p zoals het op de kaart staat als die `hoek` graden (met de klok mee) is gedraaid. */
+export function draai(p, hoek, midden) {
+  if (!hoek) return { x: p.x, y: p.y };
+  const r = (hoek * Math.PI) / 180;
+  const dx = p.x - midden.x;
+  const dy = p.y - midden.y;
+  return { x: midden.x + dx * Math.cos(r) - dy * Math.sin(r), y: midden.y + dx * Math.sin(r) + dy * Math.cos(r) };
+}
+
+/** De vier hoeken van de winkel op de gedraaide kaart. */
+function hoekpunten(winkel, hoek) {
+  const m = middenVan(winkel);
+  return [
+    { x: 0, y: 0 },
+    { x: winkel.breedte, y: 0 },
+    { x: 0, y: winkel.diepte },
+    { x: winkel.breedte, y: winkel.diepte },
+  ].map((p) => draai(p, hoek, m));
+}
+
 /** De hele winkel in beeld. */
-export function heleWinkel(winkel, verhouding) {
-  return beeldVoorPunten(
-    [
-      { x: 0, y: 0 },
-      { x: winkel.breedte, y: winkel.diepte },
-    ],
-    verhouding,
-    1.5,
-  );
+export function heleWinkel(winkel, verhouding, hoek = 0) {
+  return beeldVoorPunten(hoekpunten(winkel, hoek), verhouding, 1.5);
+}
+
+/**
+ * Draai de kaart van hoek `oud` naar `nieuw`, waarbij punt (px, py) van het beeld
+ * op dezelfde plek op het scherm blijft (het punt tussen je vingers, of het midden).
+ */
+export function draaiRond(beeld, px, py, oud, nieuw, midden) {
+  const winkelpunt = draai({ x: px, y: py }, -oud, midden);
+  const p = draai(winkelpunt, nieuw, midden);
+  return { ...beeld, x: beeld.x + p.x - px, y: beeld.y + p.y - py };
+}
+
+/** Hoek tussen -180 en 180 graden. */
+export const normaliseerHoek = (h) => ((((h + 180) % 360) + 360) % 360) - 180;
+
+/** Hoek voor tekst langs een pad, zo dat die nooit op z'n kop staat. */
+export function leesbaar(hoek) {
+  const h = normaliseerHoek(hoek);
+  if (h > 90) return h - 180;
+  if (h <= -90) return h + 180;
+  return h;
 }
 
 /**
@@ -58,8 +97,8 @@ export function verschuif(beeld, dx, dy) {
 }
 
 /** Houdt het beeld binnen redelijke grenzen: niet te ver in- of uitgezoomd, winkel blijft in zicht. */
-export function begrens(beeld, winkel, verhouding) {
-  const max = heleWinkel(winkel, verhouding);
+export function begrens(beeld, winkel, verhouding, hoek = 0) {
+  const max = heleWinkel(winkel, verhouding, hoek);
   let { x, y, w, h } = beeld;
   if (w > max.w * 1.5) {
     const f = w / (max.w * 1.5);
@@ -69,9 +108,12 @@ export function begrens(beeld, winkel, verhouding) {
     const f = w / MIN_BREEDTE;
     ({ x, y, w, h } = zoomRond({ x, y, w, h }, x + w / 2, y + h / 2, f));
   }
-  // Midden van het beeld moet binnen de winkel blijven.
-  const mx = Math.min(Math.max(x + w / 2, 0), winkel.breedte);
-  const my = Math.min(Math.max(y + h / 2, 0), winkel.diepte);
+  // Midden van het beeld moet binnen de (gedraaide) winkel blijven.
+  const hoeken = hoekpunten(winkel, hoek);
+  const xs = hoeken.map((p) => p.x);
+  const ys = hoeken.map((p) => p.y);
+  const mx = Math.min(Math.max(x + w / 2, Math.min(...xs)), Math.max(...xs));
+  const my = Math.min(Math.max(y + h / 2, Math.min(...ys)), Math.max(...ys));
   return { x: mx - w / 2, y: my - h / 2, w, h };
 }
 

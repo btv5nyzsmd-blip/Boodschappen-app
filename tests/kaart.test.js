@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { beeldVoorPunten, heleWinkel, zoomRond, verschuif, begrens, naarKaart, tussen, MIN_BREEDTE } from '../src/ui/kaart-beeld.js';
+import { beeldVoorPunten, heleWinkel, zoomRond, verschuif, begrens, naarKaart, tussen, MIN_BREEDTE, draai, draaiRond, leesbaar, normaliseerHoek, middenVan } from '../src/ui/kaart-beeld.js';
 import { pijlpunten } from '../src/ui/kaart.js';
 import jumbo from '../data/winkels/jumbo-zwolle-stadshagen.json';
 
@@ -63,5 +63,59 @@ describe('pijltjes langs de route', () => {
       [10, 4, 90],
       [10, 8, 90],
     ]);
+  });
+});
+
+describe('kaart draaien', () => {
+  const m = { x: 10, y: 5 };
+
+  it('draait punten met de klok mee rond het midden', () => {
+    dichtbij(draai({ x: 20, y: 5 }, 90, m), { x: 10, y: 15 }); // rechts → onder
+    dichtbij(draai({ x: 20, y: 5 }, 180, m), { x: 0, y: 5 });
+    dichtbij(draai(draai({ x: 3, y: 7 }, 37, m), -37, m), { x: 3, y: 7 });
+  });
+
+  it('houdt het punt tussen je vingers op zijn plek bij draaien', () => {
+    const b = { x: 0, y: 0, w: 20, h: 10 };
+    const vingers = { x: 14, y: 6 }; // beeldpunt
+    const winkelpunt = draai(vingers, -30, m); // wat daar ligt bij hoek 30
+    const nb = draaiRond(b, vingers.x, vingers.y, 30, 75, m);
+    const nu = draai(winkelpunt, 75, m);
+    // Zelfde winkelpunt, zelfde plek in het beeld.
+    expect((nu.x - nb.x) / nb.w).toBeCloseTo((vingers.x - b.x) / b.w);
+    expect((nu.y - nb.y) / nb.h).toBeCloseTo((vingers.y - b.y) / b.h);
+  });
+
+  it('toont de hele gedraaide winkel', () => {
+    const staand = heleWinkel(jumbo, 0.6, 90);
+    const plat = heleWinkel(jumbo, 0.6, 0);
+    // Een brede winkel wordt na een kwartslag hoog: hij past dan groter op een telefoonscherm.
+    expect(jumbo.breedte).toBeGreaterThan(jumbo.diepte);
+    expect(staand.w).toBeLessThan(plat.w);
+    const midden = middenVan(jumbo);
+    for (const hoek of [{ x: 0, y: 0 }, { x: jumbo.breedte, y: jumbo.diepte }].map((p) => draai(p, 90, midden))) {
+      expect(hoek.x).toBeGreaterThanOrEqual(staand.x);
+      expect(hoek.x).toBeLessThanOrEqual(staand.x + staand.w);
+    }
+  });
+
+  it('houdt het gedraaide beeld bij de winkel', () => {
+    const ver = { x: 500, y: 500, w: 20, h: 30 };
+    const b = begrens(ver, jumbo, 20 / 30, 90);
+    const midden = { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+    const terug = draai(midden, -90, middenVan(jumbo)); // in winkelcoördinaten
+    expect(terug.x).toBeGreaterThanOrEqual(-0.01);
+    expect(terug.x).toBeLessThanOrEqual(jumbo.breedte + 0.01);
+    expect(terug.y).toBeGreaterThanOrEqual(-0.01);
+    expect(terug.y).toBeLessThanOrEqual(jumbo.diepte + 0.01);
+  });
+
+  it('zet tekst nooit op z\'n kop', () => {
+    expect(leesbaar(0)).toBe(0);
+    expect(leesbaar(180)).toBe(0);
+    expect(leesbaar(270)).toBe(90);
+    expect(leesbaar(-120)).toBe(60);
+    expect(normaliseerHoek(450)).toBe(90);
+    expect(normaliseerHoek(-90)).toBe(-90);
   });
 });

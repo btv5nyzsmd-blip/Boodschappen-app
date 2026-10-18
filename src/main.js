@@ -12,10 +12,10 @@ import * as L from './lijst/lijst.js';
 import * as opslag from './lijst/opslag.js';
 import { lijstScherm, zoekResultaten } from './ui/lijst-scherm.js';
 import { routeScherm, plekVraag } from './ui/route-scherm.js';
-import { kaartScherm, getoondeStop } from './ui/kaart.js';
+import { kaartScherm, getoondeStop, zetKaartHoek } from './ui/kaart.js';
 import { zoekAlternatieven } from './lijst/alternatieven.js';
 import { koppelGebaren, animeer } from './ui/kaart-gebaren.js';
-import { beeldVoorPunten, heleWinkel, zoomRond } from './ui/kaart-beeld.js';
+import { beeldVoorPunten, heleWinkel, zoomRond, draai, middenVan, normaliseerHoek } from './ui/kaart-beeld.js';
 import { menuScherm } from './ui/menu-scherm.js';
 import { aanbiedingenScherm, actieResultaten } from './ui/aanbiedingen-scherm.js';
 import { welkomScherm } from './ui/welkom.js';
@@ -43,8 +43,8 @@ const datum = new Date(bron.bijgewerkt).toLocaleDateString('nl-NL', { day: 'nume
 
 const st = {
   tab: ['#menu', '#route', '#kaart', '#acties'].includes(location.hash) ? location.hash.slice(1) : 'lijst',
-  // Kaart: wat je ziet (beeld in meters), of de kaart je volgt, en welke stop je hebt aangetikt.
-  kaart: { beeld: null, volgen: true, gekozen: null, naarStop: false },
+  // Kaart: wat je ziet (beeld in meters), of de kaart je volgt, welke stop je hebt aangetikt en hoe ver hij gedraaid is.
+  kaart: { beeld: null, volgen: true, gekozen: null, naarStop: false, hoek: opslag.leesKaartHoek() },
   // Welke inklapbare blokken je zelf open of dicht hebt gezet, zodat ze zo blijven na het opnieuw tekenen.
   uitklap: {},
   vervang: null, // { productId, opties, elders } na "Ligt er niet": keuze uit alternatieven of een andere plek
@@ -313,11 +313,13 @@ function kaartDoel(verhouding) {
   const stops = st.routeInfo?.stops ?? [];
   const i = getoondeStop(st);
   const start = st.routeInfo?.vanaf ?? winkel.ingang;
-  if (i >= 0 && st.kaart.naarStop) return beeldVoorPunten([stops[i].sectie], verhouding, 7);
-  if (i >= 0) return beeldVoorPunten([start, stops[i].sectie], verhouding, 5);
+  // Punten zoals ze op de (eventueel gedraaide) kaart staan.
+  const inBeeld = (punten, marge) => beeldVoorPunten(punten.map((p) => draai(p, st.kaart.hoek, middenVan(winkel))), verhouding, marge);
+  if (i >= 0 && st.kaart.naarStop) return inBeeld([stops[i].sectie], 7);
+  if (i >= 0) return inBeeld([start, stops[i].sectie], 5);
   const kassa = st.routeInfo?.route?.kassa;
-  if (kassa) return beeldVoorPunten([start, kassa], verhouding, 5);
-  return heleWinkel(winkel, verhouding);
+  if (kassa) return inBeeld([start, kassa], 5);
+  return heleWinkel(winkel, verhouding, st.kaart.hoek);
 }
 
 /** Na elke keer tekenen: bediening koppelen, vorig beeld terugzetten en zo nodig meebewegen. */
@@ -340,10 +342,16 @@ function initKaart() {
       st.kaart = { ...st.kaart, gekozen: i, volgen: false, naarStop: true };
       teken();
     },
+    hoek: () => st.kaart.hoek,
+    zetHoek: (hoek) => {
+      st.kaart.hoek = hoek;
+      zetKaartHoek(svg, huidigeWinkel(), hoek);
+      opslag.bewaarKaartHoek(Math.round(normaliseerHoek(hoek) * 10) / 10);
+    },
   });
   // Vorig beeld (bijv. na afvinken) met de vorm van het huidige scherm.
   const vorig = st.kaart.beeld;
-  const huidig = vorig ? { ...vorig, h: vorig.w / verhouding, y: vorig.y + (vorig.h - vorig.w / verhouding) / 2 } : heleWinkel(huidigeWinkel(), verhouding);
+  const huidig = vorig ? { ...vorig, h: vorig.w / verhouding, y: vorig.y + (vorig.h - vorig.w / verhouding) / 2 } : heleWinkel(huidigeWinkel(), verhouding, st.kaart.hoek);
   kaartBediening.toon(huidig, false);
   if (st.kaart.volgen || st.kaart.naarStop) {
     animeer(svg, st.kaart.beeld, kaartDoel(verhouding), (b) => kaartBediening.toon(b, false));
@@ -601,9 +609,17 @@ app.addEventListener('click', (e) => {
     case 'kaart-alles': {
       const svg = document.getElementById('kaart');
       const r = svg.getBoundingClientRect();
-      animeer(svg, st.kaart.beeld, heleWinkel(huidigeWinkel(), r.width / r.height), (b) => kaartBediening.toon(b, true));
+      animeer(svg, st.kaart.beeld, heleWinkel(huidigeWinkel(), r.width / r.height, st.kaart.hoek), (b) => kaartBediening.toon(b, true));
       break;
     }
+    case 'kaart-draai':
+      // Een kwartslag met de klok mee, netjes op een rechte hoek.
+      kaartBediening?.draaiAnimatie(Math.round(st.kaart.hoek / 90) * 90 + 90);
+      break;
+    case 'kaart-recht':
+      // Terug naar de plattegrond, via de kortste kant.
+      kaartBediening?.draaiAnimatie(st.kaart.hoek - normaliseerHoek(st.kaart.hoek));
+      break;
     case 'kaart-volg':
       st.kaart = { ...st.kaart, gekozen: null, volgen: true };
       teken();

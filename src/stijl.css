@@ -198,7 +198,8 @@ h2 { font: 600 1.15rem/1.2 var(--font-kop); margin: 0; text-wrap: balance; }
   background: var(--lijn); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
 }
 .kaart-knoppen button { width: 44px; height: 44px; border: 0; background: var(--vlak); color: var(--inkt); font: 700 1.4rem/1 var(--font-tekst); display: grid; place-items: center; }
-.kaart-knoppen svg, .kaart-volg svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.kaart-knoppen svg, .kaart-volg svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.kaart-knoppen .kompas-noord { fill: var(--volgende); stroke: var(--volgende); }
 .kaart-volg {
   position: absolute; left: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 6px;
   border: 0; border-radius: 999px; padding: 10px 16px; background: var(--vlak); color: var(--accent); font-weight: 700;
