@@ -1,11 +1,18 @@
 == GET viewform
-status 401 url https://docs.google.com/forms/d/e/1FAIpQLSftD04HFFbVIj-njViMMkD0u7PDN8GB1OW3ALhHH1sK4ylLFQ/viewform
-      1 ServiceLogin
-      2 Sign in
-      1 accounts.google.com
-      1 sign in
+status 200 url https://docs.google.com/forms/d/e/1FAIpQLSftD04HFFbVIj-njViMMkD0u7PDN8GB1OW3ALhHH1sK4ylLFQ/viewform
+      1 Sign in
+      3 accounts.google.com
+[108445771,"product"
+[1086711213,"winkel"
+[168880417,"apparaat"
+[801439414,"soort"
+[83268628,"afdeling"
+<title>Meldingen boodschappenapp
 == POST formResponse
-status 401 url https://docs.google.com/forms/d/e/1FAIpQLSftD04HFFbVIj-njViMMkD0u7PDN8GB1OW3ALhHH1sK4ylLFQ/formResponse
+status 200 url https://docs.google.com/forms/d/e/1FAIpQLSftD04HFFbVIj-njViMMkD0u7PDN8GB1OW3ALhHH1sK4ylLFQ/formResponse
+<title>Meldingen boodschappenapp
+Your response has been recorded
 == CSV
 Tijdstempel,apparaat,product,afdeling,winkel,soort
+18-10-2026 17:54:27,diagnose-test,test-product,zuivel,jumbo-zwolle-stadshagen,test
 status 200
