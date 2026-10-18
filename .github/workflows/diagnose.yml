@@ -1,0 +1,30 @@
+# Tijdelijk: test of het Google Formulier meldingen aanneemt. Wordt daarna verwijderd.
+name: Diagnose meldingen
+on:
+  push:
+    branches: [diagnose-meldingen]
+permissions:
+  contents: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          F=https://docs.google.com/forms/d/e/1FAIpQLSftD04HFFbVIj-njViMMkD0u7PDN8GB1OW3ALhHH1sK4ylLFQ
+          {
+            echo "== GET viewform"; curl -sS -L -o view.html -w "status %{http_code} url %{url_effective}\n" "$F/viewform"
+            grep -o -i -E "accepteert geen reacties|no longer accepting|ServiceLogin|accounts.google.com|Inloggen|Sign in" view.html | sort | uniq -c
+            grep -o -E 'entry\.[0-9]+|\[[0-9]{6,},"[a-z]+"' view.html | sort -u | head -20
+            grep -o -E '<title>[^<]*' view.html
+            echo "== POST formResponse"
+            curl -sS -o post.html -w "status %{http_code} url %{url_effective}\n" -X POST "$F/formResponse" \
+              --data-urlencode "entry.1912425686=diagnose-test" --data-urlencode "entry.618508198=test-product" \
+              --data-urlencode "entry.1373976452=zuivel" --data-urlencode "entry.311473344=jumbo-zwolle-stadshagen" --data-urlencode "entry.446672737=test"
+            grep -o -E '<title>[^<]*' post.html; grep -o -i -E "Je antwoord is genoteerd|Your response has been recorded|freebirdFormviewerViewResponseConfirmationMessage" post.html | head -3
+            echo "== CSV"; sleep 5
+            curl -sS -L -w "\nstatus %{http_code}\n" "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkl9gco6hnh-Wzm_H1CtStL7VoD3bvZtO82KFSwvbgmyS7WyZ93L0j2zFDCRshBqcld9-spP5iAWHK/pub?gid=1623321088&single=true&output=csv" | head -8
+          } > resultaat.txt 2>&1
+          cat resultaat.txt
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add resultaat.txt && git commit -m "diagnose resultaat" && git push
