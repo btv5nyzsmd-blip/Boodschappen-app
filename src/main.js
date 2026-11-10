@@ -45,7 +45,7 @@ const datum = new Date(bron.bijgewerkt).toLocaleDateString('nl-NL', { day: 'nume
 const st = {
   tab: ['#menu', '#route', '#kaart', '#acties'].includes(location.hash) ? location.hash.slice(1) : 'lijst',
   // Kaart: wat je ziet (beeld in meters), of de kaart je volgt, welke stop je hebt aangetikt en hoe ver hij gedraaid is.
-  kaart: { beeld: null, volgen: true, gekozen: null, naarStop: false, hoek: opslag.leesKaartHoek() },
+  kaart: { beeld: null, volgen: true, gekozen: null, naarStop: false, hoek: 0 },
   // Welke inklapbare blokken je zelf open of dicht hebt gezet, zodat ze zo blijven na het opnieuw tekenen.
   uitklap: {},
   vervang: null, // { productId, opties, elders } na "Ligt er niet": keuze uit alternatieven of een andere plek
@@ -93,6 +93,8 @@ try {
 
 const gekozen = opslag.leesWinkelKeuze();
 st.winkelIndex = Math.max(0, winkels.findIndex((w) => w.bestand === gekozen));
+// Zelf gedraaid? Dan die stand; anders de standaardstand van de winkel (ingang en kassa onderaan).
+st.kaart.hoek = opslag.leesKaartHoek() ?? winkels[st.winkelIndex].winkel.kaartHoek ?? 0;
 
 function huidigeWinkel() {
   return winkels[st.winkelIndex].winkel;
@@ -450,7 +452,7 @@ app.addEventListener('input', (e) => {
 app.addEventListener('change', (e) => {
   if (e.target.id === 'winkel') {
     st.winkelIndex = Number(e.target.value);
-    st.kaart = { ...st.kaart, beeld: null, gekozen: null, volgen: true };
+    st.kaart = { ...st.kaart, beeld: null, gekozen: null, volgen: true, hoek: huidigeWinkel().kaartHoek ?? 0 };
     opslag.bewaarWinkelKeuze(winkels[st.winkelIndex].bestand);
     bijwerken();
     teken();
@@ -652,8 +654,8 @@ app.addEventListener('click', (e) => {
       kaartBediening?.draaiAnimatie(Math.round(st.kaart.hoek / 90) * 90 + 90);
       break;
     case 'kaart-recht':
-      // Terug naar de plattegrond, via de kortste kant.
-      kaartBediening?.draaiAnimatie(st.kaart.hoek - normaliseerHoek(st.kaart.hoek));
+      // Terug naar de standaardstand van de winkel, via de kortste kant.
+      kaartBediening?.draaiAnimatie(st.kaart.hoek - normaliseerHoek(st.kaart.hoek - (huidigeWinkel().kaartHoek ?? 0)));
       break;
     case 'kaart-volg':
       st.kaart = { ...st.kaart, gekozen: null, volgen: true };

@@ -25,8 +25,9 @@ export function zetKaartHoek(svg, winkel, hoek) {
   }
   const kompas = svg.parentElement?.querySelector('[data-actie=kaart-recht]');
   if (kompas) {
-    kompas.hidden = Math.abs(normaliseerHoek(hoek)) < 0.5;
-    kompas.querySelector('svg')?.style.setProperty('transform', `rotate(${hoek.toFixed(1)}deg)`);
+    const afwijking = normaliseerHoek(hoek - (winkel.kaartHoek ?? 0));
+    kompas.hidden = Math.abs(afwijking) < 0.5;
+    kompas.querySelector('svg')?.style.setProperty('transform', `rotate(${afwijking.toFixed(1)}deg)`);
   }
 }
 
@@ -67,6 +68,7 @@ export function kaartScherm(st) {
   const volgende = volgendeStop(stops);
   const getoond = getoondeStop(st);
   const hoek = st.kaart.hoek ?? 0;
+  const afwijking = normaliseerHoek(hoek - (winkel.kaartHoek ?? 0)); // t.o.v. de standaardstand (voor het kompasje)
   const beeld = st.kaart.beeld ?? heleWinkel(winkel, 0.75, hoek);
 
   const vloer = winkel.omtrek
@@ -137,8 +139,8 @@ export function kaartScherm(st) {
         <button data-actie="kaart-draai" aria-label="Kaart een kwartslag draaien">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" /></svg>
         </button>
-        <button data-actie="kaart-recht" aria-label="Kaart terugdraaien naar de plattegrond" ${Math.abs(normaliseerHoek(hoek)) < 0.5 ? 'hidden' : ''}>
-          <svg viewBox="0 0 24 24" aria-hidden="true" style="transform: rotate(${hoek.toFixed(1)}deg)"><path class="kompas-noord" d="M12 3l4 9h-8z" /><path d="M8 12l4 9 4-9" /></svg>
+        <button data-actie="kaart-recht" aria-label="Kaart terugdraaien naar de standaardstand" ${Math.abs(afwijking) < 0.5 ? 'hidden' : ''}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" style="transform: rotate(${afwijking.toFixed(1)}deg)"><path class="kompas-noord" d="M12 3l4 9h-8z" /><path d="M8 12l4 9 4-9" /></svg>
         </button>
       </div>
       <button class="kaart-volg" data-actie="kaart-volg" ${st.kaart.volgen ? 'hidden' : ''}>

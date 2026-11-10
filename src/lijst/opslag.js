@@ -49,9 +49,10 @@ const SLEUTEL_PLANNER = 'boodschappen.planner.v1';
 export const leesPlanner = (standaard) => ({ ...standaard, ...lees(SLEUTEL_PLANNER, {}) });
 export const bewaarPlanner = (planner) => schrijf(SLEUTEL_PLANNER, planner);
 
-/** Hoe ver je de kaart hebt gedraaid (graden), zodat die de volgende keer net zo staat. */
-const SLEUTEL_KAARTHOEK = 'boodschappen.kaarthoek.v1';
-export const leesKaartHoek = () => lees(SLEUTEL_KAARTHOEK, 0);
+/** Hoe ver je de kaart hebt gedraaid (graden), zodat die de volgende keer net zo staat.
+ *  null = nog nooit gedraaid: dan geldt de standaardstand van de winkel. */
+const SLEUTEL_KAARTHOEK = 'boodschappen.kaarthoek.v2';
+export const leesKaartHoek = () => lees(SLEUTEL_KAARTHOEK, null);
 export const bewaarKaartHoek = (hoek) => schrijf(SLEUTEL_KAARTHOEK, hoek);
 
 /** Waar je wilt afrekenen: "snelste", "kassa" of "zelfscan". */
