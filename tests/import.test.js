@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { bepaalCategorie, leesInhoudUitNaam } from '../src/data/import.js';
+import { bepaalCategorie, leesInhoudUitNaam, netteNaam } from '../src/data/import.js';
 import { leesInhoud } from '../src/planner/verpakking.js';
 import regelsBestand from '../data/categorie-regels.json';
 
@@ -53,5 +53,15 @@ describe('afdeling bepalen', () => {
 
   it('geeft null als geen enkele regel past', () => {
     expect(bepaalCategorie('Xyzzy 12', regels)).toBeNull();
+  });
+});
+
+describe('nette namen', () => {
+  it('maakt namen in hoofdletters netjes, zonder afkortingen kapot te maken', () => {
+    expect(netteNaam('JUMBO Paprika Geel')).toBe('Jumbo Paprika Geel');
+    expect(netteNaam('JUMBO GOURMETAARDAPPELTJES 350G')).toBe('Jumbo Gourmetaardappeltjes 350G');
+    expect(netteNaam('JUMBO Broomhexine HCl hoestdrank')).toBe('Jumbo Broomhexine HCl hoestdrank');
+    expect(netteNaam('Jumbo Scharreleieren L-XL 10 Stuks')).toBe('Jumbo Scharreleieren L-XL 10 Stuks');
+    expect(netteNaam('Coca-Cola Zero Sugar 1,5 L')).toBe('Coca-Cola Zero Sugar 1,5 L');
   });
 });

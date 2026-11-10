@@ -48,3 +48,20 @@ export function leesInhoudUitNaam(naam, formaat = '') {
   }
   return '1 stuk';
 }
+
+/**
+ * Maakt namen in HOOFDLETTERS uit de bron netjes, zoals de andere namen:
+ * "JUMBO GOURMETAARDAPPELTJES 350G" → "Jumbo Gourmetaardappeltjes 350G", "JUMBO Paprika Geel" → "Jumbo Paprika Geel".
+ * Alleen "JUMBO" aan het begin en namen die (bijna) helemaal in hoofdletters staan; merknamen en
+ * afkortingen midden in een gewone naam (AFTER EIGHT, FIFA, XL) blijven zoals ze zijn.
+ */
+/** Woorden die in hoofdletters horen. */
+const AFKORTINGEN = new Set(['USA', 'HEMA', 'LEGO', 'XL', 'XXL', 'BBQ', 'IPA', 'PK', 'AH', 'UHT', 'DHA']);
+
+export function netteNaam(naam) {
+  const letters = naam.replace(/[^\p{L}]/gu, '');
+  const hoofd = letters.replace(/[^\p{Lu}]/gu, '').length;
+  const schreeuwt = letters.length > 0 && hoofd / letters.length > 0.7;
+  const net = schreeuwt ? naam.replace(/(?<![\p{N}\p{L}])\p{Lu}[\p{Lu}'’-]+(?![\p{N}])/gu, (w) => (AFKORTINGEN.has(w) ? w : w[0] + w.slice(1).toLowerCase())) : naam;
+  return net.replace(/^JUMBO\b/, 'Jumbo');
+}

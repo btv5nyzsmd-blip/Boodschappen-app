@@ -7,7 +7,7 @@
 //           node scripts/prijzen-bijwerken.mjs [pad-of-url-naar-supermarkets.json]
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { bepaalCategorie, leesInhoudUitNaam } from '../src/data/import.js';
+import { bepaalCategorie, leesInhoudUitNaam, netteNaam } from '../src/data/import.js';
 
 const BRON = 'https://raw.githubusercontent.com/supermarkt/checkjebon/main/data/supermarkets.json';
 const SUPERMARKT = 'jumbo';
@@ -39,7 +39,8 @@ for (const item of winkel.d) {
   const id = item.l.toLowerCase();
   if (producten.has(id)) continue;
   // Kapotte tekens (U+FFFD) uit de bron opruimen, bijv. "Nestl?" wordt "Nestlé".
-  const naam = item.n.replace(/Nestl\uFFFD/g, 'Nestlé').replace(/\uFFFD/g, '').replace(/\s+/g, ' ').trim();
+  // En namen in HOOFDLETTERS netjes maken ("JUMBO Paprika Geel" → "Jumbo Paprika Geel").
+  const naam = netteNaam(item.n.replace(/Nestl\uFFFD/g, 'Nestlé').replace(/\uFFFD/g, '').replace(/\s+/g, ' ').trim());
   producten.set(id, {
     id,
     naam,

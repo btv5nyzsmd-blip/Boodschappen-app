@@ -91,8 +91,9 @@ export function kaartScherm(st) {
     .join('');
   const pijlen = stukken
     .slice(Math.max(0, actief))
-    .flatMap((stuk) => pijlpunten(stuk))
-    .map((p) => `<g transform="translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${p.hoek.toFixed(0)})"><path class="pijl schaal" d="M-0.35 -0.45 L0.25 0 L-0.35 0.45" /></g>`)
+    // Pijltjes op het stuk naar de volgende stop staan óp de dikke lijn; die daarna los op de vloer.
+    .flatMap((stuk, i) => pijlpunten(stuk).map((p) => ({ ...p, later: i > 0 })))
+    .map((p) => `<g transform="translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${p.hoek.toFixed(0)})"><path class="pijl schaal${p.later ? ' later' : ''}" d="M-0.35 -0.45 L0.25 0 L-0.35 0.45" /></g>`)
     .join('');
 
   const stippen = stops
